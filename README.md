@@ -1,5 +1,7 @@
 # Lack, a minimal Clack
 
+[![Build Status](https://travis-ci.org/fukamachi/lack.svg?branch=master)](https://travis-ci.org/fukamachi/lack)
+
 Lack is an experimental project for redesigning Clack with performance and simplicity in mind. This aims to be a gut of the next Clack major release.
 
 ## Usage
