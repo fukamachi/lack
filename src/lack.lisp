@@ -17,10 +17,12 @@
                &key (server :hunchentoot)
                  (port 5000)
                  (debug t)
+                 silent
                  (use-thread #+thread-support t #-thread-support nil)
                &allow-other-keys)
   (flet ((start-message ()
-           (format t "~&~:(~A~) server is started.~%Listening on localhost:~A.~%" server port)))
+           (unless silent
+             (format t "~&~:(~A~) server is started.~%Listening on localhost:~A.~%" server port))))
     (unless use-thread
       (start-message))
     (prog1
@@ -28,5 +30,5 @@
                :port port
                :debug debug
                :use-thread use-thread
-               (delete-from-plist args :server :port :debug :use-thread))
+               (delete-from-plist args :server :port :debug :silent :use-thread))
       (start-message))))

@@ -42,6 +42,7 @@
   (let ((acceptor (lackup app
                           :server *lack-test-handler*
                           :use-thread t
+                          :silent t
                           :port *lack-test-port*
                           :debug *enable-debug-p*)))
     (subtest desc
