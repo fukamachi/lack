@@ -15,7 +15,7 @@
                :prove)
   :components ((:module "t"
                 :components
-                ((:test-file "lack"))))
+                ((:test-file "builder"))))
 
   :defsystem-depends-on (:prove-asdf)
   :perform (test-op :after (op c)
