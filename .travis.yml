@@ -13,5 +13,7 @@ before_script:
   - git clone https://github.com/fukamachi/dexador ~/lisp/dexador
 
 script:
-  - cl -l prove -e '(or (prove:run :t-lack) (uiop:quit -1))'
-  - cl -l prove -e '(or (prove:run :t-lack-middleware-static) (uiop:quit -1))'
+  - cl -l prove -e '(or (every (function identity)
+                               (list (prove:run :t-lack)
+                                     (prove:run :t-lack-middleware-static)))
+                        (uiop:quit -1))'
