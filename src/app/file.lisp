@@ -64,5 +64,5 @@
          :content-length ,(file-length stream)
          :last-modified
          ,(format-rfc1123-timestring nil
-                                     (universal-to-timestamp univ-time))
-         ,file)))))
+                                     (universal-to-timestamp univ-time)))
+        ,file))))
