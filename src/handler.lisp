@@ -3,6 +3,8 @@
   (:use :cl)
   (:import-from :lack.util
                 :find-package-or-load)
+  (:import-from :bordeaux-threads
+                :make-thread)
   (:export :run
            :stop))
 (in-package :lack.handler)
@@ -20,15 +22,22 @@
         (error "~S is unknown handler."
                server))))
 
-(defun run (app server &rest args)
+(defun run (app server &rest args &key use-thread &allow-other-keys)
   (let ((handler-package (find-handler server)))
-    (make-handler
-     :server server
-     :acceptor
-     (apply (intern #.(string '#:run) handler-package)
-            app
-            :allow-other-keys t
-            args))))
+    (flet ((run-server ()
+             (apply (intern #.(string '#:run) handler-package)
+                    app
+                    :allow-other-keys t
+                    args)))
+      (make-handler
+       :server server
+       :acceptor (if use-thread
+                     (bt:make-thread #'run-server
+                                     :name (format nil "lack-handler-~(~A~)" server)
+                                     :initial-bindings
+                                     `((*standard-output* . ,*standard-output*)
+                                       (*error-output* . ,*error-output*)))
+                     (run-server))))))
 
 (defun stop (handler)
   (let ((acceptor (handler-acceptor handler)))

@@ -17,8 +17,16 @@
                &key (server :hunchentoot)
                  (port 5000)
                  (debug t)
+                 (use-thread #+thread-support t #-thread-support nil)
                &allow-other-keys)
-  (apply #'lack.handler:run app server
-         :port port
-         :debug debug
-         (delete-from-plist args :server :use-thread :port :debug)))
+  (flet ((start-message ()
+           (format t "~&~:(~A~) server is started.~%Listening on localhost:~A.~%" server port)))
+    (unless use-thread
+      (start-message))
+    (prog1
+        (apply #'lack.handler:run app server
+               :port port
+               :debug debug
+               :use-thread use-thread
+               (delete-from-plist args :server :port :debug :use-thread))
+      (start-message))))
