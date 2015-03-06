@@ -1,0 +1,22 @@
+(in-package :cl-user)
+(defpackage lack.middleware.mount
+  (:use :cl))
+(in-package :lack.middleware.mount)
+
+(defvar *lack-middleware-mount*
+  (lambda (app path mount-app)
+    (let ((len (length path)))
+      (lambda (env)
+        (let ((path-info (getf env :path-info)))
+          (cond
+            ((string= path-info path)
+             (setf (getf env :path-info) "/")
+             (funcall mount-app env))
+            ((and (< len (length path-info))
+                  (string= path-info path :end1 len)
+                  (char= (aref path-info len) #\/))
+             (setf (getf env :path-info)
+                   (subseq path-info (length path)))
+             (funcall mount-app env))
+            (t
+             (funcall app env))))))))
