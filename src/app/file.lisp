@@ -15,6 +15,7 @@
 (in-package :lack.app.file)
 
 (define-condition bad-request (simple-condition) ())
+(define-condition not-found (simple-condition) ())
 
 (defun make-app (&key file (root #P"./") (encoding "utf-8"))
   (lambda (env)
@@ -28,7 +29,11 @@
       (bad-request ()
         '(400 (:content-type "text/plain"
                :content-length 11)
-          ("Bad Request"))))))
+          ("Bad Request")))
+      (not-found ()
+        '(404 (:content-type "text/plain"
+               :content-length 9)
+          ("Not Found"))))))
 
 (defun locate-file (path root)
   (when (find :up (pathname-directory path) :test #'eq)
@@ -40,7 +45,7 @@
        (error 'bad-request))
       ((not (and (file-exists-p file)
                  (not (directory-exists-p file))))
-       (error 'bad-request))
+       (error 'not-found))
       (t file))))
 
 (defun serve-path (file encoding)
