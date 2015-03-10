@@ -19,7 +19,8 @@
   (let ((package (find-package package-name)))
     (or package
         (let ((system-name (string-downcase (substitute #\- #\. package-name :test #'char=))))
-          #+quicklisp (ql:quickload system-name)
+          #+quicklisp (handler-case (ql:quickload system-name)
+                        (ql:system-not-found ()))
           #-quicklisp (when (asdf:find-system system-name nil)
                         (asdf:load-system system-name :verbose nil))
           (find-package package-name)))))
