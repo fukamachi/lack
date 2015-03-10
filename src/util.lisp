@@ -19,10 +19,10 @@
   (let ((package (find-package package-name)))
     (or package
         (let ((system-name (string-downcase (substitute #\- #\. package-name :test #'char=))))
-          (when (asdf:find-system system-name nil)
-            #+quicklisp (ql:quickload system-name)
-            #-quicklisp (asdf:load-system system-name :verbose nil)
-            (find-package package-name))))))
+          #+quicklisp (ql:quickload system-name)
+          #-quicklisp (when (asdf:find-system system-name nil)
+                        (asdf:load-system system-name :verbose nil))
+          (find-package package-name)))))
 
 (defun funcall-with-cb (app env cb)
   (let ((res (funcall app env)))
