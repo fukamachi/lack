@@ -32,7 +32,7 @@
   (multiple-value-bind (body status headers)
       (dex:get (localhost "/"))
     (is status 200)
-    (is (gethash "content-type" headers) "text/plain")
+    (ok (string= (gethash "content-type" headers) "text/plain" :end1 10))
     (is body "Happy Valentine!")))
 #-thread-support
 (skip 1 "because your lisp doesn't support threads")
