@@ -22,6 +22,8 @@
                                               prefix
                                               (symbol-name server)))))
     (or (find-with-prefix #.(string '#:lack.handler.))
+        ;; falling back to Clack handler
+        (find-with-prefix #.(string '#:clack.handler.))
         (error "~S is unknown handler."
                server))))
 

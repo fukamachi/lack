@@ -56,6 +56,13 @@ The environment, an application takes, is a property list containing the followi
 - `:headers` (Required, Hash-Table)
   - A hash table of headers.
 
+Old versions of Clack also had the following keys. These are now deprecated.
+
+- `:request-method`
+  - Use `:method` instead.
+- `:request-uri`
+  - Use `:uri` instead.
+
 ## The Response
 
 ### Normal response

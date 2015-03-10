@@ -129,12 +129,14 @@ before passing to Clack application."
       (split-sequence #\: (host req) :from-end t)
     (list
      :method (request-method* req)
+     :request-method (request-method* req)
      :script-name ""
      :path-info (url-decode (script-name* req))
      :server-name server-name
      :server-port (parse-integer server-port :junk-allowed t)
      :server-protocol (server-protocol* req)
      :uri (request-uri* req)
+     :request-uri (request-uri* req)
      :url-scheme (if ssl :https :http)
      :remote-addr (remote-addr* req)
      :remote-port (remote-port* req)
