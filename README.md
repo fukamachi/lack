@@ -94,14 +94,14 @@ To enable a delayed response, the application should return a callback as its re
       (funcall responder `(200 (:content-type "text/plain") (,content))))))
 ```
 
-An application may omit the third element (the body) when calling the responder. If the body is omitted, the responder will return a function which takes an exact one argument, a body chunk, and writes it to a client. When it gets `:eof`, it closes the connection.
+An application may omit the third element (the body) when calling the responder. If the body is omitted, the responder will return a function which takes a body chunk and `:close` keyword argument.
 
 ```common-lisp
 (lambda (env)
   (lambda (responder)
     (let ((writer (funcall responder '(200 (:content-type "application/json")))))
       (loop for chunk = (fetch-something)
-            do (funcall writer (or chunk :eof))
+            do (funcall writer chunk :close (null chunk))
             while chunk))))
 ```
 
