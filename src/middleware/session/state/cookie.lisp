@@ -5,8 +5,6 @@
         :lack.middleware.session.state)
   (:import-from :lack.response
                 :make-response
-                :generate-sid
-                :extract-sid
                 :finalize-response
                 :response-set-cookies)
   (:export :cookie-state
