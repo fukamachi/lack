@@ -26,14 +26,15 @@
 (defgeneric finalize-response (res)
   (:method ((res response))
     (finalize-cookies res)
+    (break (prin1-to-string (response-headers res)))
     (with-slots (status headers body) res
       (list status headers body))))
 
 (defun finalize-cookies (res)
   (setf (response-headers res)
-        (nconc (response-headers res)
-               (loop for (k v) on (response-set-cookies res) by #'cddr
-                     append (list :set-cookie (bake-cookie k v))))))
+        (append (response-headers res)
+                (loop for (k v) on (response-set-cookies res) by #'cddr
+                      append (list :set-cookie (bake-cookie k v))))))
 
 (defun bake-cookie (key value)
   (unless value

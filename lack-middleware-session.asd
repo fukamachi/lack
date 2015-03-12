@@ -7,7 +7,8 @@
   :version "0.1"
   :author "Eitaro Fukamachi"
   :license "LLGPL"
-  :depends-on (:lack-response
+  :depends-on (:lack-request
+               :lack-response
                :lack-util
                :cl-ppcre)
   :components ((:module "src/middleware"

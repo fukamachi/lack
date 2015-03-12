@@ -3,10 +3,15 @@
   (:nicknames :lack.session.state.cookie)
   (:use :cl
         :lack.middleware.session.state)
+  (:import-from :lack.request
+                :make-request
+                :request-cookies)
   (:import-from :lack.response
                 :make-response
                 :finalize-response
                 :response-set-cookies)
+  (:import-from :alexandria
+                :remove-from-plist)
   (:export :cookie-state
            :make-cookie-state
            :generate-sid
@@ -22,20 +27,23 @@
   (secure nil :type boolean)
   (httponly nil :type boolean))
 
+(defmethod extract-sid ((state cookie-state) env)
+  (let ((req (make-request env)))
+    (cdr (assoc "lack.session" (request-cookies req) :test #'string=))))
+
 (defmethod expire-state ((state cookie-state) sid res options)
   (setf (cookie-state-expires state) 0)
   (finalize-state state sid res options))
 
 (defmethod finalize-state ((state cookie-state) sid res options)
   (let ((res (apply #'make-response res))
-        (options (append options
+        (options (append (remove-from-plist options :id)
                          (with-slots (path domain expires secure httponly) state
                            (list :path path
                                  :domain domain
                                  :secure secure
                                  :httponly httponly
                                  :expires (+ (get-universal-time) expires))))))
-    (setf (response-set-cookies res)
-          (append (response-set-cookies res)
-                  `(:|lack.session| (:value ,sid ,@options))))
+    (setf (getf (response-set-cookies res) :|lack.session|)
+          `(:value ,sid ,@options))
     (finalize-response res)))

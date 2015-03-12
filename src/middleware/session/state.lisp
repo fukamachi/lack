@@ -26,7 +26,7 @@
 
 (defgeneric extract-sid (state env)
   (:method ((state state) env)
-    (let ((sid (getf env :lack.session)))
+    (let ((sid (getf env :|lack.session|)))
       (and sid
            (funcall (state-sid-validator state) sid)
            sid))))
