@@ -6,10 +6,6 @@
         :lack.test))
 (in-package :t.lack.middleware.static)
 
-(defun localhost (path)
-  (format nil "http://localhost:~D~A"
-          *lack-test-port* path))
-
 (plan nil)
 
 #+thread-support

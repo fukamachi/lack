@@ -14,6 +14,7 @@
                 :socket-close
                 :address-in-use-error)
   (:export :subtest-app
+           :localhost
            :*lack-test-handler*
            :*lack-test-port*))
 (in-package :lack.test)
@@ -31,6 +32,10 @@
       (when socket
         (usocket:socket-close socket)
         t))))
+
+(defun localhost (&optional (path "/"))
+  (format nil "http://localhost:~D~A"
+          *lack-test-port* path))
 
 (defun %subtest-app (desc app client)
   (loop repeat 5
