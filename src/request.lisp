@@ -78,11 +78,11 @@
               (quri:url-decode-params query-string :lenient t))))
 
     ;; POST parameters
-    (with-slots (body-parameters raw-body content-type) req
+    (with-slots (body-parameters raw-body content-length content-type) req
       (when (and (null body-parameters)
                  raw-body)
         (setf body-parameters
-              (http-body:parse content-type raw-body))))
+              (http-body:parse content-type content-length raw-body))))
 
     req))
 
