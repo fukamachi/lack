@@ -8,9 +8,9 @@
 (defvar *lack-middleware-backtrace*
   (lambda (app &key
             (output '*error-output*)
-            (result-on-error '(500 (:content-type "text/plain") ("Internal Server Error"))))
+            result-on-error)
     (check-type output (or symbol stream pathname string))
-    (check-type result-on-error (or function cons))
+    (check-type result-on-error (or function cons null))
     (flet ((error-handler (condition)
              (if (functionp result-on-error)
                  (funcall result-on-error condition)
@@ -30,7 +30,8 @@
         (block nil
           (handler-bind ((error (lambda (condition)
                                   (output-backtrace condition env)
-                                  (return (error-handler condition)))))
+                                  (when result-on-error
+                                    (return (error-handler condition))))))
             (funcall app env)))))))
 
 (defun print-error (error env &optional (stream *error-output*))
