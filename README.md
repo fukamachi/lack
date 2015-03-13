@@ -221,6 +221,66 @@ is syntactically equal to:
 
 Just replace `clack.builder:builder` by `lack:builder`, a superset of `clack.builder:builder`.
 
+## Benchmark
+
+|  Hunchentoot  |  Clack  |  Lack   |
+|---------------|---------|---------|
+|    3384.15    | 3896.51 | 4252.68 |
+
+Lack is 1.25 times faster than Hunchentoot and 1.1 times faster than Clack.
+
+* MacBook Pro Retina, 13-inch, Early 2013 (CPU: 3GHz Intel Core i7 / Memory: 8GB 1600 MHz)
+* SBCL 1.2.6
+* wrk 3.1.1
+* Hunchentoot 1.2.29
+
+You can get the benchmark code at "[benchmark/](https://github.com/fukamachi/lack/tree/master/benchmark)".
+
+### Hunchentoot
+
+```
+wrk -c 10 -t 4 -d 10 http://127.0.0.1:5000
+Running 10s test @ http://127.0.0.1:5000
+  4 threads and 10 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     1.32ms    8.92ms  78.41ms   98.62%
+    Req/Sec     3.59k     0.93k    5.55k    73.51%
+  33857 requests in 10.00s, 7.62MB read
+  Socket errors: connect 0, read 0, write 0, timeout 33
+Requests/sec:   3384.15
+Transfer/sec:    779.94KB
+```
+
+### Clack
+
+```common-lisp
+wrk -c 10 -t 4 -d 10 http://127.0.0.1:5000
+Running 10s test @ http://127.0.0.1:5000
+  4 threads and 10 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     3.52ms   23.39ms 170.24ms   98.07%
+    Req/Sec     4.13k   768.76     4.67k    95.03%
+  38996 requests in 10.01s, 10.12MB read
+  Socket errors: connect 0, read 0, write 0, timeout 33
+Requests/sec:   3896.51
+Transfer/sec:      1.01MB
+```
+
+### Lack
+
+```common-lisp
+wrk -c 10 -t 4 -d 10 http://127.0.0.1:5000
+Running 10s test @ http://127.0.0.1:5000
+  4 threads and 10 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     3.88ms   25.06ms 175.76ms   97.92%
+    Req/Sec     4.52k   832.13     5.11k    94.92%
+  42601 requests in 10.02s, 11.01MB read
+  Socket errors: connect 0, read 0, write 0, timeout 33
+Requests/sec:   4252.68
+Transfer/sec:      1.10MB
+```
+
 ## Author
 
 * Eitaro Fukamachi (e.arrows@gmail.com)
