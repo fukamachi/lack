@@ -1,6 +1,7 @@
 (in-package :cl-user)
 (defpackage lack.middleware.mount
-  (:use :cl))
+  (:use :cl)
+  (:export :*lack-middleware-mount*))
 (in-package :lack.middleware.mount)
 
 (defvar *lack-middleware-mount*

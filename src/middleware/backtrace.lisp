@@ -2,7 +2,8 @@
 (defpackage lack.middleware.backtrace
   (:use :cl)
   (:import-from :uiop/image
-                :print-condition-backtrace))
+                :print-condition-backtrace)
+  (:export :*lack-middleware-backtrace*))
 (in-package :lack.middleware.backtrace)
 
 (defvar *lack-middleware-backtrace*

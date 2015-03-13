@@ -13,7 +13,8 @@
   (:import-from :lack.session.store.memory
                 :make-memory-store)
   (:import-from :lack.session.state.cookie
-                :make-cookie-state))
+                :make-cookie-state)
+  (:export :*lack-middleware-session*))
 (in-package :lack.middleware.session)
 
 (defvar *lack-middleware-session*
