@@ -23,7 +23,8 @@
           (error "Middleware ~S is unbound or not a function" mw-symbol)))))
 
 (defmacro builder (&rest app-or-middlewares)
-  (let ((middlewares (butlast app-or-middlewares)))
+  (let ((middlewares (butlast app-or-middlewares))
+        (app (gensym "APP")))
     `(reduce #'funcall
              (remove-if
               #'null
@@ -31,14 +32,28 @@
                ,@(loop for mw in middlewares
                        when mw
                          collect (typecase mw
+                                   (null)
                                    (function mw)
                                    (keyword `(find-middleware ,mw))
-                                   (cons (if (keywordp (car mw))
-                                             (let ((app (gensym "APP")))
-                                               `(lambda (,app)
-                                                  (funcall (find-middleware ,(car mw)) ,app
-                                                           ,@(cdr mw))))
-                                             mw))
+                                   ;; for old Clack middlewares
+                                   (symbol `(lambda (,app)
+                                              (funcall (intern (string :wrap) :clack)
+                                                       (make-instance ',mw)
+                                                       ,app)))
+                                   (cons
+                                    ;; for `cl:lambda' and `cl:if' forms
+                                    (if (eq (symbol-package (car mw)) (find-package :cl))
+                                        mw
+                                        (typecase (car mw)
+                                          (keyword `(lambda (,app)
+                                                      (funcall (find-middleware ,(car mw)) ,app
+                                                               ,@(cdr mw))))
+                                          ;; for old Clack middlewares
+                                          (symbol `(lambda (,app)
+                                                     (funcall (intern (string :wrap) :clack)
+                                                              (make-instance ',mw ,@(cdr mw))
+                                                              ,app)))
+                                          (otherwise mw))))
                                    (otherwise mw)))))
              :initial-value ,(car (last app-or-middlewares))
              :from-end t)))
