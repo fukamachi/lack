@@ -107,6 +107,120 @@ An application may omit the third element (the body) when calling the responder.
 
 This delayed response and streaming API is useful if you want to implement a non-blocking I/O based server streaming or long-poll Comet push technology.
 
+## Middlewares
+
+Lack middleware is a component wrapping an application. It is a function which takes an application and returns a new application.
+
+```common-lisp
+(defvar *mw*
+  (lambda (app)
+    (lambda (env)
+      ;; preprocessing
+      (let ((res (funcall app env)))
+        ;; postprocessing
+        res))))
+
+;; getting a wrapped app
+(funcall *mw* *app*)
+```
+
+Lack provides some bundle middlewares.
+
+* Lack.Middleware.Accesslog
+* Lack.Middleware.Backtrace
+* Lack.Middleware.Session
+* Lack.Middleware.Static
+
+```common-lisp
+;; Using Lack.Middleware.Accesslog
+(funcall lack.middleware.accesslog:*lack-middleware-accesslog*
+         *app*)
+```
+
+### Using Lack.Builder
+
+Lack.Builder gives you a quick DSL to wrap your application with Lack middlewares.
+
+```common-lisp
+(lack:builder
+ (:static :path (lambda (path)
+                  (if (ppcre:scan "^(?:/images/|/css/|/js/|/robot\\.txt$|/favicon.ico$)" path)
+                      path
+                      nil))
+          :root *static-directory*)
+ :accesslog
+ :session
+ :backtrace
+ (lambda (env)
+   (declare (ignore env))
+   '(200 () ("Hello, World"))))
+```
+
+It takes a list of middlewares and an app at the last.
+
+```
+builder middleware* app
+
+middleware ::= keyword
+             | null
+             | symbol
+             | function
+             | (keyword arg*)
+             | (symbol arg*)
+             | normal-form
+
+app ::= function
+```
+
+Typical builder syntax is like this:
+
+```common-lisp
+(lack:builder
+  :foo
+  (:bar :opt "val")
+  *app*)
+```
+
+is syntactically equal to:
+
+```common-lisp
+(funcall lack.middleware.foo:*lack-middleware-foo*
+         (funcall lack.middleware:bar:*lack-middleware-bar*
+                  *app*
+                  :opt "val"))
+```
+
+### Inline middleware
+
+```common-lisp
+(lack:builder
+  (lambda (app)
+    (lambda (env)
+      ;; preprocessing
+      (let ((res (funcall app env)))
+        ;; postprocessing
+        res)))
+  *app*)
+```
+
+### Conditional middleware
+
+```common-lisp
+(lack:builder
+  (if (productionp)
+      nil
+      :accesslog)
+  (if *error-log*
+      `(:backtrace :output ,*error-log*)
+      nil)
+  :session
+  *app*)
+```
+
+## Using Lack in an existing Clack app
+
+Just replace `clack.builder:builder` by `lack:builder`, a superset of `clack.builder:builder`.
+
 ## Author
 
 * Eitaro Fukamachi (e.arrows@gmail.com)
