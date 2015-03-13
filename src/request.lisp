@@ -62,27 +62,33 @@
         (setf uri (getf env :request-uri))))
 
     ;; Cookies
-    (let* ((headers (request-headers req))
-           (cookie (and (hash-table-p headers)
-                        (gethash "cookie" headers))))
-      (when cookie
-        (setf (request-cookies req)
-              (loop for kv in (ppcre:split "\\s*[,;]\\s*" cookie)
-                    append (quri:url-decode-params kv :lenient t)))))
+    (unless (request-cookies req)
+      (let* ((headers (request-headers req))
+             (cookie (and (hash-table-p headers)
+                          (gethash "cookie" headers))))
+        (when cookie
+          (setf (request-cookies req)
+                (loop for kv in (ppcre:split "\\s*[,;]\\s*" cookie)
+                      append (quri:url-decode-params kv :lenient t)))
+          (setf (getf env :cookies) (request-cookies req)))))
 
     ;; GET parameters
     (with-slots (query-parameters query-string) req
       (when (and (null query-parameters)
                  query-string)
         (setf query-parameters
-              (quri:url-decode-params query-string :lenient t))))
+              (quri:url-decode-params query-string :lenient t))
+        (setf (getf env :query-parameters) query-parameters)))
 
     ;; POST parameters
     (with-slots (body-parameters raw-body content-length content-type) req
       (when (and (null body-parameters)
                  raw-body)
         (setf body-parameters
-              (http-body:parse content-type content-length raw-body))))
+              (http-body:parse content-type content-length raw-body))
+        (setf (getf env :body-parameters) body-parameters)))
+
+    (setf (request-env req) env)
 
     req))
 
