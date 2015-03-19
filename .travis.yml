@@ -2,7 +2,7 @@ language: common-lisp
 
 env:
   matrix:
-    - LISP=sbcl
+    - LISP=sbcl COVERALLS=true
     - LISP=ccl
 
 install:
@@ -15,10 +15,13 @@ before_script:
   - git clone https://github.com/fukamachi/cl-cookie ~/lisp/cl-cookie
   - git clone https://github.com/fukamachi/dexador ~/lisp/dexador
   - git clone https://github.com/fukamachi/http-body ~/lisp/http-body
+  - git clone https://github.com/fukamachi/cl-coveralls ~/lisp/cl-coveralls
 
 script:
-  - cl -l prove -e '(or (every (function identity)
-                               (list (prove:run :t-lack)
-                                     (prove:run :t-lack-middleware-static)
-                                     (prove:run :t-lack-middleware-session)))
-                        (uiop:quit -1))'
+  - cl -l prove -l cl-coveralls
+       -e '(or (coveralls:with-coveralls ()
+                 (every (function identity)
+                        (list (prove:run :t-lack)
+                              (prove:run :t-lack-middleware-static)
+                              (prove:run :t-lack-middleware-session))))
+               (uiop:quit -1))'
