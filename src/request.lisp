@@ -70,7 +70,7 @@
           (setf (request-cookies req)
                 (loop for kv in (ppcre:split "\\s*[,;]\\s*" cookie)
                       append (quri:url-decode-params kv :lenient t)))
-          (setf (getf env :cookies) (request-cookies req)))))
+          (rplacd (last env) (list :cookies (request-cookies req))))))
 
     ;; GET parameters
     (with-slots (query-parameters query-string) req
@@ -78,7 +78,7 @@
                  query-string)
         (setf query-parameters
               (quri:url-decode-params query-string :lenient t))
-        (setf (getf env :query-parameters) query-parameters)))
+        (rplacd (last env) (list :query-parameters query-parameters))))
 
     ;; POST parameters
     (with-slots (body-parameters raw-body content-length content-type) req
@@ -86,7 +86,7 @@
                  raw-body)
         (setf body-parameters
               (http-body:parse content-type content-length raw-body))
-        (setf (getf env :body-parameters) body-parameters)))
+        (rplacd (last env) (list :body-parameters body-parameters))))
 
     (setf (request-env req) env)
 
