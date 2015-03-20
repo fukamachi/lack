@@ -23,5 +23,6 @@ script:
                  (every (function identity)
                         (list (prove:run :t-lack)
                               (prove:run :t-lack-middleware-static)
-                              (prove:run :t-lack-middleware-session))))
+                              (prove:run :t-lack-middleware-session)
+                              (prove:run :t-lack-middleware-csrf))))
                (uiop:quit -1))'
