@@ -58,7 +58,7 @@
         (dex:get "http://localhost:4242/"
                  :cookie-jar cookie-jar)
       (is status 200 "Status is 200")
-      (is (gethash "content-type" headers) "text/html" "Content-Type is text/html")
+      (is (gethash "content-type" headers) "text/html; charset=utf-8" "Content-Type is text/html")
       (setf csrf-token (parse-csrf-token body))
       (ok csrf-token "can get CSRF token")
       (is-type csrf-token 'string "CSRF token is string")
@@ -68,7 +68,7 @@
         (dex:post "http://localhost:4242/"
                   :cookie-jar cookie-jar)
       (is status 400 "Status is 400")
-      (is (gethash "content-type" headers) "text/plain" "Content-Type is text/plain")
+      (is (gethash "content-type" headers) "text/plain; charset=utf-8" "Content-Type is text/plain")
       (is body "Bad Request: invalid CSRF token" "Body is 'forbidden'"))
     (diag "bad POST request (wrong token)")
     (is (nth-value
@@ -85,7 +85,7 @@
                              ("_csrf_token" . ,csrf-token))
                   :cookie-jar cookie-jar)
       (is status 200 "Status is 200")
-      (is (gethash "content-type" headers) "text/html" "Content-Type is text/html")
+      (is (gethash "content-type" headers) "text/html; charset=utf-8" "Content-Type is text/html")
       (is body "Eitaro Fukamachi" "can read body-parameter"))))
 
 (subtest-app "enable one-time token"
@@ -118,6 +118,6 @@
                   :cookie-jar cookie-jar)
       (declare (ignore body))
       (is status 400 "Status is 400")
-      (is (gethash "content-type" headers) "text/plain" "Content-Type is text/plain"))))
+      (is (gethash "content-type" headers) "text/plain; charset=utf-8" "Content-Type is text/plain"))))
 
 (finalize)
