@@ -1,6 +1,8 @@
 (in-package :cl-user)
 (defpackage lack.builder
   (:use :cl)
+  (:import-from :lack.component
+                :to-app)
   (:import-from :lack.util
                 :find-package-or-load)
   (:export :builder))
@@ -79,5 +81,5 @@
                ,@(loop for mw in middlewares
                        when mw
                          collect (convert-to-middleware-form mw))))
-             :initial-value ,(car (last app-or-middlewares))
+             :initial-value (to-app ,(car (last app-or-middlewares)))
              :from-end t)))

@@ -18,7 +18,8 @@
   :version "0.1"
   :author "Eitaro Fukamachi"
   :license "LLGPL"
-  :depends-on (:lack-util
+  :depends-on (:lack-component
+               :lack-util
                :bordeaux-threads
                :alexandria)
   :components ((:module "src"
