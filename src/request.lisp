@@ -54,7 +54,6 @@
 
 (defun make-request (env)
   (let ((req (apply #'%make-request :env env :allow-other-keys t env)))
-    ;; for backward-compatibility
     (with-slots (method uri) req
       (unless method
         (setf method (getf env :request-method)))

@@ -32,7 +32,7 @@ Lack is an experimental project for redesigning Clack with performance and simpl
 
 The environment, an application takes, is a property list containing the following keys:
 
-- `:method` (Required, Keyword)
+- `:request-method` (Required, Keyword)
   - The HTTP request method: `:GET`, `:HEAD`, `:OPTIONS`, `:PUT`, `:POST`, or `:DELETE`.
 - `:script-name` (Required, String)
   - The initial portion of the request URI path that corresponds to the Clack application. The value of this key may be an empty string when the client is accessing the application represented by the server's root URI. Otherwise, it is a non-empty string starting with a forward slash (`/`).
@@ -46,7 +46,7 @@ The environment, an application takes, is a property list containing the followi
   - The port on which the request is being handled.
 - `:server-protocol` (Required, Keyword)
   - The version of the protocol the client used to send the request: typically `:HTTP/1.0` or `:HTTP/1.1`.
-- `:uri` (Required, String)
+- `:request-uri` (Required, String)
   - The request URI. Always starts with "/".
 - `:raw-body` (Optional, Stream)
   - The new body of the request.
@@ -56,13 +56,6 @@ The environment, an application takes, is a property list containing the followi
   - The remote port.
 - `:headers` (Required, Hash-Table)
   - A hash table of headers.
-
-Old versions of Clack also had the following keys. These are now deprecated.
-
-- `:request-method`
-  - Use `:method` instead.
-- `:request-uri`
-  - Use `:uri` instead.
 
 ## The Response
 
