@@ -23,4 +23,5 @@
                   :pathname "session"
                   :components
                   ((:file "state")
-                   (:file "state/cookie")))))))
+                   (:file "state/cookie"))))))
+  :in-order-to ((test-op (test-op t-lack-middleware-session))))

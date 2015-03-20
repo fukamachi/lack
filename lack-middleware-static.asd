@@ -14,4 +14,5 @@
   :components ((:module "src"
                 :components
                 ((:file "middleware/static" :depends-on ("app/file"))
-                 (:file "app/file")))))
+                 (:file "app/file"))))
+  :in-order-to ((test-op (test-op t-lack-middleware-static))))
