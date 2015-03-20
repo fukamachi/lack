@@ -22,12 +22,13 @@ script:
        -e '(or (coveralls:with-coveralls
                  (loop for file in (uiop:directory-files (uiop:getenv "TRAVIS_BUILD_DIR"))
                        when (and (string= (pathname-type file) "asd")
-                                 (< 5 (length (pathname-name file)))
-                                 (string= (pathname-name file) "lack-" :end1 5))
-                         do (asdf:load-system (pathname-name file)))
-                 (every (function identity)
-                        (list (prove:run :t-lack)
-                              (prove:run :t-lack-middleware-static)
-                              (prove:run :t-lack-middleware-session)
-                              (prove:run :t-lack-middleware-csrf))))
+                                 (<= 4 (length (pathname-name file)))
+                                 (string= (pathname-name file) "lack" :end1 4))
+                         do (asdf:load-system (pathname-name file))
+                       when (and (string= (pathname-type file) "asd")
+                                 (< 2 (length (pathname-name file)))
+                                 (string= (pathname-name file) "t-" :end1 2))
+                         collect (pathname-name file) into test-files
+                       finally
+                         (return (not (some #'null (mapcar #'prove:run test-files))))))
                (uiop:quit -1))'
