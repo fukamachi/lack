@@ -5,7 +5,7 @@
         :lack.builder))
 (in-package :t.lack.builder)
 
-(plan 8)
+(plan 10)
 
 (defvar *app*
   (lambda (env)
@@ -46,5 +46,34 @@
       '("admin" "/"))
   (is (nth 2 (funcall mount-app '(:path-info "/administrators")))
       '("ok from app")))
+
+(defpackage lack.middleware.sample
+  (:use :cl))
+
+(defvar lack.middleware.sample::*lack-middleware-sample*
+  (lambda (app &key (out (lambda (out) (princ out))))
+    (lambda (env)
+      (funcall out "sample")
+      (funcall app env))))
+
+(subtest "Embedded CL code with Middleware without keyword option."
+  (let ((app (builder (when t :sample) *app*)))
+    (is-type app
+           'function
+           "Can build.")
+
+    (is-print (funcall app '(:path-info "/"))
+              "sample"
+              "Can work.")))
+
+(subtest "Embedded CL code with Middleware with keyword option."
+  (let ((app (builder (when t `(:sample :out ,(lambda (out) (format t "Got: ~a" out)))) *app*)))
+    (is-type app
+           'function
+           "Can build.")
+
+    (is-print (funcall app '(:path-info "/"))
+              "Got: sample"
+              "Can work.")))
 
 (finalize)

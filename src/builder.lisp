@@ -64,9 +64,10 @@
                    (typecase ,res
                      (keyword (find-middleware ,res))
                      (cons (if (keywordp (car ,res))
-                               `(lambda (,',app)
-                                  (apply (find-middleware (car ,,res)) ,',app
-                                         (cdr ,,res)))
+                               (eval
+                                `(lambda (,',app)
+                                   (apply (find-middleware (car ',,res)) ,',app
+                                          (cdr ',,res))))
                                ,res))
                      (otherwise ,res))))))
          (otherwise mw)))
