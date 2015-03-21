@@ -20,7 +20,7 @@ before_script:
 script:
   - cl -l prove -l cl-coveralls
        -e '(or (coveralls:with-coveralls
-                 (loop for file in (uiop:directory-files (uiop:getenv "TRAVIS_BUILD_DIR"))
+                 (loop for file in (uiop:directory-files (uiop:ensure-directory-pathname (uiop:getenv "TRAVIS_BUILD_DIR")))
                        when (and (string= (pathname-type file) "asd")
                                  (<= 4 (length (pathname-name file)))
                                  (string= (pathname-name file) "lack" :end1 4))
