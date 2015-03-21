@@ -11,7 +11,7 @@
 
 (subtest-app "lack-middleware-auth-basic"
     (builder
-     (:auth.basic :authenticator (lambda (user pass)
+     (:auth-basic :authenticator (lambda (user pass)
                                    (and (string= user "hoge")
                                         (string= pass "fuga"))))
      (lambda (env)
@@ -33,7 +33,7 @@
 
 (subtest-app "Use :remote-user"
     (builder
-     (:auth.basic :authenticator (lambda (user pass)
+     (:auth-basic :authenticator (lambda (user pass)
                                    (when (and (string= user "nitro_idiot")
                                               (string= pass "password"))
                                      (values t "Eitaro Fukamachi"))))

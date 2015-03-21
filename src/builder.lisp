@@ -11,7 +11,7 @@
 (defun find-middleware (identifier)
   (let* ((package-name (concatenate 'string
                                     #.(string '#:lack.middleware.)
-                                    (symbol-name identifier)))
+                                    (substitute #\. #\- (symbol-name identifier))))
          (package (find-package-or-load package-name)))
     (unless package
       (error "Middleware ~S is not found" package-name))
