@@ -30,5 +30,5 @@ script:
                                  (string= (pathname-name file) "t-" :end1 2))
                          collect (pathname-name file) into test-files
                        finally
-                         (return (not (some #'null (mapcar #'prove:run test-files))))))
+                         (return (not (some (function null) (mapcar (function prove:run) test-files))))))
                (uiop:quit -1))'
