@@ -9,4 +9,5 @@
   :license "LLGPL"
   :depends-on (:ironclad
                :alexandria)
-  :components ((:file "src/util")))
+  :components ((:file "src/util"))
+  :in-order-to ((test-op (test-op t-lack-util))))
