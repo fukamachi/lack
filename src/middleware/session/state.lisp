@@ -24,19 +24,8 @@
 (defun generate-sid (state env)
   (funcall (state-sid-generator state) env))
 
-(defgeneric extract-sid (state env)
-  (:method ((state state) env)
-    (let ((sid (getf env :|lack.session|)))
-      (and sid
-           (funcall (state-sid-validator state) sid)
-           sid))))
+(defgeneric extract-sid (state env))
 
-(defgeneric expire-state (state sid res options)
-  (:method ((state state) sid res options)
-    (declare (ignore state sid options))
-    res))
+(defgeneric expire-state (state sid res options))
 
-(defgeneric finalize-state (state sid res options)
-  (:method ((state state) sid res options)
-    (declare (ignore state sid options))
-    res))
+(defgeneric finalize-state (state sid res options))
