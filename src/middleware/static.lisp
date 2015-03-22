@@ -9,7 +9,7 @@
   (:export :*lack-middleware-static*))
 (in-package :lack.middleware.static)
 
-(defvar *lack-middleware-static*
+(defparameter *lack-middleware-static*
   (lambda (app &key path (root #P"./"))
     (etypecase path
       (null app)

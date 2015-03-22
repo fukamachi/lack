@@ -17,7 +17,7 @@
   (:export :*lack-middleware-session*))
 (in-package :lack.middleware.session)
 
-(defvar *lack-middleware-session*
+(defparameter *lack-middleware-session*
   (lambda (app &key
             (store (make-memory-store))
             (state (make-cookie-state)))

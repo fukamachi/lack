@@ -6,7 +6,7 @@
   (:export :*lack-middleware-backtrace*))
 (in-package :lack.middleware.backtrace)
 
-(defvar *lack-middleware-backtrace*
+(defparameter *lack-middleware-backtrace*
   (lambda (app &key
             (output '*error-output*)
             result-on-error)

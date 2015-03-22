@@ -11,7 +11,7 @@
            :csrf-html-tag))
 (in-package :lack.middleware.csrf)
 
-(defvar *lack-middleware-csrf*
+(defparameter *lack-middleware-csrf*
   (lambda (app &key (block-app #'return-400) one-time)
     (lambda (env)
       (block nil

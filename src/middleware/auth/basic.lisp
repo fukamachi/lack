@@ -7,7 +7,7 @@
                 :split-sequence))
 (in-package :lack.middleware.auth.basic)
 
-(defvar *lack-middleware-auth-basic*
+(defparameter *lack-middleware-auth-basic*
   (lambda (app &key authenticator (realm "restricted area"))
     (unless authenticator
       (error ":authenticator is required in lack-middleware-auth-basic"))

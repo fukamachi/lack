@@ -4,7 +4,7 @@
   (:export :*lack-middleware-mount*))
 (in-package :lack.middleware.mount)
 
-(defvar *lack-middleware-mount*
+(defparameter *lack-middleware-mount*
   (lambda (app path mount-app)
     (let ((len (length path)))
       (lambda (env)

@@ -12,7 +12,7 @@
            :default-formatter))
 (in-package :lack.middleware.accesslog)
 
-(defvar *lack-middleware-accesslog*
+(defparameter *lack-middleware-accesslog*
   (let ((no-body '#:no-body))
     (lambda (app &key
               (logger
