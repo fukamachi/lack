@@ -11,4 +11,5 @@
                :local-time)
   :components ((:module "src"
                 :components
-                ((:file "middleware/accesslog")))))
+                ((:file "middleware/accesslog"))))
+  :in-order-to ((test-op (test-op t-lack-middleware-accesslog))))
