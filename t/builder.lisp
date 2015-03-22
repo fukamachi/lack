@@ -59,8 +59,8 @@
 (subtest "Embedded CL code with Middleware without keyword option."
   (let ((app (builder (when t :sample) *app*)))
     (is-type app
-           'function
-           "Can build.")
+             'function
+             "Can build.")
 
     (is-print (funcall app '(:path-info "/"))
               "sample"
@@ -69,8 +69,8 @@
 (subtest "Embedded CL code with Middleware with keyword option."
   (let ((app (builder (when t `(:sample :out ,(lambda (out) (format t "Got: ~a" out)))) *app*)))
     (is-type app
-           'function
-           "Can build.")
+             'function
+             "Can build.")
 
     (is-print (funcall app '(:path-info "/"))
               "Got: sample"
