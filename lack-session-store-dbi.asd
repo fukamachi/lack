@@ -11,4 +11,5 @@
                :dbi
                :marshal
                :cl-base64)
-  :components ((:file "src/middleware/session/store/dbi")))
+  :components ((:file "src/middleware/session/store/dbi"))
+  :in-order-to ((test-op (test-op t-lack-session-store-dbi))))
