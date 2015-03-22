@@ -25,6 +25,11 @@
   (funcall (state-sid-generator state) env))
 
 (defgeneric extract-sid (state env))
+(defmethod extract-sid :around ((state state) env)
+  (let ((sid (call-next-method)))
+    (when (and sid
+               (funcall (state-sid-validator state) sid))
+      sid)))
 
 (defgeneric expire-state (state sid res options))
 
