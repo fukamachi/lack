@@ -43,7 +43,9 @@
         (etypecase body
           (list (reduce #'+ body :key #'length))
           (pathname (with-open-file (in body)
-                      (file-length in)))))))
+                      (file-length in)))
+          ((vector (unsigned-byte 8))
+           (length body))))))
 
 (defun generate-random-id ()
   "Generates a random token."
