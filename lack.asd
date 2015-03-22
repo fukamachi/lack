@@ -19,14 +19,11 @@
   :author "Eitaro Fukamachi"
   :license "LLGPL"
   :depends-on (:lack-component
-               :lack-util
-               :bordeaux-threads
-               :alexandria)
+               :lack-util)
   :components ((:module "src"
                 :components
-                ((:file "lack" :depends-on ("builder" "handler"))
-                 (:file "builder")
-                 (:file "handler"))))
+                ((:file "lack" :depends-on ("builder"))
+                 (:file "builder"))))
   :description "A minimal Clack"
   :long-description
   #.(with-open-file (stream (merge-pathnames
