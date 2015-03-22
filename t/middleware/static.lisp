@@ -3,12 +3,14 @@
   (:use :cl
         :prove
         :lack
-        :lack.test))
+        :lack.test)
+  (:import-from :alexandria
+                :starts-with-subseq))
 (in-package :t.lack.middleware.static)
 
-(plan 1)
+(plan 3)
 
-(subtest "static middleware"
+(subtest ":path is string"
   (let ((app
           (builder
            (:static :path "/public/"
@@ -33,5 +35,37 @@
       (is status 200)
       (is (getf headers :content-type) "text/plain")
       (is body '("Happy Valentine!")))))
+
+(subtest ":path is NIL"
+  (let ((app
+          (builder
+           (:static :path nil
+                    :root (asdf:system-relative-pathname :lack #P"data/"))
+           (lambda (env)
+             (declare (ignore env))
+             `(200 (:content-type "text/plain") ("ok"))))))
+    (destructuring-bind (status headers body)
+        (funcall app (generate-env "/public/jellyfish.jpg"))
+      (is status 200)
+      (is (getf headers :content-type) "text/plain")
+      (is body '("ok")))))
+
+(subtest ":path is function"
+  (let ((app
+          (builder
+           (:static :path (lambda (path-info)
+                            (when (starts-with-subseq "/static/" path-info)
+                              (subseq path-info #.(length "/static"))))
+                    :root (asdf:system-relative-pathname :lack #P"data/"))
+           (lambda (env)
+             (declare (ignore env))
+             `(200 (:content-type "text/plain") ("ok"))))))
+    (destructuring-bind (status headers body)
+        (funcall app (generate-env "/static/jellyfish.jpg"))
+      (is status 200)
+      (is (getf headers :content-type) "image/jpeg")
+      (is body (asdf:system-relative-pathname :lack #P"data/jellyfish.jpg")))
+
+    (is (car (funcall app (generate-env "/static/not-found.png"))) 404)))
 
 (finalize)
