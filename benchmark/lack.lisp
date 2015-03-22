@@ -1,12 +1,12 @@
 (in-package :cl-user)
 
-(ql:quickload :lack)
+(ql:quickload '(:lack :clack))
 
 (defpackage lack-benchmark.lack
   (:use :cl))
 (in-package :lack-benchmark.lack)
 
-(lack:lackup
+(clack:lackup
  (lack:builder
   (:static :path (lambda (path)
                    (if (ppcre:scan "^(?:/images/|/css/|/js/|/robot\\.txt$|/favicon.ico$)" path)
