@@ -6,7 +6,10 @@
         :lack.test))
 (in-package :t.lack.middleware.session)
 
-(plan 1)
+(plan 2)
+
+(ok (lack.session.state:make-state)
+    "Base class of session state")
 
 (subtest "session middleware"
   (let ((app
