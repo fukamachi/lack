@@ -33,7 +33,8 @@
                          :clack.middleware))))
 
 (defun convert-to-middleware-form (mw)
-  (let ((app (gensym "APP")))
+  (let ((app (gensym "APP"))
+        (res-mw (gensym "RES-MW")))
     (typecase mw
       (null)
       (function mw)
@@ -64,10 +65,9 @@
                    (typecase ,res
                      (keyword (find-middleware ,res))
                      (cons (if (keywordp (car ,res))
-                               (eval
-                                `(lambda (,',app)
-                                   (apply (find-middleware (car ',,res)) ,',app
-                                          (cdr ',,res))))
+                               (let ((,res-mw (find-middleware (car ,res))))
+                                 (lambda (,app)
+                                   (apply ,res-mw ,app (cdr ,res))))
                                ,res))
                      (otherwise ,res))))))
          (otherwise mw)))
