@@ -9,40 +9,61 @@
 
 (plan 2)
 
-(subtest-app "lack-middleware-auth-basic"
-    (builder
-     (:auth-basic :authenticator (lambda (user pass)
-                                   (and (string= user "hoge")
-                                        (string= pass "fuga"))))
-     (lambda (env)
-       `(200 () (,(format nil "Hello, ~A" (getf env :remote-user))))))
-  (multiple-value-bind (body status headers)
-      (dex:get (localhost))
-    (is status 401)
-    (is body "Authorization required")
-    (is (gethash "www-authenticate" headers)
-        "Basic realm=restricted area"))
-  (is (dex:get (localhost)
-               :headers `(("Authorization" . ,(format nil "Basic ~A"
-                                                      (string-to-base64-string "wrong:auth")))))
-      "Authorization required")
-  (is (dex:get (localhost)
-               :headers `(("Authorization" . ,(format nil "Basic ~A"
-                                                      (string-to-base64-string "hoge:fuga")))))
-      "Hello, hoge"))
+(subtest "lack-middleware-auth-basic"
+  (let ((app
+          (builder
+           (:auth-basic :authenticator (lambda (user pass)
+                                         (and (string= user "hoge")
+                                              (string= pass "fuga"))))
+           (lambda (env)
+             `(200 () (,(format nil "Hello, ~A" (getf env :remote-user))))))))
+    (generate-env "/")
+    (destructuring-bind (status headers body)
+        (funcall app (generate-env "/"))
+      (is status 401)
+      (is body '("Authorization required"))
+      (is (getf headers :www-authenticate) "Basic realm=restricted area"))
 
-(subtest-app "Use :remote-user"
-    (builder
-     (:auth-basic :authenticator (lambda (user pass)
-                                   (when (and (string= user "nitro_idiot")
-                                              (string= pass "password"))
-                                     (values t "Eitaro Fukamachi"))))
-     (lambda (env)
-       `(200 () (,(format nil "Hello, ~A" (getf env :remote-user))))))
-  (is (dex:get (localhost)) "Authorization required")
-  (is (dex:get (localhost)
-               :headers `(("Authorization" . ,(format nil "Basic ~A"
-                                                      (string-to-base64-string "nitro_idiot:password")))))
-      "Hello, Eitaro Fukamachi"))
+    (destructuring-bind (status headers body)
+        (funcall app (generate-env "/"
+                                   :headers
+                                   `(("authorization" . ,(format nil "Basic ~A"
+                                                                 (string-to-base64-string "wrong:auth"))))) )
+      (is status 401)
+      (is body '("Authorization required"))
+      (is (getf headers :www-authenticate) "Basic realm=restricted area"))
+
+    (destructuring-bind (status headers body)
+        (funcall app (generate-env "/"
+                                   :headers
+                                   `(("authorization" . ,(format nil "Basic ~A"
+                                                                 (string-to-base64-string "hoge:fuga"))))))
+      (declare (ignore headers))
+      (is status 200)
+      (is body '("Hello, hoge")))))
+
+(subtest "Use :remote-user"
+  (let ((app
+          (builder
+           (:auth-basic :authenticator (lambda (user pass)
+                                         (when (and (string= user "nitro_idiot")
+                                                    (string= pass "password"))
+                                           (values t "Eitaro Fukamachi"))))
+           (lambda (env)
+             `(200 () (,(format nil "Hello, ~A" (getf env :remote-user))))))))
+    (destructuring-bind (status headers body)
+        (funcall app (generate-env "/"))
+      (is status 401)
+      (is body '("Authorization required"))
+      (is (getf headers :www-authenticate) "Basic realm=restricted area"))
+
+    (destructuring-bind (status headers body)
+        (funcall app (generate-env "/"
+                                   :headers
+                                   `(("authorization" . ,(format nil "Basic ~A"
+                                                                 (string-to-base64-string "nitro_idiot:password"))))))
+      (declare (ignore headers))
+      (is status 200)
+      (is body '("Hello, Eitaro Fukamachi")))))
 
 (finalize)

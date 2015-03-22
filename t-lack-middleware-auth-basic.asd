@@ -10,8 +10,8 @@
                :lack-test
                :lack-middleware-auth-basic
                :prove
-               :dexador
-               :cl-base64)
+               :cl-base64
+               :alexandria)
   :components
   ((:test-file "t/middleware/auth/basic"))
 

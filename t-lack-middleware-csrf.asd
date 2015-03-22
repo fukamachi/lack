@@ -7,13 +7,11 @@
   :author "Eitaro Fukamachi"
   :license "LLGPL"
   :depends-on (:lack
-               :lack-request
                :lack-test
+               :lack-request
                :lack-middleware-csrf
                :prove
-               :cl-ppcre
-               :dexador
-               :cl-cookie)
+               :cl-ppcre)
   :components
   ((:test-file "t/middleware/csrf"))
 

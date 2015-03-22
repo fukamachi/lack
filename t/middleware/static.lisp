@@ -6,31 +6,32 @@
         :lack.test))
 (in-package :t.lack.middleware.static)
 
-(plan nil)
+(plan 1)
 
-#+thread-support
-(subtest-app "static middleware"
-    (builder
-     (:static :path "/public/"
-              :root (asdf:system-relative-pathname :lack #P"data/"))
-     (lambda (env)
-       (declare (ignore env))
-       `(200 (:content-type "text/plain") ("Happy Valentine!"))))
-  (multiple-value-bind (body status headers)
-      (dex:get (localhost "/public/jellyfish.jpg"))
-    (is status 200)
-    (is (gethash "content-type" headers) "image/jpeg")
-    (is (length body) 139616))
-  (multiple-value-bind (body status)
-      (dex:get (localhost "/public/hoge.png"))
-    (is status 404)
-    (is body "Not Found"))
-  (multiple-value-bind (body status headers)
-      (dex:get (localhost "/"))
-    (is status 200)
-    (ok (string= (gethash "content-type" headers) "text/plain" :end1 10))
-    (is body "Happy Valentine!")))
-#-thread-support
-(skip 1 "because your lisp doesn't support threads")
+(subtest "static middleware"
+  (let ((app
+          (builder
+           (:static :path "/public/"
+                    :root (asdf:system-relative-pathname :lack #P"data/"))
+           (lambda (env)
+             (declare (ignore env))
+             `(200 (:content-type "text/plain") ("Happy Valentine!"))))))
+    (destructuring-bind (status headers body)
+        (funcall app (generate-env "/public/jellyfish.jpg"))
+      (is status 200)
+      (is (getf headers :content-type) "image/jpeg")
+      (is body (asdf:system-relative-pathname :lack #P"data/jellyfish.jpg")))
+
+    (destructuring-bind (status headers body)
+        (funcall app (generate-env "/public/hoge.png"))
+      (declare (ignore headers))
+      (is status 404)
+      (is body '("Not Found")))
+
+    (destructuring-bind (status headers body)
+        (funcall app (generate-env "/"))
+      (is status 200)
+      (is (getf headers :content-type) "text/plain")
+      (is body '("Happy Valentine!")))))
 
 (finalize)

@@ -8,8 +8,7 @@
   :license "LLGPL"
   :depends-on (:lack
                :lack-test
-               :prove
-               :dexador)
+               :prove)
   :components ((:test-file "t/middleware/static"))
 
   :defsystem-depends-on (:prove-asdf)

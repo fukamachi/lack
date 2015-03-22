@@ -3,10 +3,9 @@
   (:use :cl
         :prove
         :lack
-        :lack.request
         :lack.test
-        :lack.middleware.csrf
-        :cl-cookie))
+        :lack.request
+        :lack.middleware.csrf))
 (in-package :t.lack.middleware.csrf)
 
 (plan 2)
@@ -35,89 +34,114 @@
                  "name=\"_csrf_token\" value=\"(.+?)\"" body))))
     (and match (elt match 0))))
 
-(subtest-app "CSRF middleware"
-    (builder
-     :session
-     :csrf
-     #'(lambda (env)
-         (let ((req (make-request env)))
-           `(200
-             (:content-type "text/html")
-             (,(if (and (eq :post (request-method req))
-                        (assoc "name" (request-body-parameters req) :test #'string=))
-                   (cdr (assoc "name" (request-body-parameters req) :test #'string=))
-                   (html-form env)))))))
-  (let (csrf-token
-        (cookie-jar (make-instance 'cookie-jar)))
+(subtest "CSRF middleware"
+  (let ((app
+          (builder
+           :session
+           :csrf
+           #'(lambda (env)
+               (let ((req (make-request env)))
+                 `(200
+                   (:content-type "text/html")
+                   (,(if (and (eq :post (request-method req))
+                              (assoc "name" (request-body-parameters req) :test #'string=))
+                         (cdr (assoc "name" (request-body-parameters req) :test #'string=))
+                         (html-form env))))))))
+        csrf-token
+        session)
     (diag "first POST request")
-    (is (nth-value 1 (dex:post "http://localhost:4242/"
-                               :cookie-jar cookie-jar))
-        400)
+    (destructuring-bind (status headers body)
+        (funcall app (generate-env "/" :method :post))
+      (is status 400)
+      (is body '("Bad Request: invalid CSRF token"))
+      (like (getf headers :set-cookie)
+            "^lack.session=.+; path=/; expires=")
+
+      (setf session (parse-lack-session headers)))
+
     (diag "first GET request")
-    (multiple-value-bind (body status headers)
-        (dex:get "http://localhost:4242/"
-                 :cookie-jar cookie-jar)
+    (destructuring-bind (status headers body)
+        (funcall app (generate-env "/"
+                                   :headers
+                                   `(("cookie" . ,(format nil "lack.session=~A" session)))))
       (is status 200 "Status is 200")
-      (is (gethash "content-type" headers) "text/html; charset=utf-8" "Content-Type is text/html")
-      (setf csrf-token (parse-csrf-token body))
+      (like (getf headers :content-type) "^text/html" "Content-Type is text/html")
+      (setf csrf-token (parse-csrf-token (car body)))
       (ok csrf-token "can get CSRF token")
       (is-type csrf-token 'string "CSRF token is string")
       (is (length csrf-token) 40 "CSRF token is 40 chars"))
-    (diag "bad POST request (no token)")
-    (multiple-value-bind (body status headers)
-        (dex:post "http://localhost:4242/"
-                  :cookie-jar cookie-jar)
-      (is status 400 "Status is 400")
-      (is (gethash "content-type" headers) "text/plain; charset=utf-8" "Content-Type is text/plain")
-      (is body "Bad Request: invalid CSRF token" "Body is 'forbidden'"))
-    (diag "bad POST request (wrong token)")
-    (is (nth-value
-         1
-         (dex:post "http://localhost:4242/"
-                   :content '(("name" . "Eitaro Fukamachi")
-                              ("_csrf_token" . "wrongtokeniknow"))
-                   :cookie-jar cookie-jar))
-        400)
-    (diag "valid POST request")
-    (multiple-value-bind (body status headers)
-        (dex:post "http://localhost:4242/"
-                  :content `(("name" . "Eitaro Fukamachi")
-                             ("_csrf_token" . ,csrf-token))
-                  :cookie-jar cookie-jar)
-      (is status 200 "Status is 200")
-      (is (gethash "content-type" headers) "text/html; charset=utf-8" "Content-Type is text/html")
-      (is body "Eitaro Fukamachi" "can read body-parameter"))))
 
-(subtest-app "enable one-time token"
-    (builder
-     :session
-     (:csrf :one-time t)
-     #'(lambda (env)
-         (let ((req (make-request env)))
-           `(200
-             (:content-type "text/html")
-             (,(if (and (eq :post (request-method req))
-                        (assoc "name" (request-body-parameters req) :test #'string=))
-                   (cdr (assoc "name" (request-body-parameters req) :test #'string=))
-                   (html-form env)))))))
-  (let (csrf-token
-        (cookie-jar (make-instance 'cookie-jar)))
-    (setf csrf-token
-          (parse-csrf-token
-           (dex:get "http://localhost:4242/"
-                    :cookie-jar cookie-jar)))
-    (dex:post "http://localhost:4242/"
-              :content `(("name" . "Eitaro Fukamachi")
-                         ("_csrf_token" . ,csrf-token))
-              :cookie-jar cookie-jar)
-    (diag "bad POST request with before token")
-    (multiple-value-bind (body status headers)
-        (dex:post "http://localhost:4242/"
-                  :content `(("name" . "Eitaro Fukamachi")
-                             ("_csrf_token" . ,csrf-token))
-                  :cookie-jar cookie-jar)
-      (declare (ignore body))
+    (diag "bad POST request (no token)")
+    (destructuring-bind (status headers body)
+        (funcall app (generate-env "/"
+                                   :method :post
+                                   :headers
+                                   `(("cookie" . ,(format nil "lack.session=~A" session)))))
       (is status 400 "Status is 400")
-      (is (gethash "content-type" headers) "text/plain; charset=utf-8" "Content-Type is text/plain"))))
+      (like (getf headers :content-type) "^text/plain" "Content-Type is text/plain")
+      (is body '("Bad Request: invalid CSRF token") "Body is 'forbidden'"))
+
+    (diag "bad POST request (wrong token)")
+    (destructuring-bind (status headers body)
+        (funcall app (generate-env "/"
+                                   :method :post
+                                   :headers
+                                   `(("cookie" . ,(format nil "lack.session=~A" session)))))
+      (is status 400 "Status is 400")
+      (like (getf headers :content-type) "^text/plain" "Content-Type is text/plain")
+      (is body '("Bad Request: invalid CSRF token") "Body is 'forbidden'"))
+
+    (diag "valid POST request")
+    (destructuring-bind (status headers body)
+        (funcall app (generate-env "/"
+                                   :method :post
+                                   :cookies `(("lack.session" . ,session))
+                                   :content
+                                   `(("name" . "Eitaro Fukamachi")
+                                     ("_csrf_token" . ,csrf-token))))
+      (is status 200 "Status is 200")
+      (like (getf headers :content-type) "^text/html" "Content-Type is text/html")
+      (is body '("Eitaro Fukamachi") "can read body-parameter"))))
+
+(subtest "enable one-time token"
+  (let (csrf-token
+        session
+        (app
+          (builder
+           :session
+           (:csrf :one-time t)
+           #'(lambda (env)
+               (let ((req (make-request env)))
+                 `(200
+                   (:content-type "text/html")
+                   (,(if (and (eq :post (request-method req))
+                              (assoc "name" (request-body-parameters req) :test #'string=))
+                         (cdr (assoc "name" (request-body-parameters req) :test #'string=))
+                         (html-form env)))))))))
+    (destructuring-bind (status headers body)
+        (funcall app (generate-env "/"))
+      (declare (ignore status))
+      (setf csrf-token (parse-csrf-token (car body)))
+      (setf session (parse-lack-session headers)))
+
+    (destructuring-bind (status headers body)
+        (funcall app (generate-env "/"
+                                   :method :post
+                                   :content `(("name" . "Eitaro Fukamachi")
+                                              ("_csrf_token" . ,csrf-token))
+                                   :cookies `(("lack.session" . ,session))))
+      (declare (ignore headers body))
+      (is status 200))
+
+    (diag "send a request with an expired token")
+    (destructuring-bind (status headers body)
+        (funcall app (generate-env "/"
+                                   :method :post
+                                   :content `(("name" . "Eitaro Fukamachi")
+                                              ("_csrf_token" . ,csrf-token))
+                                   :cookies `(("lack.session" . ,session))))
+      (is status 400)
+      (is (getf headers :content-type) "text/plain")
+      (is body '("Bad Request: invalid CSRF token")))))
 
 (finalize)

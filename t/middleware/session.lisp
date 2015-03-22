@@ -3,35 +3,35 @@
   (:use :cl
         :prove
         :lack
-        :lack.test
-        :cl-cookie))
+        :lack.test))
 (in-package :t.lack.middleware.session)
 
-(plan nil)
+(plan 1)
 
-#+thread-support
-(subtest-app "session middleware"
-    (builder
-     :session
-     (lambda (env)
-       (unless (gethash :counter (getf env :lack.session))
-         (setf (gethash :counter (getf env :lack.session)) 0))
-       `(200
-         (:content-type "text/plain")
-         (,(format nil "Hello, you've been here for ~Ath times!"
-                   (incf (gethash :counter (getf env :lack.session))))))))
-  (let ((cookie-jar (make-cookie-jar)))
-    (multiple-value-bind (body status)
-        (dex:get (localhost) :cookie-jar cookie-jar :verbose t)
-      (diag "1st request")
+(subtest "session middleware"
+  (let ((app
+          (builder
+           :session
+           (lambda (env)
+             (unless (gethash :counter (getf env :lack.session))
+               (setf (gethash :counter (getf env :lack.session)) 0))
+             `(200
+               (:content-type "text/plain")
+               (,(format nil "Hello, you've been here for ~Ath times!"
+                         (incf (gethash :counter (getf env :lack.session))))))))))
+    (diag "1st request")
+    (destructuring-bind (status headers body)
+        (funcall app (generate-env "/"))
       (is status 200)
-      (is body "Hello, you've been here for 1th times!"))
-    (multiple-value-bind (body status)
-        (dex:get (localhost) :cookie-jar cookie-jar :verbose t)
-      (diag "2nd request")
+      (setf session (parse-lack-session headers))
+      (ok session)
+      (is body '("Hello, you've been here for 1th times!")))
+
+    (diag "2nd request")
+    (destructuring-bind (status headers body)
+        (funcall app (generate-env "/" :cookies `(("lack.session" . ,session))))
+      (declare (ignore headers))
       (is status 200)
-      (is body "Hello, you've been here for 2th times!"))))
-#-thread-support
-(skip 4 "because your lisp doesn't support threads")
+      (is body '("Hello, you've been here for 2th times!")))))
 
 (finalize)

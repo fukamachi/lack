@@ -8,9 +8,7 @@
   :license "LLGPL"
   :depends-on (:lack
                :lack-test
-               :prove
-               :dexador
-               :cl-cookie)
+               :prove)
   :components ((:test-file "t/middleware/session"))
 
   :defsystem-depends-on (:prove-asdf)

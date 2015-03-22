@@ -8,6 +8,6 @@
   :license "LLGPL"
   :depends-on (:lack
                :prove
-               :bordeaux-threads
-               :usocket)
+               :quri
+               :flexi-streams)
   :components ((:file "src/test")))
