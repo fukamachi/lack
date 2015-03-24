@@ -15,6 +15,8 @@
 (in-package :lack.test)
 
 (defun generate-env (uri &key (method :get) content headers cookies)
+  ;; default headers
+  (setf headers (append '(("host" . "localhost") ("accept" . "*/*")) headers))
   (when content
     (let ((content-type (or (cdr (assoc "content-type" headers :test #'string-equal))
                             (if (find-if #'pathnamep content :key #'cdr)
