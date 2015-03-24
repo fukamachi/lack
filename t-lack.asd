@@ -12,6 +12,7 @@
   :author "Eitaro Fukamachi"
   :license "LLGPL"
   :depends-on (:lack
+               :clack
                :prove)
   :components ((:module "t"
                 :components

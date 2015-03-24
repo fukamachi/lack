@@ -56,7 +56,7 @@
           (if (clack-middleware-symbol-p (car mw))
               `(lambda (,app)
                  (funcall (intern (string :wrap) :clack)
-                          (make-instance ',mw ,@(cdr mw))
+                          (make-instance ',(car mw) ,@(cdr mw))
                           ,app))
               ;; Normal form
               (let ((res (gensym "RES")))
