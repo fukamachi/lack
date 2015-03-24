@@ -35,7 +35,7 @@
 (defun convert-to-middleware-form (mw)
   (let ((app (gensym "APP"))
         (res-mw (gensym "RES-MW")))
-    (typecase mw
+    (etypecase mw
       (null)
       (function mw)
       (keyword `(find-middleware ,mw))
@@ -70,8 +70,7 @@
                                    (apply ,res-mw ,app (cdr ,res))))
                                ,res))
                      (otherwise ,res))))))
-         (otherwise mw)))
-      (otherwise mw))))
+         (otherwise mw))))))
 
 (defmacro builder (&rest app-or-middlewares)
   (let ((middlewares (butlast app-or-middlewares)))
