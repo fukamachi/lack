@@ -1,9 +1,15 @@
-# Lack, a minimal Clack
+# Lack, the core of Clack
 
 [![Build Status](https://travis-ci.org/fukamachi/lack.svg?branch=master)](https://travis-ci.org/fukamachi/lack)
 [![Coverage Status](https://coveralls.io/repos/fukamachi/lack/badge.svg?branch=master)](https://coveralls.io/r/fukamachi/lack)
 
-Lack is an experimental project for redesigning Clack with performance and simplicity in mind. This aims to be a gut of the next Clack major release.
+Lack is a Common Lisp library which allows web applications to be constructed of modular components. It was originally a part of [Clack](https://github.com/fukamachi/clack), however it's going to be rewritten as an individual project since Clack v2 with performance and simplicity in mind.
+
+The scope is defining Lack applications and wrapping it up with Lack middlewares. On the other hand, [Clack](https://github.com/fukamachi/clack) is an abstraction layer for HTTP and HTTP servers and provides unified API.
+
+## Warning
+
+This software is still BETA quality. The APIs are being finalized.
 
 ## Usage
 
@@ -11,8 +17,6 @@ Lack is an experimental project for redesigning Clack with performance and simpl
 (defvar *app*
   (lambda (env)
     '(200 (:content-type "text/plain") ("Hello, World"))))
-
-(lack:lackup *app* :server :woo)
 
 ;; `wrap`
 (funcall lack-middleware-session:*lack-middleware-session* *app*)
@@ -26,6 +30,12 @@ Lack is an experimental project for redesigning Clack with performance and simpl
       (prog1 (funcall app env)
         (do-before-responding))))
   *app*)
+```
+
+Use Clack's `clackup` for starting a Lack application.
+
+```common-lisp
+(clack:clackup *app* :server :woo)
 ```
 
 ## The Environment
@@ -54,6 +64,10 @@ The environment, an application takes, is a property list containing the followi
   - The remote address.
 - `:remote-port` (Required, Integer)
   - The remote port.
+- `:content-type` (Required, String)
+  - The header value of Content-Type.
+- `:content-length` (Optional, Integer)
+  - The header value of Content-Length.
 - `:headers` (Required, Hash-Table)
   - A hash table of headers.
 
@@ -121,7 +135,10 @@ Lack middleware is a component wrapping an application. It is a function which t
 Lack provides some bundle middlewares.
 
 * Lack.Middleware.Accesslog
+* Lack.Middleware.Auth.Basic
 * Lack.Middleware.Backtrace
+* Lack.Middleware.Csrf
+* Lack.Middleware.Mount
 * Lack.Middleware.Session
 * Lack.Middleware.Static
 
@@ -281,7 +298,7 @@ Transfer/sec:      1.10MB
 
 ## Copyright
 
-Copyright (c) 2015 Eitaro Fukamachi (e.arrows@gmail.com)
+Copyright (c) 2015 Eitaro Fukamachi & [contributors](https://github.com/fukamachi/lack/graphs/contributors)
 
 ## License
 
