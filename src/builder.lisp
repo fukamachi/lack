@@ -4,25 +4,9 @@
   (:import-from :lack.component
                 :to-app)
   (:import-from :lack.util
-                :find-package-or-load)
+                :find-middleware)
   (:export :builder))
 (in-package :lack.builder)
-
-(defun find-middleware (identifier)
-  (let* ((package-name (concatenate 'string
-                                    #.(string '#:lack.middleware.)
-                                    (substitute #\. #\- (symbol-name identifier))))
-         (package (find-package-or-load package-name)))
-    (unless package
-      (error "Middleware ~S is not found" package-name))
-    (let ((mw-symbol (intern (format nil "*~A*"
-                                     (substitute #\- #\. package-name
-                                                 :test #'char=))
-                             package)))
-      (if (and (boundp mw-symbol)
-               (functionp (symbol-value mw-symbol)))
-          (symbol-value mw-symbol)
-          (error "Middleware ~S is unbound or not a function" mw-symbol)))))
 
 (defun clack-middleware-symbol-p (symbol)
   (and (symbolp symbol)

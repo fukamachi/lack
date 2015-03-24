@@ -9,6 +9,7 @@
   (:import-from :alexandria
                 :when-let)
   (:export :find-package-or-load
+           :find-middleware
            :funcall-with-cb
            :content-length
            :generate-random-id))
@@ -24,6 +25,22 @@
           #-quicklisp (when (asdf:find-system system-name nil)
                         (asdf:load-system system-name :verbose nil))
           (find-package package-name)))))
+
+(defun find-middleware (identifier)
+  (let* ((package-name (concatenate 'string
+                                    #.(string '#:lack.middleware.)
+                                    (substitute #\. #\- (symbol-name identifier))))
+         (package (find-package-or-load package-name)))
+    (unless package
+      (error "Middleware ~S is not found" package-name))
+    (let ((mw-symbol (intern (format nil "*~A*"
+                                     (substitute #\- #\. package-name
+                                                 :test #'char=))
+                             package)))
+      (if (and (boundp mw-symbol)
+               (functionp (symbol-value mw-symbol)))
+          (symbol-value mw-symbol)
+          (error "Middleware ~S is unbound or not a function" mw-symbol)))))
 
 (defun funcall-with-cb (app env cb)
   (let ((res (funcall app env)))
