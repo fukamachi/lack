@@ -6,7 +6,7 @@
         :prove))
 (in-package :t.lack.middleware.backtrace)
 
-(plan 4)
+(plan 6)
 
 (let ((app
         (builder (:backtrace
@@ -47,11 +47,28 @@
       (ok (< 0 (length (get-output-stream-string *error-output*)))
           "Got backtraces"))))
 
+(subtest ":result-on-error is function"
+  (let ((app
+          (builder (:backtrace
+                    :result-on-error (lambda (condition)
+                                       (if (typep condition 'test-error)
+                                           '(503 (:content-type "text/plain") ("Service Temporary Unavailable"))
+                                           '(500 (:content-type "text/plain") ("Internal Server Error")))))
+                   (lambda (env)
+                     (if (string= (getf env :path-info) "/503")
+                         (error 'test-error)
+                         (error "Error occured")))))
+        (*error-output* (make-broadcast-stream)))
+    (is (funcall app (generate-env "/"))
+        '(500 (:content-type "text/plain") ("Internal Server Error")))
+    (is (funcall app (generate-env "/503"))
+        '(503 (:content-type "text/plain") ("Service Temporary Unavailable")))))
+
 (defparameter *test-error-output* (make-string-output-stream))
 
-(subtest "Custom :output"
+(subtest "Custom :output (stream)"
   (let ((app
-          (builder (:backtrace :output '*test-error-output*
+          (builder (:backtrace :output *test-error-output*
                                :result-on-error '(500 (:content-type "text/plain") ("Internal Server Error")))
                    (lambda (env)
                      (declare (ignore env))
@@ -61,6 +78,23 @@
       (ok (= 0 (length (get-output-stream-string *error-output*)))
           "Don't output to *error-output*")
       (ok (< 0 (length (get-output-stream-string *test-error-output*)))
+          "Output to the custom :output"))))
+
+(subtest "Custom :output (pathname)"
+  (let* ((log-file (asdf:system-relative-pathname :lack #P"data/test.log"))
+         (app
+           (builder (:backtrace :output log-file
+                                :result-on-error '(500 (:content-type "text/plain") ("Internal Server Error")))
+                    (lambda (env)
+                      (declare (ignore env))
+                      (error "Error occured")))))
+    (when (probe-file log-file)
+      (delete-file log-file))
+    (let ((*error-output* (make-string-output-stream)))
+      (funcall app (generate-env "/"))
+      (ok (= 0 (length (get-output-stream-string *error-output*)))
+          "Don't output to *error-output*")
+      (ok (< 0 (length (alexandria:read-file-into-string log-file)))
           "Output to the custom :output"))))
 
 (finalize)

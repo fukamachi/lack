@@ -8,7 +8,8 @@
   :license "LLGPL"
   :depends-on (:lack
                :lack-test
-               :prove)
+               :prove
+               :alexandria)
   :components
   ((:test-file "t/middleware/backtrace"))
 
