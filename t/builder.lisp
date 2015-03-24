@@ -5,7 +5,7 @@
         :lack.builder))
 (in-package :t.lack.builder)
 
-(plan 10)
+(plan 11)
 
 (defvar *app*
   (lambda (env)
