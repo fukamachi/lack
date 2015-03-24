@@ -20,6 +20,14 @@
          "builder")
 
 (is-type (builder
+          (lambda (app)
+            (lambda (env)
+              (funcall app env)))
+          *app*)
+         'function
+         "Inline middleware")
+
+(is-type (builder
           (if t
               (lambda (app)
                 (lambda (env)
