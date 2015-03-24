@@ -21,7 +21,8 @@
              `(200
                (:content-type "text/plain")
                (,(format nil "Hello, you've been here for ~Ath times!"
-                         (incf (gethash :counter (getf env :lack.session))))))))))
+                         (incf (gethash :counter (getf env :lack.session)))))))))
+        session)
     (diag "1st request")
     (destructuring-bind (status headers body)
         (funcall app (generate-env "/"))
