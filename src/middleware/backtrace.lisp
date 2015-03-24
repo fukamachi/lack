@@ -33,7 +33,8 @@
                                   (output-backtrace condition env)
                                   (when result-on-error
                                     (return (error-handler condition))))))
-            (funcall app env)))))))
+            (funcall app env))))))
+  "Middleware for outputting backtraces when an error occured")
 
 (defun print-error (error env &optional (stream *error-output*))
   (print-condition-backtrace error :stream stream)

@@ -29,7 +29,8 @@
                               (or returned-user user))
                         (funcall app env))
                       (return-401 realm)))
-                (return-401 realm))))))))
+                (return-401 realm)))))))
+  "Middleware for Basic Authentication")
 
 (defun return-401 (realm)
   `(401

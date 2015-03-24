@@ -27,7 +27,8 @@
                 (when one-time
                   (remhash :csrf-token session))
                 (funcall app env))
-              (funcall block-app env)))))))
+              (funcall block-app env))))))
+  "Middleware for easy CSRF protection")
 
 (defun return-400 (env)
   (declare (ignore env))

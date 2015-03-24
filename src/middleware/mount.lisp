@@ -20,4 +20,5 @@
                    (subseq path-info (length path)))
              (funcall mount-app env))
             (t
-             (funcall app env))))))))
+             (funcall app env)))))))
+  "Middleware for attaching another Lack application on a specific URL")

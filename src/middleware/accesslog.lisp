@@ -24,7 +24,8 @@
          (lambda (res)
            (funcall logger
                     (funcall formatter env res (now)))
-           res))))))
+           res)))))
+  "Middleware for logging requests")
 
 (defvar *time-format*
   '((:day 2) #\/ :short-month #\/ (:year 4) #\: (:hour 2) #\: (:min 2) #\: (:sec 2) #\Space :gmt-offset))

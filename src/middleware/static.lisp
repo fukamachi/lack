@@ -29,7 +29,8 @@
             (progn
               (setf (getf env :path-info) new-path)
               (call-app-file root env))
-            (funcall app env))))))))
+            (funcall app env)))))))
+  "Middleware for serving static files")
 
 (defun call-app-file (root env)
   (funcall (lack.app.file:make-app :root root) env))
