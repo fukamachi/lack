@@ -12,7 +12,8 @@
   (:method ((component function) env)
     (funcall component env)))
 
-(defun to-app (component)
-  (if (typep component 'lack-component)
-      (lambda (env) (call component env))
-      component))
+(defgeneric to-app (component)
+  (:method ((component lack-component))
+    (lambda (env) (call component env)))
+  (:method ((component t))
+    component))
