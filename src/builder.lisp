@@ -26,7 +26,7 @@
       ;; for old Clack middlewares
       (symbol (if (clack-middleware-symbol-p mw)
                   `(lambda (,app)
-                     (funcall (intern (string :wrap) :clack)
+                     (funcall (intern (string :wrap) :clack.middleware)
                               (make-instance ',mw)
                               ,app))
                   mw))
@@ -39,7 +39,7 @@
           ;; for old Clack middlewares
           (if (clack-middleware-symbol-p (car mw))
               `(lambda (,app)
-                 (funcall (intern (string :wrap) :clack)
+                 (funcall (intern (string :wrap) :clack.middleware)
                           (make-instance ',(car mw) ,@(cdr mw))
                           ,app))
               ;; Normal form
@@ -53,6 +53,9 @@
                                  (lambda (,app)
                                    (apply ,res-mw ,app (cdr ,res))))
                                ,res))
+                     (standard-object
+                      (lambda (,app)
+                        (funcall (intern (string :wrap) :clack.middleware) ,res ,app)))
                      (otherwise ,res))))))
          (otherwise mw))))))
 
