@@ -35,7 +35,12 @@
   (setf (cookie-state-expires state) 0)
   (finalize-state state sid res options))
 
-(defmethod finalize-state ((state cookie-state) sid res options)
+(defmethod finalize-state ((state cookie-state) sid (res function) options)
+  (lambda (responder)
+    (funcall res (lambda (actual-res)
+		   (funcall responder (finalize-state state sid actual-res options))))))
+
+(defmethod finalize-state ((state cookie-state) sid (res list) options)
   (let ((res (apply #'make-response res))
         (options (append (remove-from-plist options :id)
                          (with-slots (path domain expires secure httponly) state

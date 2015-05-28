@@ -6,7 +6,7 @@
         :lack.test))
 (in-package :t.lack.middleware.session)
 
-(plan 2)
+(plan 3)
 
 (ok (lack.session.state:make-state)
     "Base class of session state")
@@ -37,5 +37,36 @@
       (declare (ignore headers))
       (is status 200)
       (is body '("Hello, you've been here for 2th times!")))))
+
+(subtest "session with delayed response"
+  (let ((app
+          (builder
+           :session
+           (lambda (env)
+             (unless (gethash :counter (getf env :lack.session))
+               (setf (gethash :counter (getf env :lack.session)) 0))
+             (lambda (responder)
+               (funcall responder
+                 `(200
+                   (:content-type "text/plain")
+                   (,(format nil "Hello, you've been here for ~Ath times!"
+                             (incf (gethash :counter (getf env :lack.session)))))))))))
+        session)
+    (diag "1st request")
+    (funcall (funcall app (generate-env "/"))
+             (lambda (response)
+               (destructuring-bind (status headers body) response
+                 (is status 200)
+                 (setf session (parse-lack-session headers))
+                 (ok session)
+                 (is body '("Hello, you've been here for 1th times!")))))
+
+    (diag "2nd request")
+    (funcall (funcall app (generate-env "/" :cookies `(("lack.session" . ,session))))
+             (lambda (response)
+               (destructuring-bind (status headers body) response
+                 (declare (ignore headers))
+                 (is status 200)
+                 (is body '("Hello, you've been here for 2th times!")))))))
 
 (finalize)
