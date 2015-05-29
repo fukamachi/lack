@@ -10,10 +10,6 @@ install:
   # Install cl-travis
   - curl https://raw.githubusercontent.com/luismbo/cl-travis/master/install.sh | bash
 
-before_script:
-  - git clone https://github.com/fukamachi/http-body ~/lisp/http-body
-  - git clone https://github.com/fukamachi/cl-coveralls ~/lisp/cl-coveralls
-
 script:
   - cl -l prove -l cl-coveralls
        -e '(or (coveralls:with-coveralls (:exclude "t")
