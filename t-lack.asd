@@ -13,6 +13,7 @@
   :license "LLGPL"
   :depends-on (:lack
                :clack
+               :clack-v1-compat
                :prove)
   :components ((:module "t"
                 :components
