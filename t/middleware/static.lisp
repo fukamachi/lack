@@ -8,7 +8,7 @@
                 :starts-with-subseq))
 (in-package :t.lack.middleware.static)
 
-(plan 3)
+(plan 4)
 
 (subtest ":path is string"
   (let ((app
@@ -67,5 +67,18 @@
       (is body (asdf:system-relative-pathname :lack #P"data/jellyfish.jpg")))
 
     (is (car (funcall app (generate-env "/static/not-found.png"))) 404)))
+
+(subtest "special character in path-info"
+  (let ((app
+          (builder
+           (:static :path (lambda (path-info)
+                            (when (starts-with-subseq "/static/" path-info)
+                              (subseq path-info #.(length "/static"))))
+                    :root (asdf:system-relative-pathname :lack #P"data/"))
+           (lambda (env)
+             (declare (ignore env))
+             `(200 (:content-type "text/plain") ("ok"))))))
+    (is (first (funcall app (generate-env "/static/?broken=yup"))) 404)
+    (is (first (funcall app (generate-env "/static/%3Fbroken=yup"))) 404)))
 
 (finalize)
