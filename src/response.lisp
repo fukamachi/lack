@@ -26,7 +26,9 @@
 (defun finalize-response (res)
   (finalize-cookies res)
   (with-slots (status headers body) res
-    (list status headers body)))
+    (list status headers (if (stringp body)
+                             (list body)
+                             body))))
 
 (defun finalize-cookies (res)
   (setf (response-headers res)
