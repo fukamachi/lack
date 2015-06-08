@@ -7,9 +7,15 @@ env:
     - LISP=ccl
 
 install:
-  - curl -L https://raw.githubusercontent.com/fukamachi/roswell/master/scripts/travis-install.sh | sh
+  # Install Roswell
+  - curl -L https://raw.githubusercontent.com/snmsts/roswell/release/scripts/travis-install.sh | sh
+  - export PATH=~/.roswell/bin:$PATH
+  # Use the latest Qlot
   - git clone -b fix-subdir-asd https://github.com/fukamachi/qlot ~/lisp/qlot
+  # Install Qlot
   - ros install qlot
+
+before_script:
   - cd $TRAVIS_BUILD_DIR && qlot install
 
 script:
