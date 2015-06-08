@@ -11,7 +11,7 @@ install:
   - curl -L https://raw.githubusercontent.com/snmsts/roswell/release/scripts/travis-install.sh | sh
   - export PATH=~/.roswell/bin:$PATH
   # Use the latest Qlot
-  - git clone -b fix-subdir-asd https://github.com/fukamachi/qlot ~/lisp/qlot
+  - git clone https://github.com/fukamachi/qlot ~/lisp/qlot
   # Install Qlot
   - ros install qlot
 
