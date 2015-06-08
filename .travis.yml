@@ -8,11 +8,9 @@ env:
 
 install:
   - curl -L https://raw.githubusercontent.com/snmsts/roswell/release/scripts/travis-install.sh | sh
-  - curl https://raw.githubusercontent.com/fukamachi/qlot/master/roswell/qlot.ros -o ~/qlot; chmod u+x ~/qlot
-  - cd $TRAVIS_BUILD_DIR; ~/qlot install
-
-before_script:
   - git clone https://github.com/fukamachi/qlot ~/lisp/qlot
+  - cp ~/lisp/qlot/roswell/qlot.ros ~/qlot && chmod u+x ~/qlot
+  - cd $TRAVIS_BUILD_DIR; ~/qlot install
 
 script:
   - ~/qlot exec
