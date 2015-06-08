@@ -7,13 +7,13 @@ env:
     - LISP=ccl
 
 install:
-  - curl -L https://raw.githubusercontent.com/snmsts/roswell/release/scripts/travis-install.sh | sh
+  - curl -L https://raw.githubusercontent.com/fukamachi/roswell/master/scripts/travis-install.sh | sh
   - git clone -b fix-subdir-asd https://github.com/fukamachi/qlot ~/lisp/qlot
-  - cp ~/lisp/qlot/roswell/qlot.ros ~/qlot && chmod u+x ~/qlot
-  - cd $TRAVIS_BUILD_DIR; ~/qlot install
+  - ros install qlot
+  - cd $TRAVIS_BUILD_DIR && qlot install
 
 script:
-  - ~/qlot exec
+  - qlot exec
       ros -s prove -s cl-coveralls
           -e '(or (coveralls:with-coveralls (:exclude "t")
                     (loop for file in (uiop:directory-files (uiop:ensure-directory-pathname (uiop:getenv "TRAVIS_BUILD_DIR")))
