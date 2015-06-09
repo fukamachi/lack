@@ -5,7 +5,7 @@ machine:
 
 checkout:
   pre:
-    - curl -L https://raw.githubusercontent.com/fukamachi/roswell/circleci/scripts/install-for-ci.sh | sh
+    - curl -L https://raw.githubusercontent.com/snmsts/roswell/master/scripts/install-for-ci.sh | sh
 
 dependencies:
   pre:

@@ -8,7 +8,7 @@ env:
 
 install:
   # Install Roswell
-  - curl -L https://raw.githubusercontent.com/snmsts/roswell/release/scripts/travis-install.sh | sh
+  - curl -L https://raw.githubusercontent.com/snmsts/roswell/master/scripts/install-for-ci.sh | sh
   - export PATH=~/.roswell/bin:$PATH
   # Use the latest Qlot
   - git clone https://github.com/fukamachi/qlot ~/lisp/qlot
