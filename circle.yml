@@ -1,0 +1,19 @@
+machine:
+  environment:
+    LISP=sbcl
+    PATH=~/.roswell/bin:$PATH
+
+checkout:
+  pre:
+    - curl -L https://raw.githubusercontent.com/fukamachi/roswell/circleci/scripts/travis-install.sh | sh
+
+dependencies:
+  pre:
+    - git clone https://github.com/fukamachi/qlot ~/lisp/qlot
+    - ros install qlot
+  override:
+    - qlot install
+
+test:
+  override:
+    - qlot exec ros -s prove -e '(or (loop for file in (uiop:directory-files *default-pathname-defaults*) when (and (string= (pathname-type file) "asd") (< 2 (length (pathname-name file))) (string= (pathname-name file) "t-" :end1 2)) collect (pathname-name file) into test-files finally (return (not (some (function null) (mapcar (function prove:run) test-files))))) (uiop:quit -1))'
