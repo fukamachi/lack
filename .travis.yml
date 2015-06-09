@@ -17,7 +17,7 @@ install:
 
 before_script:
   - cd $TRAVIS_BUILD_DIR && qlot install
-  - git clone https://github.com/fukamachi/cl-coveralls ~/lisp/cl-coveralls
+  - git clone https://github.com/fukamachi/cl-coveralls $TRAVIS_BUILD_DIR/quicklisp/local-projects/cl-coveralls
 
 script:
   - qlot exec
