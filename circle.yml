@@ -1,7 +1,7 @@
 machine:
   environment:
-    - LISP=sbcl
-    - PATH=~/.roswell/bin:$PATH
+    LISP: sbcl
+    PATH: ~/.roswell/bin:$PATH
 
 checkout:
   pre:
