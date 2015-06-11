@@ -1,11 +1,16 @@
 machine:
   environment:
-    LISP: sbcl
     PATH: ~/.roswell/bin:$PATH
 
 checkout:
   pre:
-    - curl -L https://raw.githubusercontent.com/snmsts/roswell/master/scripts/install-for-ci.sh | sh
+    - curl -L https://raw.githubusercontent.com/snmsts/roswell/release/scripts/install-for-ci.sh | sh
+    - case $CIRCLE_NODE_INDEX in
+        0) ros config set default.lisp sbcl-bin ;;
+        1) ros install ccl-bin;
+           ros config set default.lisp ccl-bin ;;
+      esac
+    - ros run -- --version
 
 dependencies:
   pre:
@@ -18,4 +23,4 @@ dependencies:
 
 test:
   override:
-    - qlot exec ros -s prove -e '(or (loop for file in (uiop:directory-files *default-pathname-defaults*) when (and (string= (pathname-type file) "asd") (< 2 (length (pathname-name file))) (string= (pathname-name file) "t-" :end1 2)) collect (pathname-name file) into test-files finally (return (not (some (function null) (mapcar (function prove:run) test-files))))) (uiop:quit -1))'
+    - qlot exec ./run-test.ros t-*.asd: {parallel: true}
