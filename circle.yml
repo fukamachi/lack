@@ -19,4 +19,5 @@ dependencies:
 
 test:
   override:
+    - echo "LISP=$LISP / COVERALLS=$COVERALLS"
     - run-prove t-*.asd: {parallel: true}
