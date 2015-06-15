@@ -22,9 +22,4 @@ dependencies:
 
 test:
   override:
-    - echo "CIRCLE_NODE_INDEX=$CIRCLE_NODE_INDEX"
-    - ros run -- --version
-    - case $CIRCLE_NODE_INDEX in
-        0) COVERALLS=true run-prove t-*.asd ;;
-        1) COVERALLS=""   run-prove t-*.asd ;;
-      esac
+    - if [ "$CIRCLE_NODE_INDEX" = 0 ]; then COVERALLS=true run-prove t-*.asd; else run-prove t-*.asd; fi: {parallel: true}
