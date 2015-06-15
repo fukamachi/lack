@@ -2,8 +2,6 @@ language: common-lisp
 sudo: required
 
 env:
-  global:
-    - PATH=~/.roswell/bin:$PATH
   matrix:
     - LISP=sbcl COVERALLS=true
     - LISP=ccl
@@ -11,24 +9,19 @@ env:
 install:
   # Install Roswell
   - curl -L https://raw.githubusercontent.com/fukamachi/roswell/fix-prefix/scripts/install-for-ci.sh | sh
-  # Use the latest Qlot
-  - git clone https://github.com/fukamachi/qlot ~/lisp/qlot
-  # Install Qlot
-  - ros -l ~/lisp/qlot/qlot.asd install qlot
 
 before_script:
-  - cd $TRAVIS_BUILD_DIR && qlot install
+  - git clone https://github.com/fukamachi/clack ~/lisp/clack
   - git clone https://github.com/fukamachi/cl-coveralls $TRAVIS_BUILD_DIR/quicklisp/local-projects/cl-coveralls
 
 script:
-  - qlot exec
-      ros -s prove -s cl-coveralls
-          -e '(or (coveralls:with-coveralls (:exclude (list "t" "quicklisp"))
-                    (loop for file in (uiop:directory-files (uiop:ensure-directory-pathname (uiop:getenv "TRAVIS_BUILD_DIR")))
-                          when (and (string= (pathname-type file) "asd")
-                                    (< 2 (length (pathname-name file)))
-                                    (string= (pathname-name file) "t-" :end1 2))
-                            collect (pathname-name file) into test-files
-                          finally
-                            (return (not (some (function null) (mapcar (function prove:run) test-files))))))
-                  (uiop:quit -1))'
+  - ros -s prove -s cl-coveralls
+        -e '(or (coveralls:with-coveralls (:exclude (list "t" "quicklisp"))
+                  (loop for file in (uiop:directory-files (uiop:ensure-directory-pathname (uiop:getenv "TRAVIS_BUILD_DIR")))
+                        when (and (string= (pathname-type file) "asd")
+                                  (< 2 (length (pathname-name file)))
+                                  (string= (pathname-name file) "t-" :end1 2))
+                          collect (pathname-name file) into test-files
+                        finally
+                          (return (not (some (function null) (mapcar (function prove:run) test-files))))))
+                (uiop:quit -1))'

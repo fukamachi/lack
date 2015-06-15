@@ -13,14 +13,9 @@ checkout:
     - ros run -- --version
 
 dependencies:
-  pre:
-    - git clone https://github.com/fukamachi/qlot ~/lisp/qlot
-    - ros -l ~/lisp/qlot/qlot.asd install qlot
   override:
-    - if [ ! -d quicklisp ]; then qlot install; fi
-  cache_directories:
-    - "quicklisp"
+    - git clone https://github.com/fukamachi/clack ~/lisp/clack
 
 test:
   override:
-    - qlot exec ./run-test.ros t-*.asd: {parallel: true}
+    - ./run-test.ros t-*.asd: {parallel: true}
