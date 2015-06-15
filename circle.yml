@@ -15,7 +15,7 @@ checkout:
 dependencies:
   pre:
     - git clone https://github.com/fukamachi/qlot ~/lisp/qlot
-    - ros install qlot
+    - ros -l ~/lisp/qlot/qlot.asd install qlot
   override:
     - if [ ! -d quicklisp ]; then qlot install; fi
   cache_directories:

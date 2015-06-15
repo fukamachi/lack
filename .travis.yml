@@ -2,18 +2,19 @@ language: common-lisp
 sudo: required
 
 env:
+  global:
+    - PATH=~/.roswell/bin:$PATH
   matrix:
     - LISP=sbcl COVERALLS=true
     - LISP=ccl
 
 install:
   # Install Roswell
-  - curl -L https://raw.githubusercontent.com/snmsts/roswell/master/scripts/install-for-ci.sh | sh
-  - export PATH=~/.roswell/bin:$PATH
+  - curl -L https://raw.githubusercontent.com/snmsts/roswell/release/scripts/install-for-ci.sh | sh
   # Use the latest Qlot
   - git clone https://github.com/fukamachi/qlot ~/lisp/qlot
   # Install Qlot
-  - ros install qlot
+  - ros -l ~/lisp/qlot/qlot.asd install qlot
 
 before_script:
   - cd $TRAVIS_BUILD_DIR && qlot install
@@ -22,7 +23,7 @@ before_script:
 script:
   - qlot exec
       ros -s prove -s cl-coveralls
-          -e '(or (coveralls:with-coveralls (:exclude (list "t" "bundle-libs"))
+          -e '(or (coveralls:with-coveralls (:exclude (list "t"))
                     (loop for file in (uiop:directory-files (uiop:ensure-directory-pathname (uiop:getenv "TRAVIS_BUILD_DIR")))
                           when (and (string= (pathname-type file) "asd")
                                     (< 2 (length (pathname-name file)))
