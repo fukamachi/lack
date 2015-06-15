@@ -48,7 +48,7 @@ The environment, an application takes, is a property list containing the followi
 - `:script-name` (Required, String)
   - The initial portion of the request URI path that corresponds to the Clack application. The value of this key may be an empty string when the client is accessing the application represented by the server's root URI. Otherwise, it is a non-empty string starting with a forward slash (`/`).
 - `:path-info` (Required, String)
-  - The remainder of the request URI path. The value of this key may be an empty string when you access the application represented by the server’s root URI with no trailing slash.
+  - The remainder of the request URI path. The value of this key may be an empty string when you access the application represented by the server's root URI with no trailing slash.
 - `:query-string` (Optional, String)
   - The portion of the request URI that follows the `?`, if any.
 - `:server-name` (Required, String)
