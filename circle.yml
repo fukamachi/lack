@@ -22,5 +22,7 @@ dependencies:
 
 test:
   override:
-    - if [ "$CIRCLE_NODE_INDEX" = 0 ]; then COVERALLS=true; fi;
-        run-prove t-*.asd: {parallel: true}
+    - run-prove t-*.asd:
+        parallel: true
+        environment:
+          COVERALLS: $(if [ "$CIRCLE_NODE_INDEX" = 0 ]; then echo "true"; fi)
