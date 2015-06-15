@@ -15,7 +15,10 @@ checkout:
 dependencies:
   override:
     - git clone https://github.com/fukamachi/clack ~/lisp/clack
+    - git clone -b circleci https://github.com/fukamachi/cl-coveralls ~/lisp/cl-coveralls
+    - git clone https://github.com/fukamachi/prove ~/lisp/prove
+    - ros -l ~/lisp/prove/prove.asd install prove
 
 test:
   override:
-    - ./run-test.ros t-*.asd: {parallel: true}
+    - run-prove t-*.asd: {parallel: true}
