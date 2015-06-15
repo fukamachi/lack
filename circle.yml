@@ -22,7 +22,7 @@ dependencies:
 
 test:
   override:
-    - run-prove t-*.asd:
-        parallel: true
-        environment:
-          COVERALLS: $(if [ "$CIRCLE_NODE_INDEX" = 0 ]; then echo "true"; fi)
+    - case $CIRCLE_NODE_INDEX in
+        0) COVERALLS=true run-prove t-*.asd ;;
+        1)                run-prove t-*.asd ;;
+      esac
