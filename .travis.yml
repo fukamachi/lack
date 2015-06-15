@@ -2,6 +2,8 @@ language: common-lisp
 sudo: required
 
 env:
+  global:
+    - COVERAGE_EXCLUDE=t/
   matrix:
     - LISP=sbcl COVERALLS=true
     - LISP=ccl
@@ -12,7 +14,9 @@ install:
 
 before_script:
   - git clone https://github.com/fukamachi/clack ~/lisp/clack
-  - git clone https://github.com/fukamachi/cl-coveralls $TRAVIS_BUILD_DIR/quicklisp/local-projects/cl-coveralls
+  - git clone https://github.com/fukamachi/cl-coveralls ~/lisp/cl-coveralls
+  - git clone https://github.com/fukamachi/prove ~/lisp/prove
+  - ros -l ~/lisp/prove/prove.asd install prove
 
 script:
-  - COVERAGE_EXCLUDE=t/ ./run-test.ros t-*.asd
+  - run-prove t-*.asd
