@@ -23,7 +23,7 @@ before_script:
 script:
   - qlot exec
       ros -s prove -s cl-coveralls
-          -e '(or (coveralls:with-coveralls (:exclude (list "t"))
+          -e '(or (coveralls:with-coveralls (:exclude (list "t" "quicklisp"))
                     (loop for file in (uiop:directory-files (uiop:ensure-directory-pathname (uiop:getenv "TRAVIS_BUILD_DIR")))
                           when (and (string= (pathname-type file) "asd")
                                     (< 2 (length (pathname-name file)))
