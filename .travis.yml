@@ -10,7 +10,7 @@ env:
 
 install:
   # Install Roswell
-  - curl -L https://raw.githubusercontent.com/snmsts/roswell/release/scripts/install-for-ci.sh | sh
+  - curl -L https://raw.githubusercontent.com/fukamachi/roswell/fix-prefix/scripts/install-for-ci.sh | sh
   # Use the latest Qlot
   - git clone https://github.com/fukamachi/qlot ~/lisp/qlot
   # Install Qlot
