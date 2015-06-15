@@ -5,7 +5,7 @@ env:
   global:
     - PATH=~/.roswell/bin:$PATH
   matrix:
-    - LISP=sbcl
+    - LISP=sbcl COVERALLS=true
     - LISP=ccl
 
 install:
@@ -14,6 +14,7 @@ install:
 
 before_script:
   - git clone https://github.com/fukamachi/clack ~/lisp/clack
+  - git clone https://github.com/fukamachi/cl-coveralls ~/lisp/cl-coveralls
   - git clone https://github.com/fukamachi/prove ~/lisp/prove
   - ros -l ~/lisp/prove/prove.asd install prove
 
