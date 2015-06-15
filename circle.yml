@@ -1,15 +1,13 @@
 machine:
   environment:
     PATH: ~/.roswell/bin:$PATH
+    LISP: $(if [ "$CIRCLE_NODE_INDEX" = 0 ]; then echo "sbcl"; else echo "ccl"; fi)
+    COVERALLS: $(if [ "$LISP" = "sbcl" ]; then echo "true"; fi)
+    COVERAGE_EXCLUDE: t/
 
 checkout:
   pre:
     - curl -L https://raw.githubusercontent.com/snmsts/roswell/master/scripts/install-for-ci.sh | sh
-    - case $CIRCLE_NODE_INDEX in
-        0) ros config set default.lisp sbcl-bin ;;
-        1) ros install ccl-bin;
-           ros config set default.lisp ccl-bin ;;
-      esac
     - ros run -- --version
 
 dependencies:
