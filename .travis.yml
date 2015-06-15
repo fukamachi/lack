@@ -8,7 +8,7 @@ env:
 
 install:
   # Install Roswell
-  - curl -L https://raw.githubusercontent.com/fukamachi/roswell/fix-prefix/scripts/install-for-ci.sh | sh
+  - curl -L https://raw.githubusercontent.com/snmsts/roswell/master/scripts/install-for-ci.sh | sh
 
 before_script:
   - git clone https://github.com/fukamachi/clack ~/lisp/clack
