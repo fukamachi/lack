@@ -15,13 +15,4 @@ before_script:
   - git clone https://github.com/fukamachi/cl-coveralls $TRAVIS_BUILD_DIR/quicklisp/local-projects/cl-coveralls
 
 script:
-  - ros -s prove -s cl-coveralls
-        -e '(or (coveralls:with-coveralls (:exclude (list "t" "quicklisp"))
-                  (loop for file in (uiop:directory-files (uiop:ensure-directory-pathname (uiop:getenv "TRAVIS_BUILD_DIR")))
-                        when (and (string= (pathname-type file) "asd")
-                                  (< 2 (length (pathname-name file)))
-                                  (string= (pathname-name file) "t-" :end1 2))
-                          collect (pathname-name file) into test-files
-                        finally
-                          (return (not (some (function null) (mapcar (function prove:run) test-files))))))
-                (uiop:quit -1))'
+  - COVERAGE_EXCLUDE=t/ ./run-test.ros t-*.asd
