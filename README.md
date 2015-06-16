@@ -1,8 +1,7 @@
 # Lack, the core of Clack
 
-[![Build Status](https://travis-ci.org/fukamachi/lack.svg?branch=master)](https://travis-ci.org/fukamachi/lack)
+[![Build Status](https://circleci.com/gh/fukamachi/lack.svg?style=shield)](https://circleci.com/gh/fukamachi/lack)
 [![Coverage Status](https://coveralls.io/repos/fukamachi/lack/badge.svg?branch=master)](https://coveralls.io/r/fukamachi/lack)
-[![Circle CI](https://circleci.com/gh/fukamachi/lack.svg?style=svg)](https://circleci.com/gh/fukamachi/lack)
 
 Lack is a Common Lisp library which allows web applications to be constructed of modular components. It was originally a part of [Clack](https://github.com/fukamachi/clack), however it's going to be rewritten as an individual project since Clack v2 with performance and simplicity in mind.
 
