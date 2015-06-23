@@ -9,7 +9,9 @@
   :license "LLGPL"
   :depends-on (:lack-request
                :lack-response
-               :lack-util)
+               :lack-util
+               :marshal
+               :cl-base64)
   :components ((:module "src/middleware"
                 :components
                 ((:file "session" :depends-on ("store" "state"))
@@ -17,7 +19,8 @@
                   :pathname "session"
                   :components
                   ((:file "store")
-                   (:file "store/memory")))
+                   (:file "store/memory")
+                   (:file "store/client")))
                  (:module "state"
                   :pathname "session"
                   :components
