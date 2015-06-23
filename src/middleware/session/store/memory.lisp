@@ -3,6 +3,9 @@
   (:nicknames :lack.session.store.memory)
   (:use :cl
         :lack.middleware.session.store)
+  (:import-from :lack.util
+                :generate-random-id
+                :valid-id-p)
   (:export :memory-store
            :make-memory-store
            :fetch-session
@@ -14,11 +17,18 @@
   (stash (make-hash-table :test 'equal)))
 
 (defmethod fetch-session ((store memory-store) sid)
-  (gethash sid (memory-store-stash store)))
+  (when (valid-id-p sid)
+    (let ((data (gethash sid (memory-store-stash store))))
+      (when data
+        (make-session :id sid :data data)))))
 
-(defmethod store-session ((store memory-store) sid session)
-  (setf (gethash sid (memory-store-stash store))
-        session))
+(defmethod store-session ((store memory-store) session)
+  (unless (session-id session)
+    (setf (session-id session)
+          (generate-random-id)))
+  (setf (gethash (session-id session) (memory-store-stash store))
+        (session-data session)))
 
-(defmethod remove-session ((store memory-store) sid)
-  (remhash sid (memory-store-stash store)))
+(defmethod remove-session ((store memory-store) session)
+  (when (session-id session)
+    (remhash (session-id session) (memory-store-stash store))))

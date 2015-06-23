@@ -14,7 +14,6 @@
                 :remove-from-plist)
   (:export :cookie-state
            :make-cookie-state
-           :generate-sid
            :extract-sid
            :expire-state
            :finalize-session))

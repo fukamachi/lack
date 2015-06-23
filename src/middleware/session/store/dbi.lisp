@@ -3,6 +3,9 @@
   (:nicknames :lack.session.store.dbi)
   (:use :cl
         :lack.middleware.session.store)
+  (:import-from :lack.util
+                :generate-random-id
+                :valid-id-p)
   (:import-from :marshal
                 :marshal
                 :unmarshal)
@@ -25,22 +28,28 @@
   (table-name "sessions"))
 
 (defmethod fetch-session ((store dbi-store) sid)
-  (let* ((conn (funcall (dbi-store-connector store)))
-         (query (dbi:prepare conn
-                             (format nil "SELECT session_data FROM ~A WHERE id = ?"
-                                     (dbi-store-table-name store))))
-         (result (dbi:fetch (dbi:execute query sid))))
-    (if result
-        (ignore-errors (funcall (dbi-store-deserializer store) (getf result :|session_data|)))
-        nil)))
+  (when (valid-id-p sid)
+    (let* ((conn (funcall (dbi-store-connector store)))
+           (query (dbi:prepare conn
+                               (format nil "SELECT session_data FROM ~A WHERE id = ?"
+                                       (dbi-store-table-name store))))
+           (result (dbi:fetch (dbi:execute query sid)))
+           (data (when result
+                   (ignore-errors (funcall (dbi-store-deserializer store) (getf result :|session_data|))))))
+      (when data
+        (make-session :id sid :data data)))))
 
-(defmethod store-session ((store dbi-store) sid session)
-  (let* ((conn (funcall (dbi-store-connector store)))
+(defmethod store-session ((store dbi-store) session)
+  (unless (session-id session)
+    (setf (session-id session)
+          (generate-random-id)))
+  (let* ((sid (session-id session))
+         (conn (funcall (dbi-store-connector store)))
          (query (dbi:prepare conn
                              (format nil "SELECT 1 FROM ~A WHERE id = ?"
                                      (dbi-store-table-name store))))
          (existsp (dbi:fetch (dbi:execute query sid)))
-         (serialized-session (funcall (dbi-store-serializer store) session)))
+         (serialized-session (funcall (dbi-store-serializer store) (session-data session))))
     (if existsp
         (dbi:do-sql conn (format nil "UPDATE ~A SET session_data = ? WHERE id = ?"
                                  (dbi-store-table-name store))
@@ -51,8 +60,9 @@
           sid
           serialized-session))))
 
-(defmethod remove-session ((store dbi-store) sid)
-  (dbi:do-sql (funcall (dbi-store-connector store))
-    (format nil "DELETE FROM ~A WHERE id = ?"
-            (dbi-store-table-name store))
-    sid))
+(defmethod remove-session ((store dbi-store) session)
+  (when (session-id session)
+    (dbi:do-sql (funcall (dbi-store-connector store))
+      (format nil "DELETE FROM ~A WHERE id = ?"
+              (dbi-store-table-name store))
+      (session-id session))))
