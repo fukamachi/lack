@@ -7,7 +7,10 @@
                 :ascii-string-to-byte-array
                 :byte-array-to-hex-string
                 :digest-sequence
-                :make-digest)
+                :make-digest
+                :make-hmac
+                :update-hmac
+                :hmac-digest)
   (:import-from :alexandria
                 :when-let)
   (:export :find-package-or-load
@@ -15,7 +18,8 @@
            :funcall-with-cb
            :content-length
            :generate-random-id
-           :valid-id-p))
+           :valid-id-p
+           :hmac-signature))
 (in-package :lack.util)
 
 (defun find-package-or-load (package-name)
@@ -78,3 +82,8 @@
 
 (defun valid-id-p (id)
   (not (null (ppcre:scan "\\A[0-9a-f]{40}\\Z" id))))
+
+(defun hmac-signature (key message &optional (digest-name :sha256))
+  (let ((hmac (make-hmac (ascii-string-to-byte-array key) digest-name)))
+    (update-hmac hmac (ascii-string-to-byte-array message))
+    (byte-array-to-hex-string (hmac-digest hmac))))

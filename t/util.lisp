@@ -6,7 +6,7 @@
         :lack.test))
 (in-package :t.lack.util)
 
-(plan 3)
+(plan 4)
 
 (subtest "find-package-or-load"
   (is (find-package-or-load "LACK")
@@ -44,5 +44,11 @@
       t)
   (is (valid-id-p "invalid id")
       nil))
+
+(subtest "hmac-signature"
+  (is (hmac-signature "secret" "Hello, World!")
+      "fcfaffa7fef86515c7beb6b62d779fa4ccf092f2e61c164376054271252821ff")
+  (is (hmac-signature "secret" "Hello, World!" :sha1)
+      "883a982dc2ae46d20f7f106c786a9241b60dc340"))
 
 (finalize)
