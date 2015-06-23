@@ -8,10 +8,7 @@
                 :make-client-store))
 (in-package :t.lack.middleware.session)
 
-(plan 4)
-
-(ok (lack.session.state:make-state)
-    "Base class of session state")
+(plan 3)
 
 (defgeneric with-response% (response handler)
   (:method ((response list) handler)

@@ -19,7 +19,7 @@
            :finalize-session))
 (in-package :lack.middleware.session.state.cookie)
 
-(defstruct (cookie-state (:include state))
+(defstruct cookie-state
   (path "/" :type string)
   (domain nil :type (or string null))
   (expires (get-universal-time) :type integer)

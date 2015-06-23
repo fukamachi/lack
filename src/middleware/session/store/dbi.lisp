@@ -12,14 +12,10 @@
   (:import-from :cl-base64
                 :base64-string-to-string
                 :string-to-base64-string)
-  (:export :dbi-store
-           :make-dbi-store
-           :fetch-session
-           :store-session
-           :remove-session))
+  (:export :make-dbi-store))
 (in-package :lack.middleware.session.store.dbi)
 
-(defstruct (dbi-store (:include store))
+(defstruct dbi-store
   (connector nil :type function)
   (serializer (lambda (data)
                 (string-to-base64-string (prin1-to-string (marshal data)))))

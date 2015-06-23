@@ -2,8 +2,7 @@
 (defpackage lack.middleware.session.store
   (:nicknames :lack.session.store)
   (:use :cl)
-  (:export :store
-           :session-id
+  (:export :session-id
            :session-data
            :make-session
            :fetch-session
@@ -14,8 +13,6 @@
 (defstruct session
   id
   (data (make-hash-table :test 'equal)))
-
-(defstruct store)
 
 (defgeneric fetch-session (store sid))
 (defgeneric store-session (store session))

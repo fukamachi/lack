@@ -6,14 +6,10 @@
   (:import-from :lack.util
                 :generate-random-id
                 :valid-id-p)
-  (:export :memory-store
-           :make-memory-store
-           :fetch-session
-           :store-session
-           :remove-session))
+  (:export :make-memory-store))
 (in-package :lack.middleware.session.store.memory)
 
-(defstruct (memory-store (:include store))
+(defstruct memory-store
   (stash (make-hash-table :test 'equal)))
 
 (defmethod fetch-session ((store memory-store) sid)
