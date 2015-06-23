@@ -1,6 +1,8 @@
 (in-package :cl-user)
 (defpackage lack.util
   (:use :cl)
+  (:import-from :cl-ppcre
+                :scan)
   (:import-from :ironclad
                 :ascii-string-to-byte-array
                 :byte-array-to-hex-string
@@ -12,7 +14,8 @@
            :find-middleware
            :funcall-with-cb
            :content-length
-           :generate-random-id))
+           :generate-random-id
+           :valid-id-p))
 (in-package :lack.util)
 
 (defun find-package-or-load (package-name)
@@ -72,3 +75,6 @@
     (ascii-string-to-byte-array
      (format nil "~A~A"
       (random 1.0) (get-universal-time))))))
+
+(defun valid-id-p (id)
+  (not (null (ppcre:scan "\\A[0-9a-f]{40}\\Z" id))))

@@ -9,8 +9,7 @@
   :license "LLGPL"
   :depends-on (:lack-request
                :lack-response
-               :lack-util
-               :cl-ppcre)
+               :lack-util)
   :components ((:module "src/middleware"
                 :components
                 ((:file "session" :depends-on ("store" "state"))

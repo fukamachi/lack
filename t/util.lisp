@@ -6,7 +6,7 @@
         :lack.test))
 (in-package :t.lack.util)
 
-(plan 2)
+(plan 3)
 
 (subtest "find-package-or-load"
   (is (find-package-or-load "LACK")
@@ -38,5 +38,11 @@
                  (declare (ignore env))
                  1)))
       (is (funcall-with-cb app (generate-env "/") cb) 1))))
+
+(subtest "generate-random-id / valid-id-p"
+  (is (valid-id-p (generate-random-id))
+      t)
+  (is (valid-id-p "invalid id")
+      nil))
 
 (finalize)

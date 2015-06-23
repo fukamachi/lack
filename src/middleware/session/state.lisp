@@ -3,9 +3,8 @@
   (:nicknames :lack.session.state)
   (:use :cl)
   (:import-from :lack.util
-                :generate-random-id)
-  (:import-from :cl-ppcre
-                :scan)
+                :generate-random-id
+                :valid-id-p)
   (:export :state
            :make-state
            :generate-sid
@@ -18,8 +17,7 @@
   (sid-generator (lambda (env)
                    (declare (ignore env))
                    (generate-random-id)))
-  (sid-validator (lambda (sid)
-                   (not (null (ppcre:scan "\\A[0-9a-f]{40}\\Z" sid))))))
+  (sid-validator #'valid-id-p))
 
 (defun generate-sid (state env)
   (funcall (state-sid-generator state) env))

@@ -8,6 +8,7 @@
   :author "Eitaro Fukamachi"
   :license "LLGPL"
   :depends-on (:ironclad
-               :alexandria)
+               :alexandria
+               :cl-ppcre)
   :components ((:file "src/util"))
   :in-order-to ((test-op (test-op t-lack-util))))
