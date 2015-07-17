@@ -8,6 +8,8 @@
   :author "Eitaro Fukamachi"
   :license "LLGPL"
   :depends-on (:quri
+               :babel
+               :split-sequence
                :http-body
                :cl-ppcre)
   :components ((:file "src/request")))
