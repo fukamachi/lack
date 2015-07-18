@@ -80,9 +80,13 @@
                             for val = (strip (cadr param))
                             do
                               (when (string= key "charset")
-                                (setf encoding
-                                      (babel-encodings:get-character-encoding
-                                       val))
+                                (when-let (charset-encoding
+                                           (handler-case
+                                               (babel-encodings:get-character-encoding val)
+                                             (simple-error (c)
+                                               (warn "Unknown charset: ~A~% specified for ~A value."
+                                                     val name))))
+                                  (setf encoding charset-encoding))
                                 (return nil)))))
                      (cons name
                            (cons (babel:octets-to-string
@@ -129,11 +133,12 @@
                  raw-body)
         (let ((parsed-body
                (http-body:parse content-type content-length raw-body)))
-          (if (string-equal content-type "multipart/form-data" :end1
-                            (length "multipart/form-data"))
+          (if (and (<= 19 (length content-type))
+                   (string-equal content-type "multipart/form-data" :end1 19))
               (setf body-parameters (handle-multipart-body parsed-body))
               (setf body-parameters parsed-body)))
         (rplacd (last env) (list :body-parameters body-parameters))))
+    
     (setf (request-env req) env)
     req))
 
