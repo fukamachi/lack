@@ -2,7 +2,8 @@
 (defpackage lack.request
   (:use :cl)
   (:import-from :alexandria
-                :when-let*)
+                :when-let*
+                :make-keyword)
   (:import-from :quri
                 :url-decode-params)
   (:import-from :http-body
@@ -82,7 +83,8 @@
                               (when (string= key "charset")
                                 (when-let (charset-encoding
                                            (handler-case
-                                               (babel-encodings:get-character-encoding val)
+                                               (babel-encodings:get-character-encoding
+                                                (make-keyword (string-upcase val)))
                                              (simple-error (c)
                                                (warn "Unknown charset: ~A~% specified for ~A value."
                                                      val name))))
