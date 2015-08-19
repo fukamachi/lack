@@ -34,4 +34,8 @@ before_script:
   - ros config
 
 script:
-  - run-prove t-*.asd
+  - if [ "$LISP" = "ecl" ] || [ "$LISP" = "clisp" ]; then
+      ls t-*.asd | grep -v t-lack-session-store-dbi.asd | xargs run-prove;
+    else
+      run-prove t-*.asd;
+    fi
