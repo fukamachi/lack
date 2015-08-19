@@ -22,7 +22,8 @@
         (funcall app (generate-env "/public/jellyfish.jpg"))
       (is status 200)
       (is (getf headers :content-type) "image/jpeg")
-      (is body (asdf:system-relative-pathname :lack #P"data/jellyfish.jpg")))
+      (is (namestring body)
+          (namestring (asdf:system-relative-pathname :lack #P"data/jellyfish.jpg"))))
 
     (destructuring-bind (status headers body)
         (funcall app (generate-env "/public/hoge.png"))
@@ -64,7 +65,8 @@
         (funcall app (generate-env "/static/jellyfish.jpg"))
       (is status 200)
       (is (getf headers :content-type) "image/jpeg")
-      (is body (asdf:system-relative-pathname :lack #P"data/jellyfish.jpg")))
+      (is (namestring body)
+          (namestring (asdf:system-relative-pathname :lack #P"data/jellyfish.jpg"))))
 
     (is (car (funcall app (generate-env "/static/not-found.png"))) 404)))
 

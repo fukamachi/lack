@@ -23,7 +23,7 @@
                ((or pathname string)
                 (with-open-file (out output
                                      :direction :output
-                                     :external-format :utf-8
+                                     :external-format #+clisp charset:utf-8 #-clisp :utf-8
                                      :if-exists :append
                                      :if-does-not-exist :create)
                   (print-error condition env out))))))
