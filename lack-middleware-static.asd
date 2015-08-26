@@ -9,7 +9,7 @@
   :license "LLGPL"
   :depends-on (:trivial-mimes
                :local-time
-               :cl-fad
+               :uiop
                :alexandria)
   :components ((:module "src"
                 :components
