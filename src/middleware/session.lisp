@@ -30,7 +30,9 @@
         (setf (getf env :lack.session)
               (or session (make-hash-table :test 'equal)))
         (setf (getf env :lack.session.options)
-              (list :id sid))
+              (if session
+                  (list :id sid)
+                  (list :id sid :new-session t)))
         (finalize store state env (funcall app env)))))
   "Middleware for session management")
 
