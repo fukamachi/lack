@@ -38,7 +38,7 @@
 (defmethod finalize-state ((state cookie-state) sid (res function) options)
   (lambda (responder)
     (funcall res (lambda (actual-res)
-		   (funcall responder (finalize-state state sid actual-res options))))))
+                   (funcall responder (finalize-state state sid actual-res options))))))
 
 (defmethod finalize-state ((state cookie-state) sid (res list) options)
   (let ((res (apply #'make-response res))
