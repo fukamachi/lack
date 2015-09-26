@@ -20,20 +20,27 @@
 (defparameter *lack-middleware-session*
   (lambda (app &key
             (store (make-memory-store))
-            (state (make-cookie-state)))
+            (state (make-cookie-state))
+            (keep-empty t))
     (lambda (env)
       (let* ((sid (extract-sid state env))
              (session (and sid
                            (fetch-session store sid)))
              (sid (or sid
-                      (generate-sid state env))))
-        (setf (getf env :lack.session)
-              (or session (make-hash-table :test 'equal)))
+                      (generate-sid state env)))
+             (new-session-p (not session))
+             (session (or session (make-hash-table :test 'equal))))
+        (setf (getf env :lack.session) session)
         (setf (getf env :lack.session.options)
-              (if session
-                  (list :id sid)
-                  (list :id sid :new-session t)))
-        (finalize store state env (funcall app env)))))
+              (if new-session-p
+                  (list :id sid :new-session t)
+                  (list :id sid)))
+        (let ((res (funcall app env)))
+          (if (and (not keep-empty)
+                   new-session-p
+                   (zerop (hash-table-count session)))
+              res
+              (finalize store state env res))))))
   "Middleware for session management")
 
 (defun finalize (store state env res)

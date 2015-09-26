@@ -6,7 +6,7 @@
         :lack.test))
 (in-package :t.lack.middleware.session)
 
-(plan 4)
+(plan 5)
 
 (ok (lack.session.state:make-state)
     "Base class of session state")
@@ -102,5 +102,21 @@
       (ok (getf headers :set-cookie)
           "Set-Cookie header exists")
       (is body '("hi") "body"))))
+
+(subtest ":keep-empty nil"
+  (let ((app (builder
+              (:session :keep-empty nil)
+              (lambda (env)
+                (when (string= (getf env :path-info) "/session")
+                  (setf (gethash "user" (getf env :lack.session)) "Eitaro"))
+                '(200 () ("hi"))))))
+    (destructuring-bind (status headers body)
+        (funcall app (generate-env "/"))
+      (declare (ignore status body))
+      (is headers nil))
+    (destructuring-bind (status headers body)
+        (funcall app (generate-env "/session"))
+      (declare (ignore status body))
+      (is-type (getf headers :set-cookie) 'string))))
 
 (finalize)
