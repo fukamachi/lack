@@ -10,8 +10,6 @@
                 :make-response
                 :finalize-response
                 :response-set-cookies)
-  (:import-from :alexandria
-                :remove-from-plist)
   (:export :cookie-state
            :make-cookie-state
            :generate-sid
@@ -41,14 +39,20 @@
                    (funcall responder (finalize-state state sid actual-res options))))))
 
 (defmethod finalize-state ((state cookie-state) sid (res list) options)
+  ;; Don't send Set-Cookie header when it's not necessary.
+  (destructuring-bind (&key no-store new-session change-id expire &allow-other-keys)
+      options
+    (when (or no-store
+              (not (or new-session change-id expire)))
+      (return-from finalize-state res)))
+
   (let ((res (apply #'make-response res))
-        (options (append (remove-from-plist options :id)
-                         (with-slots (path domain expires secure httponly) state
-                           (list :path path
-                                 :domain domain
-                                 :secure secure
-                                 :httponly httponly
-                                 :expires (+ (get-universal-time) expires))))))
+        (options (with-slots (path domain expires secure httponly) state
+                   (list :path path
+                         :domain domain
+                         :secure secure
+                         :httponly httponly
+                         :expires (+ (get-universal-time) expires)))))
     (setf (getf (response-set-cookies res) :|lack.session|)
           `(:value ,sid ,@options))
     (finalize-response res)))

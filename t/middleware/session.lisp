@@ -6,7 +6,7 @@
         :lack.test))
 (in-package :t.lack.middleware.session)
 
-(plan 3)
+(plan 4)
 
 (ok (lack.session.state:make-state)
     "Base class of session state")
@@ -68,5 +68,39 @@
                  (declare (ignore headers))
                  (is status 200)
                  (is body '("Hello, you've been here for 2th times!")))))))
+
+(subtest "Set-Cookie header"
+  (let ((app (builder
+              :session
+              (lambda (env)
+                (when (string= (getf env :path-info) "/expire")
+                  (setf (getf (getf env :lack.session.options) :expire) t))
+                '(200 () ("hi")))))
+        session)
+    ;; 1st
+    (destructuring-bind (status headers body)
+        (funcall app (generate-env "/" :cookies '(("lack.session" . nil))))
+      (is status 200 "status")
+      (ok (getf headers :set-cookie)
+          "Set-Cookie header exists")
+      (setf session
+            (ppcre:scan-to-strings "(?<=lack.session=)[^;]+" (getf headers :set-cookie "")))
+      (is-type session 'string
+               "Set-Cookie header value is valid")
+      (is body '("hi") "body"))
+    ;; 2nd
+    (destructuring-bind (status headers body)
+        (funcall app (generate-env "/" :cookies `(("lack.session" . ,session))))
+      (is status 200 "status")
+      (is (getf headers :set-cookie) nil
+          "Set-Cookie header doesn't exist")
+      (is body '("hi") "body"))
+    ;; invalid lack.session
+    (destructuring-bind (status headers body)
+        (funcall app (generate-env "/" :cookies '(("lack.session" . "<invalid session here>"))))
+      (is status 200 "status")
+      (ok (getf headers :set-cookie)
+          "Set-Cookie header exists")
+      (is body '("hi") "body"))))
 
 (finalize)
