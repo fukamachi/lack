@@ -30,8 +30,11 @@
     (cdr (assoc "lack.session" (request-cookies req) :test #'string=))))
 
 (defmethod expire-state ((state cookie-state) sid res options)
-  (setf (cookie-state-expires state) 0)
-  (finalize-state state sid res options))
+  (let ((expiration (cookie-state-expires state)))
+    (setf (cookie-state-expires state) 0)
+    (unwind-protect
+        (finalize-state state sid res options)
+      (setf (cookie-state-expires state) expiration))))
 
 (defmethod finalize-state ((state cookie-state) sid (res function) options)
   (lambda (responder)
