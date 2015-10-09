@@ -44,21 +44,24 @@
   "Middleware for session management")
 
 (defun finalize (store state env res)
-  (let ((session (getf env :lack.session))
-        (options (getf env :lack.session.options)))
+  (let* ((session (getf env :lack.session))
+         (options (getf env :lack.session.options))
+         (id (getf options :id))
+         (new-id (if (getf options :change-id)
+                     (generate-sid state env)
+                     id)))
     (when session
-      (apply #'commit store state session env options))
+      (apply #'commit store new-id session options))
     (if (getf options :expire)
-        (expire-state state (getf options :id) res options)
-        (finalize-state state (getf options :id) res options))))
+        (expire-state state id res options)
+        (finalize-state state new-id res options))))
 
-(defun commit (store state session env &key id expire change-id &allow-other-keys)
+(defun commit (store new-sid session &key id expire change-id &allow-other-keys)
   (cond
     (expire
      (remove-session store id))
     (change-id
      (remove-session store id)
-     (let ((new-sid (generate-sid state env)))
-       (store-session store new-sid session)))
+     (store-session store new-sid session))
     (t
      (store-session store id session))))
