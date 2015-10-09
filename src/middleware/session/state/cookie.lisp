@@ -30,7 +30,7 @@
     (cdr (assoc "lack.session" (request-cookies req) :test #'string=))))
 
 (defmethod expire-state ((state cookie-state) sid res options)
-  (setf (cookie-state-expires state) 0)
+  (setf (getf options :expires) 0)
   (finalize-state state sid res options))
 
 (defmethod finalize-state ((state cookie-state) sid (res function) options)
@@ -52,7 +52,8 @@
                          :domain domain
                          :secure secure
                          :httponly httponly
-                         :expires (+ (get-universal-time) expires)))))
+                         :expires (+ (get-universal-time)
+                                     (getf options :expires expires))))))
     (setf (getf (response-set-cookies res) :|lack.session|)
           `(:value ,sid ,@options))
     (finalize-response res)))

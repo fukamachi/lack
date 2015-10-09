@@ -7,7 +7,9 @@
   :author "Eitaro Fukamachi"
   :license "LLGPL"
   :depends-on (:lack
+               :lack-middleware-session
                :lack-test
+               :cl-cookie
                :prove)
   :components ((:test-file "t/middleware/session"))
 

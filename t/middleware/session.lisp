@@ -101,6 +101,29 @@
       (is status 200 "status")
       (ok (getf headers :set-cookie)
           "Set-Cookie header exists")
+      (is body '("hi") "body"))
+
+    ;; expires
+    (destructuring-bind (status headers body)
+        (funcall app (generate-env "/expire" :cookies `(("lack.session" . ,session))))
+      (is status 200 "status")
+      (ok (getf headers :set-cookie)
+          "Set-Cookie header exists")
+      (let ((cookie (cookie:parse-set-cookie-header (getf headers :set-cookie) "" "")))
+        (ok (<= (cookie:cookie-expires cookie) (get-universal-time)) "session expired"))
+      (is body '("hi") "body"))
+
+    ;; with expired session
+    (destructuring-bind (status headers body)
+        (funcall app (generate-env "/" :cookies `(("lack.session" . ,session))))
+      (is status 200 "status")
+      (ok (getf headers :set-cookie)
+          "Set-Cookie header exists")
+      (let ((cookie (cookie:parse-set-cookie-header (getf headers :set-cookie) "" "")))
+        (is (cookie:cookie-expires cookie)
+            (get-universal-time)
+            :test #'>
+            "new session is not expired"))
       (is body '("hi") "body"))))
 
 (subtest ":keep-empty nil"
