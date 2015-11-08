@@ -14,22 +14,24 @@ This software is still BETA quality. The APIs are being finalized.
 ## Usage
 
 ```common-lisp
-(defvar *app*
+(defparameter *app*
   (lambda (env)
     '(200 (:content-type "text/plain") ("Hello, World"))))
 
-;; `wrap`
-(funcall lack-middleware-session:*lack-middleware-session* *app*)
+;; `wrap` the app with middleware
+(setf *app* (funcall lack-middleware-session:*lack-middleware-session* *app*))
 
-(lack:builder
-  :session
-  (:static :path "/public/"
-           :root #P"/static-files/")
-  (lambda (app)
-    (lambda (env)
-      (prog1 (funcall app env)
-        (do-before-responding))))
-  *app*)
+;; to wrap with multiple middlewares at once, use lack's builder macro
+(setf *app*
+  (lack:builder
+    :session
+    (:static :path "/public/"
+             :root #P"/static-files/")
+    (lambda (app)
+      (lambda (env)
+        (prog1 (funcall app env)
+          (do-before-responding))))
+    *app*))
 ```
 
 Use Clack's `clackup` for starting a Lack application.
