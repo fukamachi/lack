@@ -31,7 +31,13 @@
                                      (dbi-store-table-name store))))
          (result (dbi:fetch (dbi:execute query sid))))
     (if result
-        (ignore-errors (funcall (dbi-store-deserializer store) (getf result :|session_data|)))
+        (handler-case (funcall (dbi-store-deserializer store) (getf result :|session_data|))
+          (error (e)
+            (warn "Error (~A) occured while deserializing a session. Ignoring.~2%    Data:~%        ~A~2%    Error:~%        ~A"
+                  (class-name (class-of e))
+                  (getf result :|session_data|)
+                  e)
+            nil))
         nil)))
 
 (defmethod store-session ((store dbi-store) sid session)
