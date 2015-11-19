@@ -7,8 +7,11 @@
                 :marshal
                 :unmarshal)
   (:import-from :cl-base64
-                :base64-string-to-string
-                :string-to-base64-string)
+                :base64-string-to-usb8-array
+                :usb8-array-to-base64-string)
+  (:import-from :trivial-utf-8
+                :string-to-utf-8-bytes
+                :utf-8-bytes-to-string)
   (:export :dbi-store
            :make-dbi-store
            :fetch-session
@@ -19,9 +22,11 @@
 (defstruct (dbi-store (:include store))
   (connector nil :type function)
   (serializer (lambda (data)
-                (string-to-base64-string (prin1-to-string (marshal data)))))
+                (usb8-array-to-base64-string
+                 (string-to-utf-8-bytes (prin1-to-string (marshal data))))))
   (deserializer (lambda (data)
-                  (unmarshal (read-from-string (base64-string-to-string data)))))
+                  (unmarshal (read-from-string
+                              (utf-8-bytes-to-string (base64-string-to-usb8-array data))))))
   (table-name "sessions"))
 
 (defmethod fetch-session ((store dbi-store) sid)
@@ -31,7 +36,13 @@
                                      (dbi-store-table-name store))))
          (result (dbi:fetch (dbi:execute query sid))))
     (if result
-        (ignore-errors (funcall (dbi-store-deserializer store) (getf result :|session_data|)))
+        (handler-case (funcall (dbi-store-deserializer store) (getf result :|session_data|))
+          (error (e)
+            (warn "Error (~A) occured while deserializing a session. Ignoring.~2%    Data:~%        ~A~2%    Error:~%        ~A"
+                  (class-name (class-of e))
+                  (getf result :|session_data|)
+                  e)
+            nil))
         nil)))
 
 (defmethod store-session ((store dbi-store) sid session)
