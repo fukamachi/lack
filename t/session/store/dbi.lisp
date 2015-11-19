@@ -8,7 +8,7 @@
         :prove))
 (in-package :t.lack.session.store.dbi)
 
-(plan 2)
+(plan 3)
 
 (defvar *test-db* (asdf:system-relative-pathname :lack "data/test.db"))
 (when (probe-file *test-db*)
@@ -49,8 +49,38 @@
       (is status 200)
       (is body '("Hello, you've been here for 2th times!")))))
 
+(subtest "utf-8 session data"
+  (let ((app
+          (builder
+           (:session
+            :store (make-dbi-store
+                    :connector (lambda () *conn*)))
+           (lambda (env)
+             (unless (gethash :user (getf env :lack.session))
+               (setf (gethash :user (getf env :lack.session)) "深町英太郎"))
+             (unless (gethash :counter (getf env :lack.session))
+               (setf (gethash :counter (getf env :lack.session)) 0))
+             `(200
+               (:content-type "text/plain")
+               (,(format nil "Hello, ~A! You've been here for ~Ath times!"
+                         (gethash :user (getf env :lack.session))
+                         (incf (gethash :counter (getf env :lack.session)))))))))
+        session)
+    (destructuring-bind (status headers body)
+        (funcall app (generate-env "/"))
+      (is status 200)
+      (setf session (parse-lack-session headers))
+      (ok session)
+      (is body '("Hello, 深町英太郎! You've been here for 1th times!")))
+
+    (destructuring-bind (status headers body)
+        (funcall app (generate-env "/" :cookies `(("lack.session" . ,session))))
+      (declare (ignore headers))
+      (is status 200)
+      (is body '("Hello, 深町英太郎! You've been here for 2th times!")))))
+
 (let ((session (dbi:fetch (dbi:execute (dbi:prepare *conn* "SELECT COUNT(*) AS count FROM sessions")))))
-  (is (getf session :|count|) 1
+  (is (getf session :|count|) 2
       "'sessions' has a single record"))
 
 (dbi:disconnect *conn*)
