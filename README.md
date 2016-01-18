@@ -89,7 +89,7 @@ The status code must be an integer greater than or equal to 100, and should be a
 
 The headers must be a property list. If the same key name appears multiple times in it, those header lines will be sent to the client separately (e.g. multiple `Set-Cookie` lines).
 
-The response body must be returned from the application in one of three formats, a list of strings, a list of byte vectors, or a pathname.
+The response body must be returned from the application in one of three formats, a list of strings, a byte vectors, or a pathname.
 
 ### Delayed Response and Streaming Body
 
