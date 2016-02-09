@@ -104,11 +104,23 @@
     (let ((body (nth 2 (funcall app (generate-env "/" :cookies `(("lack.session" . ,session)))))))
       (is body '("Hello, 深町英太郎! You've been here for 2th times!")))
 
+    (sleep 2)
+
+    (let ((body (nth 2 (funcall app (generate-env "/" :cookies `(("lack.session" . ,session)))))))
+      (is body '("Hello, 深町英太郎! You've been here for 3th times!")
+          "Still the session is alive"))
+
+    (sleep 2)
+
+    (let ((body (nth 2 (funcall app (generate-env "/" :cookies `(("lack.session" . ,session)))))))
+      (is body '("Hello, 深町英太郎! You've been here for 4th times!")
+          "Reset the expiration when accessed"))
+
     (sleep 3)
 
     (let ((body (nth 2 (funcall app (generate-env "/" :cookies `(("lack.session" . ,session)))))))
       (is body '("Hello, 深町英太郎! You've been here for 1th times!")
-          "Session has expired after 3 seconds"))))
+          "Session has expired after 3 seconds since the last access"))))
 
 (let ((redis::*connection* *connection*))
   (is (length (red:keys (format nil "~A:*" *namespace*)))
