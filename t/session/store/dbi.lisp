@@ -81,7 +81,7 @@
 
 (let ((session (dbi:fetch (dbi:execute (dbi:prepare *conn* "SELECT COUNT(*) AS count FROM sessions")))))
   (is (getf session :|count|) 2
-      "'sessions' has a single record"))
+      "'sessions' has two records"))
 
 (dbi:disconnect *conn*)
 

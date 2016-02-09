@@ -14,6 +14,9 @@ env:
     - LISP=ecl
     - LISP=clisp
 
+services:
+  - redis-server
+
 install:
   # Install Roswell
   - curl -L https://raw.githubusercontent.com/snmsts/roswell/$ROSWELL_BRANCH/scripts/install-for-ci.sh | sh
