@@ -46,21 +46,28 @@
         nil)))
 
 (defmethod store-session ((store dbi-store) sid session)
-  (let* ((conn (funcall (dbi-store-connector store)))
-         (query (dbi:prepare conn
-                             (format nil "SELECT 1 FROM ~A WHERE id = ?"
-                                     (dbi-store-table-name store))))
-         (existsp (dbi:fetch (dbi:execute query sid)))
-         (serialized-session (funcall (dbi-store-serializer store) session)))
-    (if existsp
-        (dbi:do-sql conn (format nil "UPDATE ~A SET session_data = ? WHERE id = ?"
-                                 (dbi-store-table-name store))
-          serialized-session
-          sid)
-        (dbi:do-sql conn (format nil "INSERT INTO ~A (id, session_data) VALUES (?, ?)"
-                                 (dbi-store-table-name store))
-          sid
-          serialized-session))))
+  (let ((conn (funcall (dbi-store-connector store)))
+        (serialized-session (funcall (dbi-store-serializer store) session)))
+    (dbi:with-transaction conn
+      (let* ((query (dbi:prepare conn
+                                 (format nil "SELECT session_data FROM ~A WHERE id = ?"
+                                         (dbi-store-table-name store))))
+             (current-session (getf (dbi:fetch (dbi:execute query sid)) :|session_data|)))
+        (cond
+          ;; Session exists but not changed
+          ((equal current-session serialized-session))
+          ;; Session exists and is going to be changed
+          (current-session
+           (dbi:do-sql conn (format nil "UPDATE ~A SET session_data = ? WHERE id = ?"
+                                    (dbi-store-table-name store))
+             serialized-session
+             sid))
+          ;; New session
+          (t
+           (dbi:do-sql conn (format nil "INSERT INTO ~A (id, session_data) VALUES (?, ?)"
+                                    (dbi-store-table-name store))
+             sid
+             serialized-session)))))))
 
 (defmethod remove-session ((store dbi-store) sid)
   (dbi:do-sql (funcall (dbi-store-connector store))
