@@ -116,7 +116,7 @@
       (is body '("Hello, 深町英太郎! You've been here for 4th times!")
           "Reset the expiration when accessed"))
 
-    (sleep 3)
+    (sleep 3.5)
 
     (let ((body (nth 2 (funcall app (generate-env "/" :cookies `(("lack.session" . ,session)))))))
       (is body '("Hello, 深町英太郎! You've been here for 1th times!")
