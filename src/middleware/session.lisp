@@ -33,8 +33,8 @@
         (setf (getf env :lack.session) session)
         (setf (getf env :lack.session.options)
               (if new-session-p
-                  (list :id sid :new-session t)
-                  (list :id sid)))
+                  (list :id sid :new-session t   :change-id nil :expire nil)
+                  (list :id sid :new-session nil :change-id nil :expire nil)))
         (let ((res (funcall app env)))
           (if (and (not keep-empty)
                    new-session-p
