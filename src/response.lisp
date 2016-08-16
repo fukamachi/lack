@@ -44,7 +44,7 @@
       value
     (with-output-to-string (s)
       (format s "~A=~A"
-              (quri:url-encode (symbol-name key))
+              (quri:url-encode (string key))
               (quri:url-encode (getf value :value)))
       (when domain
         (format s "; domain=~A" domain))
