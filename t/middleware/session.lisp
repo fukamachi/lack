@@ -6,7 +6,7 @@
         :lack.test))
 (in-package :t.lack.middleware.session)
 
-(plan 5)
+(plan 6)
 
 (ok (lack.session.state:make-state)
     "Base class of session state")
@@ -141,5 +141,17 @@
         (funcall app (generate-env "/session"))
       (declare (ignore status body))
       (is-type (getf headers :set-cookie) 'string))))
+
+(subtest "cookie-key other than lack.session="
+  (let ((app (builder
+              (:session :state (lack.session.state.cookie:make-cookie-state
+                                :cookie-key "_myapp_cookie"))
+              (lambda (env)
+                (declare (ignore env))
+                '(200 () ("hi"))))))
+    (destructuring-bind (status headers body)
+        (funcall app (generate-env "/"))
+      (declare (ignore status body))
+      (like (getf headers :set-cookie) "^_myapp_cookie="))))
 
 (finalize)

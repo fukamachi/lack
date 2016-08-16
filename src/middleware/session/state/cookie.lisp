@@ -23,11 +23,13 @@
   (domain nil :type (or string null))
   (expires (get-universal-time) :type integer)
   (secure nil :type boolean)
-  (httponly nil :type boolean))
+  (httponly nil :type boolean)
+  (cookie-key "lack.session" :type string))
 
 (defmethod extract-sid ((state cookie-state) env)
   (let ((req (make-request env)))
-    (cdr (assoc "lack.session" (request-cookies req) :test #'string=))))
+    (cdr (assoc (cookie-state-cookie-key state)
+                (request-cookies req) :test #'string=))))
 
 (defmethod expire-state ((state cookie-state) sid res options)
   (setf (getf options :expires) 0)
@@ -54,6 +56,6 @@
                          :httponly httponly
                          :expires (+ (get-universal-time)
                                      (getf options :expires expires))))))
-    (setf (getf (response-set-cookies res) :|lack.session|)
+    (setf (getf (response-set-cookies res) (cookie-state-cookie-key state))
           `(:value ,sid ,@options))
     (finalize-response res)))
