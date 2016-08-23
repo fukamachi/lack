@@ -27,6 +27,7 @@
   (deserializer (lambda (data)
                   (unmarshal (read-from-string
                               (utf-8-bytes-to-string (base64-string-to-usb8-array data))))))
+  (record-timestamps nil :type boolean)
   (table-name "sessions"))
 
 (defmethod fetch-session ((store dbi-store) sid)
@@ -45,6 +46,13 @@
             nil))
         nil)))
 
+(defun current-timestamp ()
+  (multiple-value-bind (sec min hour date month year)
+      (decode-universal-time (get-universal-time))
+    (format nil "~D-~2,'0D-~2,'0DT~2,'0D:~2,'0D:~2,'0D"
+            year month date
+            hour min sec)))
+
 (defmethod store-session ((store dbi-store) sid session)
   (let ((conn (funcall (dbi-store-connector store)))
         (serialized-session (funcall (dbi-store-serializer store) session)))
@@ -58,14 +66,19 @@
           ((equal current-session serialized-session))
           ;; Session exists and is going to be changed
           (current-session
-           (dbi:do-sql conn (format nil "UPDATE ~A SET session_data = ? WHERE id = ?"
-                                    (dbi-store-table-name store))
+           (dbi:do-sql conn
+             (format nil "UPDATE ~A SET session_data = ?~:[~*~;, updated_at = '~A'~] WHERE id = ?"
+                     (dbi-store-table-name store)
+                     (dbi-store-record-timestamps store)
+                     (current-timestamp))
              serialized-session
              sid))
           ;; New session
           (t
-           (dbi:do-sql conn (format nil "INSERT INTO ~A (id, session_data) VALUES (?, ?)"
-                                    (dbi-store-table-name store))
+           (dbi:do-sql conn (format nil "INSERT INTO ~A (id, session_data~:[~;, created_at, updated_at~]) VALUES (?, ?~:*~:[~*~;, '~A', ~:*'~A'~])"
+                                    (dbi-store-table-name store)
+                                    (dbi-store-record-timestamps store)
+                                    (current-timestamp))
              sid
              serialized-session)))))))
 
