@@ -52,6 +52,8 @@ The environment, an application takes, is a property list containing the followi
   - The remainder of the request URI path. The value of this key may be an empty string when you access the application represented by the server's root URI with no trailing slash.
 - `:query-string` (Optional, String)
   - The portion of the request URI that follows the `?`, if any.
+- `:url-scheme` (Required, String)
+  - `"http"` or `"https"`, depending on the request URI.
 - `:server-name` (Required, String)
   - The resolved server name or the server IP address.
 - `:server-port` (Required, Integer)
