@@ -76,7 +76,8 @@
       (when (and (null query-parameters)
                  query-string)
         (setf query-parameters
-              (quri:url-decode-params query-string :lenient t))
+              (ignore-errors
+                (quri:url-decode-params query-string :lenient t)))
         (rplacd (last env) (list :query-parameters query-parameters))))
 
     ;; POST parameters
