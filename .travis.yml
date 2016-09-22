@@ -20,8 +20,6 @@ services:
 install:
   # Install Roswell
   - curl -L https://raw.githubusercontent.com/snmsts/roswell/$ROSWELL_BRANCH/scripts/install-for-ci.sh | sh
-  - git clone https://github.com/fukamachi/clack ~/lisp/clack
-  - git clone https://github.com/Rudolph-Miller/jonathan ~/lisp/jonathan
   - ros install prove
 
 cache:
