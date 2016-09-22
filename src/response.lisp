@@ -17,18 +17,22 @@
 (in-package :lack.response)
 
 (defstruct (response
-            (:constructor make-response (&optional status headers body)))
+            (:constructor make-response (&optional status headers (body nil has-body)
+                                         &aux (no-body (not has-body)))))
   status
   headers
   body
+  no-body
   set-cookies)
 
 (defun finalize-response (res)
   (finalize-cookies res)
-  (with-slots (status headers body) res
-    (list status headers (if (stringp body)
-                             (list body)
-                             body))))
+  (with-slots (status headers body no-body) res
+    (list* status headers
+           (cond
+             (no-body nil)
+             ((stringp body) (list (list body)))
+             (t (list body))))))
 
 (defun finalize-cookies (res)
   (setf (response-headers res)
