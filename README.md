@@ -106,7 +106,7 @@ To enable a delayed response, the application should return a callback as its re
       (funcall responder `(200 (:content-type "text/plain") (,content))))))
 ```
 
-An application may omit the third element (the body) when calling the responder. If the body is omitted, the responder will return a function which takes a body chunk and `:close` keyword argument.
+An application may omit the third element (the body) when calling the responder. If the body is omitted, the responder will return a function which takes a body chunk, and optional `:start`, `:end` and `:close` keyword arguments.
 
 ```common-lisp
 (lambda (env)
