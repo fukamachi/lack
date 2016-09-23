@@ -30,7 +30,7 @@
   (with-slots (status headers body no-body) res
     (list* status headers
            (cond
-             (no-body nil)
+             ((and no-body (not body)) nil)
              ((stringp body) (list (list body)))
              (t (list body))))))
 
