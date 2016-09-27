@@ -117,6 +117,22 @@ An application may omit the third element (the body) when calling the responder.
             while chunk))))
 ```
 
+In case of that you would prefer a stream to a function, `lack.util.writer-stream` wraps the function and allows you to treat it as a stream:
+
+```common-lisp
+(import 'lack.util.writer-stream:make-writer-stream)
+
+(lambda (env)
+  (lambda (responder)
+    (let* ((writer (funcall responder '(200 (:content-type "application/json"))))
+           (stream (make-writer-function writer)))
+      (loop for chunk = (fetch-something)
+            do (write-sequence chunk stream)
+            while chunk
+            finally
+              (finish-output stream)))))
+```
+
 This delayed response and streaming API is useful if you want to implement a non-blocking I/O based server streaming or long-poll Comet push technology.
 
 ## Middlewares
