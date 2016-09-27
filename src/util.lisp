@@ -6,8 +6,6 @@
                 :byte-array-to-hex-string
                 :digest-sequence
                 :make-digest)
-  (:import-from :alexandria
-                :when-let)
   (:export :find-package-or-load
            :find-middleware
            :funcall-with-cb
