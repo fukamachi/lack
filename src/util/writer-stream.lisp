@@ -7,6 +7,7 @@
                 :stream-write-sequence
                 :stream-write-char
                 :stream-write-string
+                :stream-element-type
                 :stream-finish-output
                 :open-stream-p)
   (:import-from :babel
@@ -45,6 +46,9 @@
   (funcall (writer-stream-writer stream) nil :close t)
   (setf (writer-stream-closed-p stream) t)
   nil)
+
+(defmethod stream-element-type ((stream writer-stream))
+  '(unsigned-byte 8))
 
 (defmethod open-stream-p ((stream writer-stream))
   (not (writer-stream-closed-p stream)))
