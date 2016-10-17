@@ -9,5 +9,6 @@
   :license "LLGPL"
   :depends-on (:quri
                :http-body
+               :circular-streams
                :cl-ppcre)
   :components ((:file "src/request")))

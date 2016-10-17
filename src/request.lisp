@@ -5,6 +5,8 @@
                 :url-decode-params)
   (:import-from :http-body
                 :parse)
+  (:import-from :circular-streams
+                :make-circular-input-stream)
   (:import-from :cl-ppcre
                 :split)
   (:export :request
@@ -79,13 +81,16 @@
               (quri:url-decode-params query-string :lenient t))
         (rplacd (last env) (list :query-parameters query-parameters))))
 
-    ;; POST parameters
     (with-slots (body-parameters raw-body content-length content-type) req
-      (when (and (null body-parameters)
-                 raw-body)
-        (setf body-parameters
-              (http-body:parse content-type content-length raw-body))
-        (rplacd (last env) (list :body-parameters body-parameters))))
+      (when raw-body
+        (setf raw-body (make-circular-input-stream raw-body))
+
+        ;; POST parameters
+        (when (null body-parameters)
+          (setf body-parameters
+                (http-body:parse content-type content-length raw-body))
+          (file-position raw-body 0)
+          (rplacd (last env) (list :body-parameters body-parameters)))))
 
     (setf (request-env req) env)
 
