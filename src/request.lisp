@@ -29,7 +29,8 @@
            :request-cookies
            :request-body-parameters
            :request-query-parameters
-           :request-parameters))
+           :request-parameters
+           :request-content))
 (in-package :lack.request)
 
 (defstruct (request (:constructor %make-request))
@@ -99,3 +100,12 @@
 (defun request-parameters (req)
   (append (request-query-parameters req)
           (request-body-parameters req)))
+
+(defun request-content (req)
+  (let ((raw-body (request-raw-body req)))
+    (if (or (request-content-length req)
+            (string= (gethash "transfer-encoding" (request-headers req)) "chunked"))
+        (prog1
+            (http-body.util:slurp-stream raw-body (request-content-length req))
+          (file-position raw-body 0))
+        #.(make-array 0 :element-type '(unsigned-byte 8)))))
