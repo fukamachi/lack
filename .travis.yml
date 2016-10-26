@@ -43,6 +43,7 @@ cache:
 before_script:
   - ros --version
   - ros config
+  - if [ "$REVIEWDOG" ]; then sblint | reviewdog -efm="%f:%l:%c %m" -diff="git diff master"; fi
 
 script:
   - if [ "$LISP" = "ecl" ] || [ "$LISP" = "clisp" ]; then
