@@ -35,11 +35,6 @@ install:
   # Install prove
   - ros install prove
 
-cache:
-  directories:
-    - "$HOME/.roswell"
-    - "$HOME/.config/common-lisp"
-
 before_script:
   - ros --version
   - ros config
