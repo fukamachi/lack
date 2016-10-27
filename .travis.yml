@@ -38,7 +38,7 @@ install:
 before_script:
   - ros --version
   - ros config
-  - if [ "$REVIEWDOG" ]; then sblint | reviewdog -efm="%f:%l:%c %m" -diff="git diff master"; fi
+  - if [ "$REVIEWDOG" ]; then sblint -v | reviewdog -efm="%f:%l:%c %m" -diff="git diff master"; fi
 
 script:
   - if [ "$LISP" = "ecl" ] || [ "$LISP" = "clisp" ]; then
