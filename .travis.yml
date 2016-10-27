@@ -45,6 +45,7 @@ script:
     else
       run-prove t-*.asd;
     fi
-  - if [ "$REVIEWDOG" ]; then
-      sblint | reviewdog -f=golint -diff="git diff master" -ci=travis;
+  - >-
+    if [ "$REVIEWDOG" ]; then
+      sblint | reviewdog -efm="%f:%l:%c: %m" -diff="git diff master" -ci=travis;
     fi
