@@ -9,7 +9,7 @@ env:
     - COVERAGE_EXCLUDE=t
     - secure: G5LhqaVtgPCaOEuswI6qMmAnSzJ+Hki5VDW/ivUXN5BvshkggbEncOBkBW5TdzFgOsAK1zVkZsV4Qdj76TbP7WhX9Qcc7uyKdD91EbKu49PrSNJlVh7H35/QJZ2PnFve5rOUyRKIi/+gz7n7jlZEMP3i9l8M+x1mZtoUqKrpWrg=
   matrix:
-    - LISP=sbcl-bin COVERALLS=true
+    - LISP=sbcl-bin COVERALLS=true REVIEWDOG=true
     - LISP=ccl-bin
     - LISP=abcl
     - LISP=ecl
@@ -21,6 +21,9 @@ services:
 install:
   # Install Roswell
   - curl -L https://raw.githubusercontent.com/snmsts/roswell/$ROSWELL_BRANCH/scripts/install-for-ci.sh | sh
+
+  # Install sblint
+  - if [ "$REVIEWDOG" ]; then ros install fukamachi/sblint; fi
 
   # Install prove
   - ros install prove
@@ -35,4 +38,4 @@ script:
     else
       run-prove t-*.asd;
     fi
-  - curl -L https://raw.githubusercontent.com/fukamachi/sblint/master/sblint-for-ci.sh | sh
+  - if [ "$REVIEWDOG" ]; then sblint-reviewdog; fi
