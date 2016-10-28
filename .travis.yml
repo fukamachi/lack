@@ -9,7 +9,7 @@ env:
     - COVERAGE_EXCLUDE=t
     - secure: G5LhqaVtgPCaOEuswI6qMmAnSzJ+Hki5VDW/ivUXN5BvshkggbEncOBkBW5TdzFgOsAK1zVkZsV4Qdj76TbP7WhX9Qcc7uyKdD91EbKu49PrSNJlVh7H35/QJZ2PnFve5rOUyRKIi/+gz7n7jlZEMP3i9l8M+x1mZtoUqKrpWrg=
   matrix:
-    - LISP=sbcl-bin COVERALLS=true REVIEWDOG=true
+    - LISP=sbcl-bin COVERALLS=1 REVIEWDOG=1
     - LISP=ccl-bin
     - LISP=abcl
     - LISP=ecl
