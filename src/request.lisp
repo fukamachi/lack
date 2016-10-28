@@ -74,6 +74,9 @@
                       append (quri:url-decode-params kv :lenient t)))
           (rplacd (last env) (list :cookies (request-cookies req))))))
 
+    (let ((a 2))
+      (+ 1 'a))
+
     ;; GET parameters
     (with-slots (query-parameters query-string) req
       (when (and (null query-parameters)
