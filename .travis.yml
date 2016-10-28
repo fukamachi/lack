@@ -23,22 +23,11 @@ install:
   # Install Roswell
   - curl -L https://raw.githubusercontent.com/snmsts/roswell/$ROSWELL_BRANCH/scripts/install-for-ci.sh | sh
 
-  # Install reviewdog
-  - if [ "$REVIEWDOG" ]; then
-      mkdir -p ~/go/bin;
-      curl -L https://github.com/haya14busa/reviewdog/releases/download/$REVIEWDOG_VERSION/reviewdog_linux_386 > ~/go/bin/reviewdog;
-      chmod u+x ~/go/bin/reviewdog;
-    fi
   # Install SBLint
   - if [ "$REVIEWDOG" ]; then ros install fukamachi/sblint; fi
 
   # Install prove
   - ros install prove
-
-cache:
-  directories:
-    - "$HOME/.roswell"
-    - "$HOME/.config/common-lisp"
 
 before_script:
   - ros --version
@@ -50,6 +39,4 @@ script:
     else
       run-prove t-*.asd;
     fi
-  - if [ "$REVIEWDOG" ]; then
-      sblint | reviewdog -efm="%f:%l:%c %m" -diff="git diff master" -ci=travis;
-    fi
+  - if [ "$REVIEWDOG" ]; then sblint-reviewdog; fi
