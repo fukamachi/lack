@@ -11,4 +11,5 @@
                :http-body
                :circular-streams
                :cl-ppcre)
-  :components ((:file "src/request")))
+  :components ((:file "src/request"))
+  :in-order-to ((test-op (test-op t-lack-request))))
