@@ -35,12 +35,18 @@
               (if new-session-p
                   (list :id sid :new-session t   :change-id nil :expire nil)
                   (list :id sid :new-session nil :change-id nil :expire nil)))
-        (let ((res (funcall app env)))
-          (if (and (not keep-empty)
-                   new-session-p
-                   (zerop (hash-table-count session)))
-              res
-              (finalize store state env res))))))
+        (let ((res (funcall app env))
+              (process-session (lambda (result)
+                                 (if (and (not keep-empty)
+                                          new-session-p
+                                          (zerop (hash-table-count session)))
+                                     result
+                                     (finalize store state env result)))))
+          (typecase res
+            (function (lambda (responder)
+              (funcall res (lambda (result)
+                             (funcall responder (funcall process-session result))))))
+            (t (funcall process-session res)))))))
   "Middleware for session management")
 
 (defun finalize (store state env res)
