@@ -6,7 +6,7 @@
         :lack.test))
 (in-package :t.lack.middleware.session)
 
-(plan 6)
+(plan 7)
 
 (ok (lack.session.state:make-state)
     "Base class of session state")
@@ -125,6 +125,36 @@
             :test #'>
             "new session is not expired"))
       (is body '("hi") "body"))))
+
+(subtest "session expiration with delayed response"
+  (let ((app (builder
+              :session
+              (lambda (env)
+                (if (equal (getf env :path-info) "/delayed-expire")
+                    (lambda (responder)
+                      (setf (getf (getf env :lack.session.options) :expire) t)
+                      (funcall responder '(200 () ("hi"))))
+                    (lambda (responder)
+                      (funcall responder '(200 () "hi")))))))
+        session)
+    ;; Get a session.
+    (funcall (funcall app (generate-env "/"))
+             (lambda (result)
+               (destructuring-bind (status headers body) result
+                 (declare (ignore status body))
+                 (setf session
+                       (ppcre:scan-to-strings "(?<=lack.session=)[^;]+"
+                                              (getf headers :set-cookie ""))))))
+    ;; Make sure it expires when expiration is set in a delayed response.
+    (funcall (funcall app (generate-env "/delayed-expire" :cookies `(("lack.session" . ,session))))
+             (lambda (result)
+               (destructuring-bind (status headers body) result
+                 (declare (ignore status body))
+                 (let ((cookie (cookie:parse-set-cookie-header (getf headers :set-cookie) "" "")))
+                   (is (cookie:cookie-value cookie) session
+                       "Set-Cookie header is for existing session")
+                   (ok (<= (cookie:cookie-expires cookie) (get-universal-time))
+                       "Session expired")))))))
 
 (subtest ":keep-empty nil"
   (let ((app (builder
