@@ -30,7 +30,8 @@
            :request-body-parameters
            :request-query-parameters
            :request-parameters
-           :request-content))
+           :request-content
+           :request-has-body-p))
 (in-package :lack.request)
 
 (defstruct (request (:constructor %make-request))
@@ -54,6 +55,11 @@
   cookies
   body-parameters
   query-parameters)
+
+(declaim (inline request-has-body-p))
+(defun request-has-body-p (req)
+  (or (request-content-length req)
+      (string= (gethash "transfer-encoding" (request-headers req)) "chunked")))
 
 (defun make-request (env)
   (let ((req (apply #'%make-request :env env :allow-other-keys t env)))
@@ -87,7 +93,8 @@
         (setf raw-body (make-circular-input-stream raw-body))
 
         ;; POST parameters
-        (when (null body-parameters)
+        (when (and (null body-parameters)
+                   (request-has-body-p req))
           (setf body-parameters
                 (http-body:parse content-type content-length raw-body))
           (file-position raw-body 0)
@@ -102,10 +109,11 @@
           (request-body-parameters req)))
 
 (defun request-content (req)
-  (let ((raw-body (request-raw-body req)))
-    (if (or (request-content-length req)
-            (string= (gethash "transfer-encoding" (request-headers req)) "chunked"))
+  (if (request-has-body-p req)
+      (let ((raw-body (request-raw-body req)))
         (prog1
             (http-body.util:slurp-stream raw-body (request-content-length req))
-          (file-position raw-body 0))
-        #.(make-array 0 :element-type '(unsigned-byte 8)))))
+          (file-position raw-body 0)))
+      #.(make-array 0 :element-type '(unsigned-byte 8))))
+
+(declaim (notinline request-has-body-p))
