@@ -53,7 +53,8 @@
       (t file))))
 
 (defun serve-path (file encoding)
-  (let ((content-type (mimes:mime file "text/plain"))
+  (let ((content-type (or (mimes:mime-lookup file)
+                          "application/octet-stream"))
         (univ-time (or (file-write-date file)
                        (get-universal-time))))
     (when (starts-with-subseq "text" content-type)
