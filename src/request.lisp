@@ -19,6 +19,7 @@
            :request-server-port
            :request-server-protocol
            :request-uri
+           :request-uri-scheme
            :request-remote-addr
            :request-remote-port
            :request-query-string
@@ -44,6 +45,7 @@
   server-port
   server-protocol
   uri
+  uri-scheme
   remote-addr
   remote-port
   query-string
@@ -63,11 +65,14 @@
 
 (defun make-request (env)
   (let ((req (apply #'%make-request :env env :allow-other-keys t env)))
-    (with-slots (method uri) req
+    (with-slots (method uri uri-scheme) req
       (unless method
         (setf method (getf env :request-method)))
       (unless uri
-        (setf uri (getf env :request-uri))))
+        (setf uri (getf env :request-uri)))
+      (unless uri-scheme
+        ;; for some reason, it is called url-scheme in the environment plist :(
+        (setf uri-scheme (getf env :url-scheme))))
 
     ;; Cookies
     (unless (request-cookies req)
