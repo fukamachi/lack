@@ -8,6 +8,7 @@
   :license "LLGPL"
   :depends-on (:lack-request
                :clack-test
+               :hunchentoot
                :dexador
                :prove
                :flexi-streams
