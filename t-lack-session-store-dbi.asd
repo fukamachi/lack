@@ -10,7 +10,8 @@
                :lack-test
                :lack-session-store-dbi
                :prove
-               :dbi)
+               :dbi
+               :sqlite)
   :components
   ((:test-file "t/session/store/dbi"))
 
