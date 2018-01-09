@@ -56,14 +56,14 @@
       `(200 nil (,(gethash "filename"
                            (third (assoc "file" (request-body-parameters (make-request env)) :test #'string=))))))
   (multiple-value-bind (body status)
-      (dex:post "http://localhost:4242/"
+      (dex:post (localhost)
                 :content
                 `(("file" . ,(asdf:system-relative-pathname :lack #P"data/jellyfish.jpg"))))
     (is status 200)
     (is body "jellyfish.jpg"))
 
   (multiple-value-bind (body status)
-      (dex:post "http://localhost:4242/"
+      (dex:post (localhost)
                 :content
                 `(("file" . ,(asdf:system-relative-pathname :lack #P"data/jellyfish.jpg"))))
     (is status 200)
