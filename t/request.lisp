@@ -14,6 +14,7 @@
 
 (defparameter *request*
   (make-request `(:content-type "application/x-www-form-urlencoded; charset=utf-8"
+                  :content-length 20
                   :uri-scheme :http
                   :query-string "ediweitz=weitzedi&name=eitaro&q=C%2B%2B"
                   :raw-body
