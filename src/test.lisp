@@ -15,36 +15,55 @@
 (in-package :lack.test)
 
 (defun generate-env (uri &key (method :get) content headers cookies)
-  ;; default headers
-  (setf headers (append '(("host" . "localhost") ("accept" . "*/*")) headers))
-  (when content
-    (let ((content-type (or (cdr (assoc "content-type" headers :test #'string-equal))
-                            (if (find-if #'pathnamep content :key #'cdr)
-                                "multipart/form-data"
-                                "application/x-www-form-urlencoded"))))
-      (if (assoc "content-type" headers :test #'string-equal)
-          (setf (cdr (assoc "content-type" headers :test #'string-equal))
-                content-type)
-          (setf headers (append headers `(("content-type" . ,content-type)))))))
-  (when cookies
-    (setf headers
-          (append headers
-                  `(("cookie" . ,(with-output-to-string (s)
-                                   (format s "~A=~A" (caar cookies) (cdar cookies))
-                                   (loop for (k . v) in (cdr cookies)
-                                         do (format s "; ~A=~A" k v))))))))
-  (when content
-    (setf content (flex:string-to-octets
-                   (quri:url-encode-params content))))
-  (let ((uri (quri:uri uri)))
+  "Creates an ENV plist much like this do all Clack backends.
+   
+   Argument `uri' can be just a path or a full url with scheme and optional port."
+
+  (let* ((uri (quri:uri uri))
+         (path-with-params (quri:copy-uri uri
+                                          :host nil
+                                          :port nil
+                                          :scheme nil))
+         (host (or (quri:uri-host uri)
+                   "localhost"))
+         (port (or (quri:uri-port uri)
+                   80))
+         (scheme (or (quri.uri:uri-scheme uri)
+                     "http")))
+
+    ;; default headers
+    (setf headers (append `(("host" . ,host) ("accept" . "*/*")) headers))
+    
+    (when content
+      (let ((content-type (or (cdr (assoc "content-type" headers :test #'string-equal))
+                              (if (find-if #'pathnamep content :key #'cdr)
+                                  "multipart/form-data"
+                                  "application/x-www-form-urlencoded"))))
+        (if (assoc "content-type" headers :test #'string-equal)
+            (setf (cdr (assoc "content-type" headers :test #'string-equal))
+                  content-type)
+            (setf headers (append headers `(("content-type" . ,content-type)))))))
+    (when cookies
+      (setf headers
+            (append headers
+                    `(("cookie" . ,(with-output-to-string (s)
+                                     (format s "~A=~A" (caar cookies) (cdar cookies))
+                                     (loop for (k . v) in (cdr cookies)
+                                           do (format s "; ~A=~A" k v))))))))
+    (when content
+      (setf content (flex:string-to-octets
+                     (quri:url-encode-params content))))
     (list :request-method method
-          :request-uri (quri:render-uri uri)
+          ;; Seems that all Clack handlers put into this field
+          ;; only pathname with GET parameters
+          :request-uri (quri:render-uri path-with-params)
           :script-name ""
           :path-info (quri:uri-path uri)
           :query-string (or (quri:uri-query uri) "")
-          :server-name "localhost"
-          :server-port 80
+          :server-name host
+          :server-port port
           :server-protocol :http/1.1
+          :url-scheme scheme
           :remote-addr "127.0.0.1"
           :remote-port 12345
           :content-type (cdr (assoc "content-type" headers :test #'string-equal))
