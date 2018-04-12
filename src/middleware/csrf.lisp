@@ -11,13 +11,13 @@
            :csrf-html-tag))
 (in-package :lack.middleware.csrf)
 
-(defvar *csrf-token-key*)
+(defvar *csrf-session-key*)
 
 (defparameter *lack-middleware-csrf*
   (lambda (app &key (block-app #'return-400) one-time
-            (csrf-token-key :csrf-token))
+            (session-key :csrf-token))
     (lambda (env)
-      (let ((*csrf-token-key* csrf-token-key))
+      (let ((*csrf-session-key* session-key))
         (block nil
           (unless (danger-method-p (getf env :request-method))
             (return (funcall app env)))
@@ -29,7 +29,7 @@
             (if (valid-token-p env)
                 (progn
                   (when one-time
-                    (remhash csrf-token-key session))
+                    (remhash *csrf-session-key* session))
                   (funcall app env))
                 (funcall block-app env)))))))
   "Middleware for easy CSRF protection")
@@ -48,7 +48,7 @@
 
 (defun valid-token-p (env)
   (let ((req (make-request env))
-        (csrf-token (gethash *csrf-token-key*
+        (csrf-token (gethash *csrf-session-key*
                              (getf env :lack.session))))
     (and csrf-token
          (let ((recieved-csrf-token
@@ -56,9 +56,9 @@
            (string= csrf-token recieved-csrf-token)))))
 
 (defun csrf-token (session)
-  (unless (gethash *csrf-token-key* session)
-    (setf (gethash *csrf-token-key* session) (generate-random-id)))
-  (gethash *csrf-token-key* session))
+  (unless (gethash *csrf-session-key* session)
+    (setf (gethash *csrf-session-key* session) (generate-random-id)))
+  (gethash *csrf-session-key* session))
 
 (defun csrf-html-tag (session)
   (format nil "<input type=\"hidden\" name=\"_csrf_token\" value=\"~A\">"
