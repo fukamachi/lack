@@ -15,7 +15,7 @@
 
 (defparameter *lack-middleware-csrf*
   (lambda (app &key (block-app #'return-400) one-time
-            (session-key :csrf-token))
+            (session-key "_csrf_token"))
     (lambda (env)
       (let ((*csrf-session-key* session-key))
         (block nil
