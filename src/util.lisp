@@ -13,15 +13,36 @@
            :generate-random-id))
 (in-package :lack.util)
 
+(defun locate-symbol (symbol pkg)
+  (check-type symbol (or symbol string))
+  (let* ((sym-name (if (symbolp symbol) (symbol-name symbol) symbol))
+         (sym (find-symbol sym-name pkg)))
+    (unless sym
+      (error "Unable to find symbol ~A in package ~S." symbol pkg))
+    sym))
+
+(defun load-with-quicklisp (system)
+  (let* ((load-sym (locate-symbol '#:quickload '#:ql))
+         (error-sym (locate-symbol '#:system-not-found '#:ql)))
+    ;; We're going to trap on every condition, but only actually
+    ;; handle ones of the type we're interested in. Conditions that we
+    ;; don't explicitly handle will be propagated normally, because
+    ;; HANDLER-BIND is cool like that.
+    (handler-bind
+        ((t (lambda (c)
+              (when (typep c error-sym)
+                (return-from load-with-quicklisp (values))))))
+      (funcall load-sym system :silent t))))
+
 (defun find-package-or-load (package-name)
   (check-type package-name string)
   (let ((package (find-package package-name)))
     (or package
         (let ((system-name (string-downcase (substitute #\- #\. package-name :test #'char=))))
-          #+quicklisp (handler-case (ql:quickload system-name :silent t)
-                        (ql:system-not-found ()))
-          #-quicklisp (when (asdf:find-system system-name nil)
-                        (asdf:load-system system-name :verbose nil))
+          (if (member :quicklisp *features*)
+              (load-with-quicklisp system-name)
+              (when (asdf:find-system system-name nil)
+                (asdf:load-system system-name :verbose nil)))
           (find-package package-name)))))
 
 (defun find-middleware (identifier)
