@@ -6,6 +6,7 @@
   (:import-from :http-body
                 :parse)
   (:import-from :circular-streams
+                :circular-input-stream
                 :make-circular-input-stream)
   (:import-from :cl-ppcre
                 :split)
@@ -95,7 +96,8 @@
 
     (with-slots (body-parameters raw-body content-length content-type) req
       (when raw-body
-        (setf raw-body (make-circular-input-stream raw-body))
+        (unless (typep raw-body 'circular-input-stream)
+          (setf raw-body (make-circular-input-stream raw-body)))
 
         ;; POST parameters
         (when (and (null body-parameters)
@@ -103,6 +105,7 @@
           (setf body-parameters
                 (http-body:parse content-type content-length raw-body))
           (file-position raw-body 0)
+          (setf (getf env :raw-body) raw-body)
           (rplacd (last env) (list :body-parameters body-parameters)))))
 
     (setf (request-env req) env)
