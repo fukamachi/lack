@@ -33,7 +33,7 @@
 
     ;; default headers
     (setf headers (append `(("host" . ,host) ("accept" . "*/*")) headers))
-    
+
     (when content
       (let ((content-type (or (cdr (assoc "content-type" headers :test #'string-equal))
                               (if (find-if #'pathnamep content :key #'cdr)
@@ -50,9 +50,15 @@
                                      (format s "~A=~A" (caar cookies) (cdar cookies))
                                      (loop for (k . v) in (cdr cookies)
                                            do (format s "; ~A=~A" k v))))))))
-    (when content
-      (setf content (flex:string-to-octets
-                     (quri:url-encode-params content))))
+    (setf content
+          (etypecase content
+            (cons (flex:string-to-octets
+                   (quri:url-encode-params content)
+                   :external-format :utf-8))
+            (string (flex:string-to-octets content
+                                           :external-format :utf-8))
+            (array content)
+            (null nil)))
     (list :request-method method
           ;; Seems that all Clack handlers put into this field
           ;; only pathname with GET parameters
