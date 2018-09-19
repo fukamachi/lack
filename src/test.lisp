@@ -77,7 +77,7 @@
                                (length content))
           :headers (loop with hash = (make-hash-table :test 'equal)
                          for (k . v) in headers
-                         do (setf (gethash k hash) v)
+                         do (setf (gethash (string-downcase k) hash) v)
                          finally (return hash))
           :raw-body (and content
                          (flex:make-in-memory-input-stream content)))))
