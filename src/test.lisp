@@ -17,10 +17,6 @@
                 :string-to-octets)
   (:export :generate-env
            :parse-lack-session
-           :make-response
-           :response-status
-           :response-headers
-           :response-body
            :testing-app
            :request))
 (in-package :lack.test)
@@ -53,9 +49,15 @@
                   content-type)
             (setf headers (append headers `(("content-type" . ,content-type)))))))
     (when cookie-jar
-      (setf headers
-            (append headers
-                    `(("cookie" . ,(write-cookie-header (cookie-jar-cookies cookie-jar)))))))
+      (let* ((cookie (assoc "cookie" headers :test 'equal))
+             (new-cookie (format nil "~@[~A; ~]~A"
+                                 (cdr cookie)
+                                 (write-cookie-header (cookie-jar-cookies cookie-jar)))))
+        (if cookie
+            (setf (cdr cookie) new-cookie)
+            (setf headers
+                  (append headers
+                          `(("cookie" . ,new-cookie)))))))
     (setf content
           (etypecase content
             (cons (flex:string-to-octets
@@ -98,11 +100,6 @@
                 #.(length "lack.session=")
                 (position #\; set-cookie))))))
 
-(defstruct (response (:constructor make-response (status headers body)))
-  status
-  headers
-  body)
-
 (defvar *current-app*)
 
 (defun request (uri &rest args &key (method :get) content headers cookie-jar
@@ -143,20 +140,23 @@
       ;; XXX: Framework sometimes return '(NIL) as body
       (when (consp body)
         (setf body (remove nil body)))
-      (make-response status
-                     (loop with hash = (make-hash-table :test 'equal)
-                           for (k v) on headers by #'cddr
-                           for down-k = (string-downcase k)
-                           do (setf (gethash down-k hash)
-                                    (format nil "~@[~A, ~]~A"
-                                            (gethash down-k hash) v))
-                           finally (return hash))
-                     ;; TODO: support pathname
-                     ;; TODO: check if the response content-type is text/binary
-                     (typecase body
-                       (cons (apply #'concatenate (type-of (first body)) body))
-                       (null "")
-                       (otherwise body))))))
+      (values
+       ;; TODO: support pathname
+       ;; TODO: check if the response content-type is text/binary
+       (typecase body
+         (cons (apply #'concatenate (type-of (first body)) body))
+         (null "")
+         (otherwise body))
+       status
+       (loop with hash = (make-hash-table :test 'equal)
+             for (k v) on headers by #'cddr
+             for down-k = (string-downcase k)
+             do (setf (gethash down-k hash)
+                      (format nil "~@[~A, ~]~A"
+                              (gethash down-k hash) v))
+             finally (return hash))
+       uri
+       nil))))
 
 (defmacro testing-app (app &body body)
   `(let ((*current-app* ,app))
