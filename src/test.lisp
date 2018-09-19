@@ -20,10 +20,8 @@
    Argument `uri' can be just a path or a full url with scheme and optional port."
 
   (let* ((uri (quri:uri uri))
-         (path-with-params (quri:copy-uri uri
-                                          :host nil
-                                          :port nil
-                                          :scheme nil))
+         (path (quri:url-decode (quri:uri-path uri) :lenient t))
+         (query (quri:uri-query uri))
          (host (or (quri:uri-host uri)
                    "localhost"))
          (port (or (quri:uri-port uri)
@@ -62,10 +60,12 @@
     (list :request-method method
           ;; Seems that all Clack handlers put into this field
           ;; only pathname with GET parameters
-          :request-uri (quri:render-uri path-with-params)
+          :request-uri (format nil "~A~@[?~A~]"
+                               (or path "/")
+                               query)
           :script-name ""
-          :path-info (quri:uri-path uri)
-          :query-string (or (quri:uri-query uri) "")
+          :path-info path
+          :query-string query
           :server-name host
           :server-port port
           :server-protocol :http/1.1
