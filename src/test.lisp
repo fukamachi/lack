@@ -7,14 +7,25 @@
                 :uri-query
                 :render-uri
                 :url-encode-params)
+  (:import-from :cl-cookie
+                :parse-set-cookie-header
+                :merge-cookies
+                :cookie-jar-cookies
+                :write-cookie-header)
   (:import-from :flexi-streams
                 :make-in-memory-input-stream
                 :string-to-octets)
   (:export :generate-env
-           :parse-lack-session))
+           :parse-lack-session
+           :make-response
+           :response-status
+           :response-headers
+           :response-body
+           :testing-app
+           :request))
 (in-package :lack.test)
 
-(defun generate-env (uri &key (method :get) content headers cookies)
+(defun generate-env (uri &key (method :get) content headers cookie-jar)
   "Creates an ENV plist much like this do all Clack backends.
    
    Argument `uri' can be just a path or a full url with scheme and optional port."
@@ -41,13 +52,10 @@
             (setf (cdr (assoc "content-type" headers :test #'string-equal))
                   content-type)
             (setf headers (append headers `(("content-type" . ,content-type)))))))
-    (when cookies
+    (when cookie-jar
       (setf headers
             (append headers
-                    `(("cookie" . ,(with-output-to-string (s)
-                                     (format s "~A=~A" (caar cookies) (cdar cookies))
-                                     (loop for (k . v) in (cdr cookies)
-                                           do (format s "; ~A=~A" k v))))))))
+                    `(("cookie" . ,(write-cookie-header (cookie-jar-cookies cookie-jar)))))))
     (setf content
           (etypecase content
             (cons (flex:string-to-octets
@@ -89,3 +97,67 @@
         (subseq set-cookie
                 #.(length "lack.session=")
                 (position #\; set-cookie))))))
+
+(defstruct (response (:constructor make-response (status headers body)))
+  status
+  headers
+  body)
+
+(defvar *current-app*)
+
+(defun request (uri &rest args &key (method :get) content headers cookie-jar
+                                    (max-redirects 5))
+  (declare (ignore method content headers))
+  (let ((env (generate-env uri
+                           :method method :content content :headers headers
+                           :cookie-jar cookie-jar))
+        (uri (quri:uri uri)))
+    (unless (quri:uri-host uri)
+      (setf (quri:uri-host uri) "localhost"))
+    (unless (quri:uri-port uri)
+      (setf (quri:uri-port uri) 80))
+    (unless (quri:uri-scheme uri)
+      (setf (quri:uri-scheme uri) "http"))
+    (destructuring-bind (status headers body)
+        (funcall *current-app* env)
+      (when cookie-jar
+        (merge-cookies cookie-jar
+                       (loop for (k v) on headers by #'cddr
+                             when (eq k :set-cookie)
+                             collect
+                                (parse-set-cookie-header v
+                                                         (quri:uri-host uri)
+                                                         (quri:uri-path uri)))))
+      (when (and (member status '(301 302 303 307) :test #'=)
+                 (getf headers :location)
+                 (not (eq method :head))
+                 (/= max-redirects 0))
+        (return-from request
+          (apply #'request (quri:merge-uris (quri:uri (getf headers :location)) uri)
+                 :method (if (or (= status 307)
+                                 (member method '(:head :get)))
+                             method
+                             :get)
+                 :max-redirects (1- max-redirects)
+                 args)))
+      ;; XXX: Framework sometimes return '(NIL) as body
+      (when (consp body)
+        (setf body (remove nil body)))
+      (make-response status
+                     (loop with hash = (make-hash-table :test 'equal)
+                           for (k v) on headers by #'cddr
+                           for down-k = (string-downcase k)
+                           do (setf (gethash down-k hash)
+                                    (format nil "~@[~A, ~]~A"
+                                            (gethash down-k hash) v))
+                           finally (return hash))
+                     ;; TODO: support pathname
+                     ;; TODO: check if the response content-type is text/binary
+                     (typecase body
+                       (cons (apply #'concatenate (type-of (first body)) body))
+                       (null "")
+                       (otherwise body))))))
+
+(defmacro testing-app (app &body body)
+  `(let ((*current-app* ,app))
+     ,@body))

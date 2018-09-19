@@ -31,8 +31,8 @@
     (list* status headers
            (cond
              ((and no-body (not body)) nil)
-             ((stringp body) (list (list body)))
-             (t (list body))))))
+             ((consp body) (list body))
+             (t (list (list body)))))))
 
 (defun finalize-cookies (res)
   (setf (response-headers res)

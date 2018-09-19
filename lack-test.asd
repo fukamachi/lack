@@ -7,7 +7,7 @@
   :author "Eitaro Fukamachi"
   :license "LLGPL"
   :depends-on (:lack
-               :prove
                :quri
+               :cl-cookie
                :flexi-streams)
   :components ((:file "src/test")))
