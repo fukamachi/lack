@@ -41,7 +41,8 @@
 
     (when content
       (let ((content-type (or (cdr (assoc "content-type" headers :test #'string-equal))
-                              (if (find-if #'pathnamep content :key #'cdr)
+                              (if (and (consp content)
+                                       (find-if #'pathnamep content :key #'cdr))
                                   "multipart/form-data"
                                   "application/x-www-form-urlencoded"))))
         (if (assoc "content-type" headers :test #'string-equal)
