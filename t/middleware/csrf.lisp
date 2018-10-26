@@ -5,7 +5,9 @@
         :lack
         :lack.test
         :lack.request
-        :lack.middleware.csrf))
+        :lack.middleware.csrf)
+  (:shadowing-import-from :lack.test
+                          :request))
 (in-package :t.lack.middleware.csrf)
 
 (plan 2)
