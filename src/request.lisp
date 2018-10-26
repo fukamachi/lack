@@ -102,8 +102,10 @@
         ;; POST parameters
         (when (and (null body-parameters)
                    (request-has-body-p req))
-          (setf body-parameters
-                (http-body:parse content-type content-length raw-body))
+          (let ((parsed (http-body:parse content-type content-length raw-body)))
+            (when (and (consp parsed)
+                       (every #'consp parsed))
+              (setf body-parameters parsed)))
           (file-position raw-body 0)
           (setf (getf env :raw-body) raw-body)
           (rplacd (last env) (list :body-parameters body-parameters)))))
