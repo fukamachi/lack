@@ -31,7 +31,8 @@
     (list* status headers
            (cond
              ((and no-body (not body)) nil)
-             ((consp body) (list body))
+             ((or (consp body) (pathnamep body))
+              (list body))
              (t (list (list body)))))))
 
 (defun finalize-cookies (res)
