@@ -53,6 +53,9 @@
     (and csrf-token
          (let ((recieved-csrf-token
                  (cdr (assoc "_csrf_token" (request-body-parameters req) :test #'string=))))
+           ;; for multipart/form-data
+           (when (listp recieved-csrf-token)
+             (setf recieved-csrf-token (first recieved-csrf-token)))
            (string= csrf-token recieved-csrf-token)))))
 
 (defun csrf-token (session)
