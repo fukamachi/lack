@@ -51,12 +51,12 @@
         (csrf-token (gethash *csrf-session-key*
                              (getf env :lack.session))))
     (and csrf-token
-         (let ((recieved-csrf-token
+         (let ((received-csrf-token
                  (cdr (assoc "_csrf_token" (request-body-parameters req) :test #'string=))))
            ;; for multipart/form-data
-           (when (listp recieved-csrf-token)
-             (setf recieved-csrf-token (first recieved-csrf-token)))
-           (string= csrf-token recieved-csrf-token)))))
+           (when (listp received-csrf-token)
+             (setf received-csrf-token (first received-csrf-token)))
+           (equal csrf-token received-csrf-token)))))
 
 (defun csrf-token (session)
   (unless (gethash *csrf-session-key* session)
