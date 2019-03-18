@@ -8,6 +8,8 @@
                 :render-uri
                 :url-encode-params)
   (:import-from :cl-cookie
+                :make-cookie-jar
+                :make-cookie
                 :parse-set-cookie-header
                 :merge-cookies
                 :cookie-jar-cookies
@@ -21,7 +23,7 @@
            :request))
 (in-package :lack.test)
 
-(defun generate-env (uri &key (method :get) content headers cookie-jar)
+(defun generate-env (uri &key (method :get) content headers cookie-jar cookies)
   "Creates an ENV plist much like this do all Clack backends.
    
    Argument `uri' can be just a path or a full url with scheme and optional port."
@@ -49,16 +51,21 @@
             (setf (cdr (assoc "content-type" headers :test #'string-equal))
                   content-type)
             (setf headers (append headers `(("content-type" . ,content-type)))))))
-    (when cookie-jar
-      (let* ((cookie (assoc "cookie" headers :test 'equal))
-             (new-cookie (format nil "~@[~A; ~]~A"
-                                 (cdr cookie)
-                                 (write-cookie-header (cookie-jar-cookies cookie-jar)))))
-        (if cookie
-            (setf (cdr cookie) new-cookie)
-            (setf headers
-                  (append headers
-                          `(("cookie" . ,new-cookie)))))))
+    (when (or cookies cookie-jar)
+      (let ((cookie-jar (or cookie-jar
+                            (make-cookie-jar))))
+        (merge-cookies cookie-jar
+                       (loop for (k . v) in cookies
+                             collect (make-cookie :name k :value v)))
+        (let* ((cookie (assoc "cookie" headers :test 'equal))
+               (new-cookie (format nil "~@[~A; ~]~A"
+                                   (cdr cookie)
+                                   (write-cookie-header (cookie-jar-cookies cookie-jar)))))
+          (if cookie
+              (setf (cdr cookie) new-cookie)
+              (setf headers
+                    (append headers
+                            `(("cookie" . ,new-cookie))))))))
     (setf content
           (etypecase content
             (cons (flex:string-to-octets
