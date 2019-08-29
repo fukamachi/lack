@@ -12,9 +12,6 @@ env:
   matrix:
     - LISP=sbcl-bin COVERALLS=true REVIEWDOG=true
     - LISP=ccl-bin
-    - LISP=abcl
-    - LISP=ecl
-    - LISP=clisp
 
 services:
   - redis-server
