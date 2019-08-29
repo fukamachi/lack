@@ -53,8 +53,7 @@
 (subtest-app "make-request"
     (lambda (env)
       (make-request env)
-      `(200 nil (,(gethash "filename"
-                           (third (assoc "file" (request-body-parameters (make-request env)) :test #'string=))))))
+      `(200 nil (,(third (assoc "file" (request-body-parameters (make-request env)) :test #'string=)))))
   (multiple-value-bind (body status)
       (dex:post (localhost)
                 :content
