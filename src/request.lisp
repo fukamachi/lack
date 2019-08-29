@@ -101,7 +101,8 @@
 
         ;; POST parameters
         (when (and (null body-parameters)
-                   (request-has-body-p req))
+                   (request-has-body-p req)
+                   (stringp content-type))
           (let ((parsed (http-body:parse content-type content-length raw-body)))
             (when (and (consp parsed)
                        (every #'consp parsed))
