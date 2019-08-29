@@ -68,7 +68,7 @@ The environment, an application takes, is a property list containing the followi
   - The remote address.
 - `:remote-port` (Required, Integer)
   - The remote port.
-- `:content-type` (Required, String)
+- `:content-type` (Optional, String)
   - The header value of Content-Type.
 - `:content-length` (Optional, Integer)
   - The header value of Content-Length.
