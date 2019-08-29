@@ -29,7 +29,9 @@
    Argument `uri' can be just a path or a full url with scheme and optional port."
 
   (let* ((uri (quri:uri uri))
-         (path (quri:url-decode (quri:uri-path uri) :lenient t))
+         (path (if (quri:uri-path uri)
+                   (quri:url-decode (quri:uri-path uri) :lenient t)
+                   "/"))
          (query (quri:uri-query uri))
          (host (or (quri:uri-host uri)
                    "localhost"))
@@ -112,7 +114,6 @@
 
 (defun request (uri &rest args &key (method :get) content headers cookie-jar
                                     (max-redirects 5))
-  (declare (ignore method content headers))
   (let ((env (generate-env uri
                            :method method :content content :headers headers
                            :cookie-jar cookie-jar))
