@@ -21,7 +21,8 @@
   (lambda (app &key
             (store (make-memory-store))
             (state (make-cookie-state))
-            (keep-empty t))
+            (keep-empty t)
+            (change-id nil))
     (lambda (env)
       (let* ((sid (extract-sid state env))
              (session (and sid
@@ -33,8 +34,8 @@
         (setf (getf env :lack.session) session)
         (setf (getf env :lack.session.options)
               (if new-session-p
-                  (list :id sid :new-session t   :change-id nil :expire nil)
-                  (list :id sid :new-session nil :change-id nil :expire nil)))
+                  (list :id sid :new-session t   :change-id change-id :expire nil)
+                  (list :id sid :new-session nil :change-id change-id :expire nil)))
         (let ((res (funcall app env))
               (process-session (lambda (result)
                                  (if (and (not keep-empty)
