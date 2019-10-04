@@ -66,7 +66,7 @@
 
 (defun make-request (env)
   (let ((req (apply #'%make-request :env env :allow-other-keys t env)))
-    (with-slots (method uri uri-scheme) req
+    (with-slots (method uri uri-scheme content-type) req
       (unless method
         (setf method (getf env :request-method)))
       (unless uri
