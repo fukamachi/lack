@@ -7,7 +7,7 @@
         :split-sequence))
 (in-package :t.lack.middleware.accesslog)
 
-(plan 8)
+(plan 12)
 
 (defmacro with-accesslogs ((var &rest forms) &body body)
   `(let* ((,var (string-right-trim '(#\Newline)
@@ -43,6 +43,16 @@
     (is (length logs) 3 "3 lines")
     (like (nth 0 logs) "^127.0.0.1 - \\[.+?\\] \"GET / ")
     (like (nth 1 logs) "^127.0.0.1 - \\[.+?\\] \"GET /users ")
-    (like (nth 2 logs) "^127.0.0.1 - \\[.+?\\] \"POST /new ")))
+    (like (nth 2 logs) "^127.0.0.1 - \\[.+?\\] \"POST /new "))
+
+  (with-accesslogs (logs (funcall app1 (generate-env "/"))
+                         (funcall app1 (generate-env "/" :headers '(("user-agent" . "Mozilla")))))
+    (like (nth 0 logs) "^.+\"-\"$")
+    (like (nth 1 logs) "^.+\"Mozilla\"$"))
+
+  (with-accesslogs (logs (funcall app1 (generate-env "/"))
+                         (funcall app1 (generate-env "/" :headers '(("referer" . "http://website.com/index.html")))))
+    (like (nth 0 logs) "^.+\"-\" \"-\"$")
+    (like (nth 1 logs) "^.+\"http://website.com/index.html\" \"-\"$")))
 
 (finalize)
