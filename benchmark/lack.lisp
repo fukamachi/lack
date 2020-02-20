@@ -6,7 +6,7 @@
   (:use :cl))
 (in-package :lack-benchmark.lack)
 
-(clack:lackup
+(clack:clackup
  (lack:builder
   (:static :path (lambda (path)
                    (if (ppcre:scan "^(?:/images/|/css/|/js/|/robot\\.txt$|/favicon.ico$)" path)
