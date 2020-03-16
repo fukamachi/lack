@@ -39,5 +39,5 @@
           (getf env :server-protocol)
           (car res)
           (content-length res)
-          (getf env :http-referer)
-          (getf env :http-user-agent)))
+          (gethash "referer" (getf env :headers))
+          (gethash "user-agent" (getf env :headers))))
