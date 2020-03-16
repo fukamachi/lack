@@ -31,7 +31,7 @@
     (list* status headers
            (cond
              ((and no-body (not body)) nil)
-             ((or (consp body) (pathnamep body))
+             ((or (consp body) (pathnamep body) (and (not (stringp body)) (vectorp body)))
               (list body))
              (t (list (list body)))))))
 
