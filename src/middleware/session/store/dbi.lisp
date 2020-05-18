@@ -43,7 +43,7 @@
     (let* ((query (dbi:prepare conn
                                (format nil "SELECT session_data FROM ~A WHERE id = ?"
                                        (dbi-store-table-name store))))
-           (result (dbi:fetch (dbi:execute query sid))))
+           (result (dbi:fetch (dbi:execute query (list sid)))))
       (if result
           (handler-case (funcall (dbi-store-deserializer store) (getf result :|session_data|))
             (error (e)
@@ -68,7 +68,7 @@
         (let* ((query (dbi:prepare conn
                                    (format nil "SELECT session_data FROM ~A WHERE id = ?"
                                            (dbi-store-table-name store))))
-               (current-session (getf (dbi:fetch (dbi:execute query sid)) :|session_data|)))
+               (current-session (getf (dbi:fetch (dbi:execute query (list sid))) :|session_data|)))
           (cond
             ;; Session exists but not changed
             ((equal current-session serialized-session))
@@ -79,20 +79,18 @@
                        (dbi-store-table-name store)
                        (dbi-store-record-timestamps store)
                        (current-timestamp))
-               serialized-session
-               sid))
+               (list serialized-session sid)))
             ;; New session
             (t
              (dbi:do-sql conn (format nil "INSERT INTO ~A (id, session_data~:[~;, created_at, updated_at~]) VALUES (?, ?~:*~:[~*~;, '~A', ~:*'~A'~])"
                                       (dbi-store-table-name store)
                                       (dbi-store-record-timestamps store)
                                       (current-timestamp))
-                         sid
-                         serialized-session))))))))
+               (list sid serialized-session)))))))))
 
 (defmethod remove-session ((store dbi-store) sid)
   (with-db-connection conn store
     (dbi:do-sql conn
       (format nil "DELETE FROM ~A WHERE id = ?"
               (dbi-store-table-name store))
-      sid)))
+      (list sid))))
