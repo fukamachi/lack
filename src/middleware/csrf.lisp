@@ -12,12 +12,15 @@
 (in-package :lack.middleware.csrf)
 
 (defvar *csrf-session-key*)
+(defvar *csrf-middleware-token*)
 
 (defparameter *lack-middleware-csrf*
   (lambda (app &key (block-app #'return-400) one-time
-            (session-key "_csrf_token"))
+            (session-key "_csrf_token")
+            (form-token "_csrf_token"))
     (lambda (env)
-      (let ((*csrf-session-key* session-key))
+      (let ((*csrf-session-key* session-key)
+            (*csrf-middleware-token* form-token))
         (block nil
           (unless (danger-method-p (getf env :request-method))
             (return (funcall app env)))
@@ -52,7 +55,7 @@
                              (getf env :lack.session))))
     (and csrf-token
          (let ((received-csrf-token
-                 (cdr (assoc "_csrf_token" (request-body-parameters req) :test #'string=))))
+                 (cdr (assoc *csrf-middleware-token* (request-body-parameters req) :test #'string=))))
            ;; for multipart/form-data
            (when (listp received-csrf-token)
              (setf received-csrf-token (first received-csrf-token)))
@@ -64,5 +67,6 @@
   (gethash *csrf-session-key* session))
 
 (defun csrf-html-tag (session)
-  (format nil "<input type=\"hidden\" name=\"_csrf_token\" value=\"~A\">"
+  (format nil "<input type=\"hidden\" name=\"~A\" value=\"~A\">"
+          *csrf-middleware-token*
           (csrf-token session)))
