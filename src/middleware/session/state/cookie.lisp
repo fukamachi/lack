@@ -19,9 +19,9 @@
            :samesite-type))
 (in-package :lack.middleware.session.state.cookie)
 
-(deftype samesite-strict `(member strict))
-(deftype samesite-lax `(member lax))
-(deftype samesite-none `(member none))
+(deftype samesite-strict () `(member strict))
+(deftype samesite-lax () `(member lax))
+(deftype samesite-none () `(member none))
 (deftype samesite-type () `(or samesite-strict samesite-lax samesite-none nil))
 
 (defstruct (cookie-state (:include state))
