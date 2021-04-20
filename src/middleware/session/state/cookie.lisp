@@ -20,7 +20,7 @@
 (in-package :lack.middleware.session.state.cookie)
 
 (deftype type-samesite-none () `(member none))
-(deftype type-samesite-lax () `(mamber lax))
+(deftype type-samesite-lax () `(member lax))
 (deftype type-samesite-strict () `(member strict))
 (deftype type-samesite () `(or type-samesite-none type-samesite-lax type-samesite-strict))
 
