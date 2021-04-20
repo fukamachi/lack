@@ -15,14 +15,10 @@
            :generate-sid
            :extract-sid
            :expire-state
-           :finalize-session
-           :type-samesite))
+           :finalize-session))
 (in-package :lack.middleware.session.state.cookie)
 
-(deftype type-samesite-none () `(member none))
-(deftype type-samesite-lax () `(member lax))
-(deftype type-samesite-strict () `(member strict))
-(deftype type-samesite () `(or type-samesite-none type-samesite-lax type-samesite-strict))
+(deftype samesite-type () `(or (member lax strict none) nil))
 
 (defstruct (cookie-state (:include state))
   (path "/" :type string)
@@ -31,7 +27,7 @@
   (secure nil :type boolean)
   (httponly nil :type boolean)
   (cookie-key "lack.session" :type string)
-  (samesite 'lax :type type-samesite))
+  (samesite 'lax :type samesite-type))
 
 (defmethod extract-sid ((state cookie-state) env)
   (let ((req (make-request env)))
