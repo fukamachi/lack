@@ -65,12 +65,11 @@
         (write-string "; secure" s))
       (when httponly
         (write-string "; HttpOnly" s))
-      (format t "~%~%~%~%~%~%~%~A~%~%~%~%~%~%" samesite)
-      (write-string "; SameSite=Lax")
-      ;; (cond ((equal samesite 'lax)
-      ;;        (write-string "; SameSite=Lax" s))
-      ;;       ((equal samesite 'strict)
-      ;;        (write-string "; SameSite=Strict" s))
-      ;;       ((equal samesite 'none)
-      ;;        (write-string "; SameSite=None" s)))
+      (case samesite
+        ('lax
+         (write-string "; SameSite=Lax" s))
+        ('strict
+         (write-string "; SameSite=Strict" s))
+        ('none
+         (write-string "; SameSite=None" s)))
       )))
