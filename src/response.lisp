@@ -70,4 +70,4 @@
             ((eq samesite 'strict)
              (write-string "; SameSite=Strict" s))
             (t
-             (write-string "; SameSite=None"))))))
+             (write-string "; SameSite=None" s))))))
