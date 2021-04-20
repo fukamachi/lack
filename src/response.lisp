@@ -45,7 +45,7 @@
   (unless value
     (return-from bake-cookie ""))
 
-  (destructuring-bind (&key domain path expires secure httponly &allow-other-keys)
+  (destructuring-bind (&key domain path expires secure httponly samesite &allow-other-keys)
       value
     (with-output-to-string (s)
       (format s "~A=~A"
@@ -64,4 +64,10 @@
       (when secure
         (write-string "; secure" s))
       (when httponly
-        (write-string "; HttpOnly" s)))))
+        (write-string "; HttpOnly" s))
+      (cond ((eq samesite 'lax)
+             (write-string "; SameSite=Lax" s))
+            ((eq samesite 'strict)
+             (write-string "; SameSite=Strict" s))
+            (t
+             (write-string "; SameSite=None"))))))
