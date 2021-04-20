@@ -70,5 +70,5 @@
              (write-string "; SameSite=Lax" s))
             ((eq samesite 'strict)
              (write-string "; SameSite=Strict" s))
-            (t
+            ((eq samesite 'none)
              (write-string "; SameSite=None" s))))))
