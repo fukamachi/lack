@@ -7,6 +7,8 @@
                 :format-timestring
                 :universal-to-timestamp
                 :+gmt-zone+)
+  (:import-from :lack.middleware.session.state.cookie
+                :samesite-type)
   (:export :response
            :make-response
            :finalize-response

@@ -15,7 +15,8 @@
            :generate-sid
            :extract-sid
            :expire-state
-           :finalize-session))
+           :finalize-session
+           :samesite-type))
 (in-package :lack.middleware.session.state.cookie)
 
 (deftype samesite-type () `(or (member lax strict none unset)))
