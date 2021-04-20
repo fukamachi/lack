@@ -65,10 +65,9 @@
         (write-string "; secure" s))
       (when httponly
         (write-string "; HttpOnly" s))
-      (format t "~%~%~%bake cookie now~%samesite: ~A, ~A~%~%~%~%~%~%~%" samesite (type-of samesite))
-      (cond ((eq samesite 'lax)
+      (cond ((equal samesite 'lax)
              (write-string "; SameSite=Lax" s))
-            ((eq samesite 'strict)
+            ((equal samesite 'strict)
              (write-string "; SameSite=Strict" s))
-            ((eq samesite 'none)
+            ((equal samesite 'none)
              (write-string "; SameSite=None" s))))))
