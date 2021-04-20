@@ -41,19 +41,6 @@
                 (loop for (k v) on (response-set-cookies res) by #'cddr
                       append (list :set-cookie (bake-cookie k v))))))
 
-(defun check-samesite (samesite)
-  (cond ((eq 'lax samesite)
-         (format t "~%~%~%Lax~%~%~%~%")
-         (write-string "; SameSite=Lax" s))
-        ((eq 'strict samesite)
-         (format t "~%~%Strict~%~%~%~%~%")
-         (write-string "; SameSite=Strict" s))
-        ((eq 'none samesite)
-         (format t "~%~%None~%~%~%~%~%")
-         (write-string "; SameSite=None" s))
-        (t
-         (format t "~%~%~%type: ~A, value: ~A, compare: ~A~%~%~%~%" (type-of samesite) samesite (eq 'lax samesite)))))
-
 (defun bake-cookie (key value)
   (unless value
     (return-from bake-cookie ""))
@@ -78,5 +65,6 @@
         (write-string "; secure" s))
       (when httponly
         (write-string "; HttpOnly" s))
-      (when samesite (check-samesite samesite))
+      (when samesite
+        (format s "; SameSite=~A" samesite))
       )))
