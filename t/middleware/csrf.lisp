@@ -10,7 +10,7 @@
                           :request))
 (in-package :t.lack.middleware.csrf)
 
-(plan 2)
+(plan 3)
 
 (defun html-form (env)
   (concatenate
@@ -29,11 +29,12 @@
 </html>
 "))
 
-(defun parse-csrf-token (body)
+(defun parse-csrf-token (body &optional (name "_csrf_token"))
   (let ((match (nth-value
                 1
                 (ppcre:scan-to-strings
-                 "name=\"_csrf_token\" value=\"(.+?)\"" body))))
+                 (concatenate 'string "name=\"" name "\" value=\"(.+?)\"")
+                 body))))
     (and match (elt match 0))))
 
 (subtest "CSRF middleware"
@@ -145,5 +146,47 @@
       (is status 400)
       (is (getf headers :content-type) "text/plain")
       (is body '("Bad Request: invalid CSRF token")))))
+
+(subtest "alternate input name"
+  (let (csrf-token
+        session
+        (app
+          (builder
+           :session
+           (:csrf :form-token "test_input_name")
+           #'(lambda (env)
+               (let ((req (make-request env)))
+                 `(200
+                   (:content-type "text/html")
+                   (,(if (and (eq :post (request-method req))
+                              (assoc "name" (request-body-parameters req) :test #'string=))
+                         (cdr (assoc "name" (request-body-parameters req) :test #'string=))
+                         (html-form env)))))))))
+    (destructuring-bind (status headers body)
+        (funcall app (generate-env "/"))
+      (declare (ignore status))
+      (setf csrf-token (parse-csrf-token (car body) "test_input_name"))
+      (setf session (parse-lack-session headers)))
+
+    (diag "bad POST request (wrong token)")
+    (destructuring-bind (status headers body)
+        (funcall app (generate-env "/"
+                                   :method :post
+                                   :content `(("name" . "Eitaro Fukamachi")
+                                              ("test_input_name" . "invalid token"))
+                                   :cookies `(("lack.session" . ,session))))
+      (is status 400 "Status is 400")
+      (like (getf headers :content-type) "^text/plain" "Content-Type is text/plain")
+      (is body '("Bad Request: invalid CSRF token") "Body is 'forbidden'"))
+
+    (diag "Valid POST request")
+    (destructuring-bind (status headers body)
+        (funcall app (generate-env "/"
+                                   :method :post
+                                   :content `(("name" . "Eitaro Fukamachi")
+                                              ("test_input_name" . ,csrf-token))
+                                   :cookies `(("lack.session" . ,session))))
+      (declare (ignore headers body))
+      (is status 200))))
 
 (finalize)
