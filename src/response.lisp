@@ -77,5 +77,5 @@
         (write-string "; secure" s))
       (when httponly
         (write-string "; HttpOnly" s))
-      (when samesite (check-samesite))
+      (when samesite (check-samesite samesite))
       )))
