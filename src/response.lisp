@@ -40,6 +40,7 @@
         (append (response-headers res)
                 (loop for (k v) on (response-set-cookies res) by #'cddr
                       append (list :set-cookie (bake-cookie k v))))))
+
 (defun check-samesite (samesite)
   (cond ((eq 'lax samesite)
          (format t "~%~%~%Lax~%~%~%~%")
@@ -51,7 +52,7 @@
          (format t "~%~%None~%~%~%~%~%")
          (write-string "; SameSite=None" s))
         (t
-         (format t "~%~%~%type: ~A, value: ~A~%~%~%~%" (type-of samesite) samesite))))
+         (format t "~%~%~%type: ~A, value: ~A, compare: ~A~%~%~%~%" (type-of samesite) samesite (eq 'lax samesite)))))
 
 (defun bake-cookie (key value)
   (unless value
