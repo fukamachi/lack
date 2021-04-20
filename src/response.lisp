@@ -65,6 +65,15 @@
         (write-string "; secure" s))
       (when httponly
         (write-string "; HttpOnly" s))
-      (when samesite
-        (format s "; SameSite=~A" samesite))
+      (cond ((eq 'lax samesite)
+             (format t "~%~%~%Lax~%~%~%~%")
+             (write-string "; SameSite=Lax" s))
+            ((eq 'strict samesite)
+             (format t "~%~%Strict~%~%~%~%~%")
+             (write-string "; SameSite=Strict" s))
+            ((eq 'none samesite)
+             (format t "~%~%None~%~%~%~%~%")
+             (write-string "; SameSite=None"))
+            (t
+             (format t "~%~%~%type: ~A, value: ~A~%~%~%~%" (type-of samesite) samesite)))
       )))
