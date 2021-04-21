@@ -65,9 +65,4 @@
         (write-string "; secure" s))
       (when httponly
         (write-string "; HttpOnly" s))
-      (cond ((eq 'lax samesite)
-             (write-string "; SameSite=Lax"))
-            ((eq 'strict samesite)
-             (write-string "; SameSite=Strict"))
-            ((eq 'none samesite)
-             (write-string "; SameSite=None"))))))
+      (format s "; SameSite=~A" samesite))))
