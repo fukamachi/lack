@@ -65,9 +65,9 @@
         (write-string "; secure" s))
       (when httponly
         (write-string "; HttpOnly" s))
-      (cond ((eq 'lack.middleware.session.state.cookie::lax samesite)
+      (cond ((eq 'lax samesite)
              (write-string "; SameSite=Lax"))
-            ((eq 'lack.middleware.session.state.cookie::strict samesite)
+            ((eq 'strict samesite)
              (write-string "; SameSite=Strict"))
-            ((eq 'lack.middleware.session.state.cookie::none samesite)
+            ((eq 'none samesite)
              (write-string "; SameSite=None"))))))
