@@ -68,5 +68,5 @@
       (cond ((eq samesite :lax)
              (write-string "; SameSite=Lax" s))
             ((eq samesite :strict)
-             (write-string "; SameSite=Strict"))
-            (t (write-string "; SmaeSite=None"))))))
+             (write-string "; SameSite=Strict" s))
+            (t (write-string "; SmaeSite=None" s))))))
