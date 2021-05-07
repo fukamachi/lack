@@ -19,15 +19,17 @@
            :remove-session))
 (in-package :lack.middleware.session.store.redis)
 
-(defun open-connection (&key host port)
+(defun open-connection (&key host port auth)
   (make-instance 'redis:redis-connection
                  :host host
-                 :port port))
+                 :port port
+                 :auth auth))
 
 (defstruct (redis-store (:include store)
                         (:constructor %make-redis-store))
   (host "127.0.0.1")
   (port 6379)
+  (auth nil :type (or null string))
   (namespace "session" :type string)
   (expires nil :type (or null integer))
   (serializer (lambda (data)
@@ -39,21 +41,22 @@
 
   connection)
 
-(defun make-redis-store (&rest args &key (host "127.0.0.1") (port 6379) connection namespace expires serializer deserializer)
+(defun make-redis-store (&rest args &key (host "127.0.0.1") (port 6379) auth connection namespace expires serializer deserializer)
   (declare (ignore namespace expires serializer deserializer))
   (if connection
       (setf (getf args :host) (redis::conn-host connection)
-            (getf args :port) (redis::conn-port connection))
+            (getf args :port) (redis::conn-port connection)
+            (getf args :auth) (redis::conn-auth connection))
       (setf (getf args :connection)
-            (open-connection :host host :port port)))
+            (open-connection :host host :port port :auth auth)))
   (apply #'%make-redis-store args))
 
 (defun redis-connection (store)
   (check-type store redis-store)
-  (with-slots (host port connection) store
+  (with-slots (host port auth connection) store
     (unless (redis::connection-open-p connection)
       (setf connection
-            (open-connection :host host :port port)))
+            (open-connection :host host :port port :auth auth)))
     connection))
 
 (defmacro with-connection (store &body body)
