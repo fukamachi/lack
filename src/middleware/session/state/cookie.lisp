@@ -24,7 +24,8 @@
   (expires (get-universal-time) :type integer)
   (secure nil :type boolean)
   (httponly nil :type boolean)
-  (cookie-key "lack.session" :type string))
+  (cookie-key "lack.session" :type string)
+  (samesite :none :type keyword))
 
 (defmethod extract-sid ((state cookie-state) env)
   (let ((req (make-request env)))
@@ -49,11 +50,12 @@
       (return-from finalize-state res)))
 
   (let ((res (apply #'make-response res))
-        (options (with-slots (path domain expires secure httponly) state
+        (options (with-slots (path domain expires secure httponly samesite) state
                    (list :path path
                          :domain domain
                          :secure secure
                          :httponly httponly
+                         :samesite samesite
                          :expires (+ (get-universal-time)
                                      (getf options :expires expires))))))
     (setf (getf (response-set-cookies res) (cookie-state-cookie-key state))
