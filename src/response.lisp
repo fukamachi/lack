@@ -47,6 +47,9 @@
 
   (destructuring-bind (&key domain path expires secure httponly samesite &allow-other-keys)
       value
+    (unless (or (member samesite (list :lax :strict))
+                secure)
+      (warn "Samesite=None cookies require Secure"))
     (with-output-to-string (s)
       (format s "~A=~A"
               (quri:url-encode (string key))

@@ -25,7 +25,7 @@
   (secure nil :type boolean)
   (httponly nil :type boolean)
   (cookie-key "lack.session" :type string)
-  (samesite :none :type keyword))
+  (samesite :lax :type keyword))
 
 (defmethod extract-sid ((state cookie-state) env)
   (let ((req (make-request env)))
