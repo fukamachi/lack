@@ -11,14 +11,18 @@
 (in-package :lack.middleware.session.store.memory)
 
 (defstruct (memory-store (:include store))
-  (stash (make-hash-table :test 'equal)))
+  (stash (make-hash-table :test 'equal))
+  (lock (bordeaux-threads:make-lock "session store lock")))
 
 (defmethod fetch-session ((store memory-store) sid)
-  (gethash sid (memory-store-stash store)))
+  (bordeaux-threads:with-lock-held ((memory-store-lock store))
+      (gethash sid (memory-store-stash store))))
 
 (defmethod store-session ((store memory-store) sid session)
-  (setf (gethash sid (memory-store-stash store))
-        session))
+  (bordeaux-threads:with-lock-held ((memory-store-lock store))
+    (setf (gethash sid (memory-store-stash store))
+          session)))
 
 (defmethod remove-session ((store memory-store) sid)
-  (remhash sid (memory-store-stash store)))
+  (bordeaux-threads:with-lock-held ((memory-store-lock store))
+    (remhash sid (memory-store-stash store))))
