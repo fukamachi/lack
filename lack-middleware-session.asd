@@ -10,6 +10,7 @@
   :depends-on (:lack-request
                :lack-response
                :lack-util
+               :bordeaux-threads
                :cl-ppcre)
   :components ((:module "src/middleware"
                 :components
