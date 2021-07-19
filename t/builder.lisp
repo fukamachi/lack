@@ -84,14 +84,4 @@
               "Got: sample"
               "Can work.")))
 
-(subtest "Old Clack middlewares"
-  (let ((app
-          (builder
-           (clack.middleware.accesslog:<clack-middleware-accesslog>
-            :logger (lambda (output) (format t "~&~A~%" output)))
-           clack.middleware.session:<clack-middleware-session>
-           *app*)))
-    (is-type app 'function
-             "Can build with old Clack middlewares")))
-
 (finalize)
