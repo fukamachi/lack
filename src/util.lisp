@@ -22,17 +22,17 @@
     sym))
 
 (defun load-with-quicklisp (system)
-  (let* ((load-sym (locate-symbol '#:quickload '#:ql))
-         (error-sym (locate-symbol '#:system-not-found '#:ql)))
+  (let ((error-sym (locate-symbol '#:system-not-found '#:ql)))
     ;; We're going to trap on every condition, but only actually
     ;; handle ones of the type we're interested in. Conditions that we
     ;; don't explicitly handle will be propagated normally, because
     ;; HANDLER-BIND is cool like that.
     (handler-bind
         ((t (lambda (c)
-              (when (typep c error-sym)
+              (when (and (typep c error-sym)
+                         (string-equal system (uiop:symbol-call :ql :system-not-found-name c)))
                 (return-from load-with-quicklisp (values))))))
-      (funcall load-sym system :silent t))))
+      (uiop:symbol-call :ql :quickload system :silent t))))
 
 (defun find-package-or-load (package-name)
   (check-type package-name string)
