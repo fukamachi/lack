@@ -11,3 +11,5 @@
                :cl-cookie
                :flexi-streams)
   :components ((:file "src/test")))
+
+(register-system-packages "lack-test" '(:lack.test))

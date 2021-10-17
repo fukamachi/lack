@@ -13,3 +13,5 @@
                 :components
                 ((:file "middleware/auth/basic"))))
   :in-order-to ((test-op (test-op t-lack-middleware-auth-basic))))
+
+(register-system-packages "lack-middleware-auth-basic" '(:lack.middleware.auth.basic))

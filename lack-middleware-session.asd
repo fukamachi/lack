@@ -26,3 +26,5 @@
                   ((:file "state")
                    (:file "state/cookie"))))))
   :in-order-to ((test-op (test-op t-lack-middleware-session))))
+
+(register-system-packages "lack-middleware-session" '(:lack.middleware.session))

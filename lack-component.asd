@@ -9,3 +9,5 @@
   :license "LLGPL"
   :components ((:file "src/component"))
   :in-order-to ((test-op (test-op t-lack-component))))
+
+(register-system-packages "lack-component" '(:lack.component))

@@ -9,3 +9,5 @@
                 :components
                 ((:file "middleware/static"))))
   :in-order-to ((test-op (test-op "t-lack-middleware-static"))))
+
+(register-system-packages "lack-middleware-static" '(:lack.middleware.static))

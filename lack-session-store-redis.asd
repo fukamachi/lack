@@ -14,3 +14,5 @@
                :trivial-utf-8)
   :components ((:file "src/middleware/session/store/redis"))
   :in-order-to ((test-op (test-op t-lack-session-store-redis))))
+
+(register-system-packages "lack-session-store-redis" '(:lack.session.store.redis))

@@ -10,3 +10,5 @@
   :depends-on (:uiop)
   :components ((:file "src/middleware/backtrace"))
   :in-order-to ((test-op (test-op t-lack-middleware-backtrace))))
+
+(register-system-packages "lack-middleware-backtrace" '(:lack.middleware.backtrace))

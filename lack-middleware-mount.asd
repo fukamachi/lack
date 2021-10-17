@@ -9,3 +9,5 @@
   :license "LLGPL"
   :depends-on (:lack-component)
   :components ((:file "src/middleware/mount")))
+
+(register-system-packages "lack-middleware-mount" '(:lack.middleware.mount))

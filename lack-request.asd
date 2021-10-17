@@ -13,3 +13,5 @@
                :cl-ppcre)
   :components ((:file "src/request"))
   :in-order-to ((test-op (test-op t-lack-request))))
+
+(register-system-packages "lack-request" '(:lack.request))

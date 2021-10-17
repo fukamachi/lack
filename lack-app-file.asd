@@ -4,3 +4,5 @@
                "local-time"
                "alexandria")
   :components ((:file "src/app/file")))
+
+(register-system-packages "lack-app-file" '(:lack.app.file))
