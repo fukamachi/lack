@@ -1,8 +1,10 @@
 (in-package :cl-user)
 (defpackage lack.middleware.static
   (:use :cl)
+  (:import-from :lack.component
+                :call)
   (:import-from :lack.app.file
-                :make-app)
+                :lack-app-file)
   (:import-from :alexandria
                 :starts-with-subseq
                 :if-let)
@@ -33,4 +35,4 @@
   "Middleware for serving static files")
 
 (defun call-app-file (root env)
-  (funcall (lack.app.file:make-app :root root) env))
+  (call (make-instance 'lack-app-file :root root) env))
