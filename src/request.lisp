@@ -10,6 +10,10 @@
                 :make-circular-input-stream)
   (:import-from :cl-ppcre
                 :split)
+  (:import-from :lack.media-type
+                :media-type
+                :make-media-type
+                :match-media-type)
   (:export :request
            :make-request
            :request-env
@@ -33,7 +37,10 @@
            :request-query-parameters
            :request-parameters
            :request-content
-           :request-has-body-p))
+           :request-has-body-p
+           :request-accept
+           :request-accepts-p
+           ))
 (in-package :lack.request)
 
 (defstruct (request (:constructor %make-request))
@@ -57,7 +64,8 @@
 
   cookies
   body-parameters
-  query-parameters)
+  query-parameters
+  accept)
 
 (declaim (inline request-has-body-p))
 (defun request-has-body-p (req)
@@ -111,6 +119,9 @@
           (setf (getf env :raw-body) raw-body)
           (rplacd (last env) (list :body-parameters body-parameters)))))
 
+    (setf (request-accept req)
+          (mapcar #'lack.media-type:make-media-type (ppcre:split "\\s*[,]\\s*" (gethash "accept" (request-headers req)))))
+
     (setf (request-env req) env)
 
     req))
@@ -126,5 +137,12 @@
             (http-body.util:slurp-stream raw-body (request-content-length req))
           (file-position raw-body 0)))
       #.(make-array 0 :element-type '(unsigned-byte 8))))
+
+(defun request-accepts-p (request media-type-string)
+  "Attempt to match media-type string against the values in the request ACCEPT header"
+  (let ((media-type-obj (lack.media-type:make-media-type media-type-string)))
+    (some #'(lambda (request-media-type)
+              (lack.media-type:match-media-type request-media-type media-type-obj))
+          (request-accept request))))
 
 (declaim (notinline request-has-body-p))
