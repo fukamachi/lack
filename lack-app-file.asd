@@ -1,7 +1,7 @@
 (defsystem "lack-app-file"
   :depends-on ("lack-component"
                "trivial-mimes"
-               "local-time"
+               "trivial-rfc-1123"
                "alexandria")
   :components ((:file "src/app/file")))
 

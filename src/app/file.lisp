@@ -5,9 +5,9 @@
                 #:call)
   (:import-from #:trivial-mimes
                 #:mime)
-  (:import-from #:local-time
-                #:format-rfc1123-timestring
-                #:universal-to-timestamp)
+  (:import-from #:trivial-rfc-1123
+                #:parse-date
+                #:as-rfc-1123)
   (:import-from #:uiop
                 #:file-exists-p
                 #:directory-exists-p)
@@ -76,8 +76,13 @@
   (:method ((app lack-app-file) env file encoding)
     (let ((content-type (or (mimes:mime-lookup file)
                             "application/octet-stream"))
-          (univ-time (or (file-write-date file)
-                         (get-universal-time))))
+          (file-modified-at (or (file-write-date file)
+                                (get-universal-time)))
+          (if-modified-since (gethash "if-modified-since" (getf env :headers))))
+      (when (and if-modified-since
+                 (< file-modified-at (parse-date if-modified-since)))
+        (return-from serve-path
+                     '(304 () ())))
       (when (starts-with-subseq "text" content-type)
         (setf content-type
               (format nil "~A~:[~;~:*; charset=~A~]"
@@ -89,6 +94,5 @@
           (:content-type ,content-type
            :content-length ,(file-length stream)
            :last-modified
-           ,(format-rfc1123-timestring nil
-                                       (universal-to-timestamp univ-time)))
+           ,(as-rfc-1123 file-modified-at))
           ,file)))))

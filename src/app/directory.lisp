@@ -6,9 +6,8 @@
                 #:serve-path)
   (:import-from #:cl-ppcre
                 #:regex-replace-all)
-  (:import-from #:local-time
-                #:format-rfc1123-timestring
-                #:universal-to-timestamp)
+  (:import-from #:trivial-rfc-1123
+                #:as-rfc-1123)
   (:import-from #:trivial-mimes
                 #:mime-lookup)
   (:import-from #:quri
@@ -47,8 +46,7 @@
             (if dir-p
                 "directory"
                 (or (mime-lookup file) "text/plain"))
-            (format-rfc1123-timestring nil
-             (universal-to-timestamp (file-write-date file))))))
+            (as-rfc-1123 (file-write-date file)))))
 
 (defun dir-page (path-info body)
   (format nil "<html><head>
