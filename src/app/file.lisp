@@ -80,7 +80,7 @@
                                 (get-universal-time)))
           (if-modified-since (gethash "if-modified-since" (getf env :headers))))
       (when (and if-modified-since
-                 (< file-modified-at (parse-date if-modified-since)))
+                 (<= file-modified-at (parse-date if-modified-since)))
         (return-from serve-path
                      '(304 () ())))
       (when (starts-with-subseq "text" content-type)
