@@ -93,13 +93,21 @@ tr, td { white-space: nowrap; }
   (or (uiop:file-exists-p file)
       (uiop:directory-exists-p file)))
 
+(defun index-file-exists-p (path)
+  (assert (uiop:directory-pathname-p path))
+  (or (uiop:file-exists-p (merge-pathnames #P"index.html" path))
+      (uiop:file-exists-p (merge-pathnames #P"index.htm" path))))
+
 (defmethod serve-path ((app lack-app-directory) env file encoding)
   (if (uiop:directory-pathname-p file)
-      `(200 nil (,(dir-page
-                    (getf env :path-info)
-                    (format nil "~A~{~A~}"
-                            (dir-file (merge-pathnames "../" file)
-                                      :uri ".."
-                                      :name "Parent Directory")
-                            (mapcar #'dir-file (list-directory file))))))
+      (let ((index-file (index-file-exists-p file)))
+        (if index-file
+            (call-next-method app env index-file encoding)
+            `(200 nil (,(dir-page
+                          (getf env :path-info)
+                          (format nil "~A~{~A~}"
+                                  (dir-file (merge-pathnames "../" file)
+                                            :uri ".."
+                                            :name "Parent Directory")
+                                  (mapcar #'dir-file (list-directory file))))))))
       (call-next-method)))
