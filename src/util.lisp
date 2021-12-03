@@ -2,10 +2,8 @@
 (defpackage lack.util
   (:use :cl)
   (:import-from :ironclad
-                :ascii-string-to-byte-array
                 :byte-array-to-hex-string
-                :digest-sequence
-                :make-digest)
+                :random-data)
   (:export :find-package-or-load
            :find-middleware
            :funcall-with-cb
@@ -85,9 +83,5 @@
 
 (defun generate-random-id ()
   "Generates a random token."
-  (byte-array-to-hex-string
-   (digest-sequence
-    (make-digest :SHA1)
-    (ascii-string-to-byte-array
-     (format nil "~A~A"
-      (random 1.0) (get-universal-time))))))
+  (ironclad:byte-array-to-hex-string
+    (ironclad:random-data 20)))
