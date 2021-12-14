@@ -25,6 +25,7 @@
                   :headers ,(alexandria:alist-hash-table
                              '(("referer" . "http://github.com/fukamachi/clack")
                                ("user-agent" . "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_6; en-US)")
+                               ("accept" . "text/html")
                                ("cookie" . "hoge=1;fuga=semi;colon"))
                              :test 'equal))))
 
@@ -48,6 +49,12 @@
 (is (request-cookies *request*)
     '(("hoge" . "1") ("fuga" . "semi") ("colon"))
     "request-cookies")
+
+(is (request-accepts-p *request* "text/html")
+    t)
+
+(is (request-accepts-p *request* "application/json")
+    nil)
 
 #+thread-support
 (subtest-app "make-request"

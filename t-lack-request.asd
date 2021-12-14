@@ -14,7 +14,8 @@
                :flexi-streams
                :alexandria)
   :components
-  ((:test-file "t/request"))
+  ((:test-file "t/request")
+   (:test-file "t/media-type"))
 
   :defsystem-depends-on (:prove-asdf)
   :perform (test-op :after (op c)
