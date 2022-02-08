@@ -87,5 +87,5 @@
 (defun generate-random-id ()
   "Generates a random token."
   (format nil "~64,'0x" (#+:X86-64 isaac:rand-bits-64
-                         #-:X86-64 isaac:rand-bits-32
+                         #-:X86-64 isaac:rand-bits
                          *isaac-ctx* 512)))
