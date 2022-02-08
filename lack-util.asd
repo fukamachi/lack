@@ -7,7 +7,7 @@
   :version "0.1"
   :author "Eitaro Fukamachi"
   :license "LLGPL"
-  :depends-on (:ironclad)
+  :depends-on (:cl-isaac)
   :components ((:file "src/util"))
   :in-order-to ((test-op (test-op t-lack-util))))
 

@@ -1,9 +1,6 @@
 (in-package :cl-user)
 (defpackage lack.util
   (:use :cl)
-  (:import-from :ironclad
-                :byte-array-to-hex-string
-                :random-data)
   (:export :find-package-or-load
            :find-middleware
            :funcall-with-cb
@@ -81,7 +78,14 @@
           ((vector (unsigned-byte 8))
            (length body))))))
 
+;; cl-isaac supports ISAAC-64 solely for implementations with x86-64
+;; capabilities. Use whichever-best supported capability
+(defparameter *isaac-ctx*
+  (isaac:init-self-seed :count 5
+                        :is64 #+:X86-64 t #-:X86-64 nil))
+
 (defun generate-random-id ()
   "Generates a random token."
-  (ironclad:byte-array-to-hex-string
-    (ironclad:random-data 20)))
+  (format nil "~(~40,'0x~)" (#+:X86-64 isaac:rand-bits-64
+                             #-:X86-64 isaac:rand-bits
+                             *isaac-ctx* 160)))
