@@ -1,14 +1,9 @@
-(in-package :cl-user)
-(defpackage :lack-middleware-backtrace-asd
-  (:use :cl :asdf))
-(in-package :lack-middleware-backtrace-asd)
-
-(defsystem lack-middleware-backtrace
-  :version "0.1"
+(defsystem "lack-middleware-backtrace"
+  :version "0.2.0"
   :author "Eitaro Fukamachi"
-  :license "LLGPL"
-  :depends-on (:uiop)
+  :license "MIT"
+  :depends-on ("uiop")
   :components ((:file "src/middleware/backtrace"))
-  :in-order-to ((test-op (test-op t-lack-middleware-backtrace))))
+  :in-order-to ((test-op (test-op "t-lack-middleware-backtrace"))))
 
 (register-system-packages "lack-middleware-backtrace" '(:lack.middleware.backtrace))

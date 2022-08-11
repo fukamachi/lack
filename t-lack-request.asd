@@ -1,22 +1,17 @@
-(in-package :cl-user)
-(defpackage t-lack-request-asd
-  (:use :cl :asdf))
-(in-package :t-lack-request-asd)
-
-(defsystem t-lack-request
+(defsystem "t-lack-request"
   :author "Eitaro Fukamachi"
-  :license "LLGPL"
-  :depends-on (:lack-request
-               :clack-test
-               :hunchentoot
-               :dexador
-               :prove
-               :flexi-streams
-               :alexandria)
+  :license "MIT"
+  :depends-on ("lack-request"
+               "clack-test"
+               "hunchentoot"
+               "dexador"
+               "prove"
+               "flexi-streams"
+               "alexandria")
   :components
   ((:test-file "t/request")
    (:test-file "t/media-type"))
 
-  :defsystem-depends-on (:prove-asdf)
+  :defsystem-depends-on ("prove-asdf")
   :perform (test-op :after (op c)
                     (funcall (intern #.(string :run-test-system) :prove) c)))

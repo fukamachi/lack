@@ -1,14 +1,9 @@
-(in-package :cl-user)
-(defpackage :lack-util-writer-stream-asd
-  (:use :cl :asdf))
-(in-package :lack-util-writer-stream-asd)
-
-(defsystem lack-util-writer-stream
-  :version "0.1"
+(defsystem "lack-util-writer-stream"
+  :version "0.2.0"
   :author "Eitaro Fukamachi"
-  :license "LLGPL"
-  :depends-on (:trivial-gray-streams
-               :babel)
+  :license "MIT"
+  :depends-on ("trivial-gray-streams"
+               "babel")
   :components ((:file "src/util/writer-stream")))
 
 (register-system-packages "lack-util-write-stream" '(:lack.util.writer-stream))

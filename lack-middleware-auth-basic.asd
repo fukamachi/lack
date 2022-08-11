@@ -1,17 +1,12 @@
-(in-package :cl-user)
-(defpackage :lack-middleware-auth-basic-asd
-  (:use :cl :asdf))
-(in-package :lack-middleware-auth-basic-asd)
-
-(defsystem lack-middleware-auth-basic
-  :version "0.1"
+(defsystem "lack-middleware-auth-basic"
+  :version "0.2.0"
   :author "Eitaro Fukamachi"
-  :license "LLGPL"
-  :depends-on (:cl-base64
-               :split-sequence)
+  :license "MIT"
+  :depends-on ("cl-base64"
+               "split-sequence")
   :components ((:module "src"
                 :components
                 ((:file "middleware/auth/basic"))))
-  :in-order-to ((test-op (test-op t-lack-middleware-auth-basic))))
+  :in-order-to ((test-op (test-op "t-lack-middleware-auth-basic"))))
 
 (register-system-packages "lack-middleware-auth-basic" '(:lack.middleware.auth.basic))
