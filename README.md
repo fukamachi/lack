@@ -322,4 +322,4 @@ Copyright (c) 2015 Eitaro Fukamachi & [contributors](https://github.com/fukamach
 
 ## License
 
-Licensed under the LLGPL License.
+Licensed under the MIT License.

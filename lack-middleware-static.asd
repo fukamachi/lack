@@ -1,7 +1,7 @@
 (defsystem "lack-middleware-static"
-  :version "0.1"
+  :version "0.2.0"
   :author "Eitaro Fukamachi"
-  :license "LLGPL"
+  :license "MIT"
   :depends-on ("lack-app-file"
                "lack-component"
                "alexandria")
