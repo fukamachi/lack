@@ -5,6 +5,7 @@
                 :uri
                 :uri-path
                 :uri-query
+                :merge-uris
                 :render-uri
                 :url-encode-params)
   (:import-from :cl-cookie
@@ -123,7 +124,7 @@
     (unless (quri:uri-port uri)
       (setf (quri:uri-port uri) 80))
     (unless (quri:uri-scheme uri)
-      (setf (quri:uri-scheme uri) "http"))
+      (setf uri (quri:merge-uris uri "http://")))
     (destructuring-bind (status headers body)
         (funcall *current-app* env)
       (when cookie-jar
