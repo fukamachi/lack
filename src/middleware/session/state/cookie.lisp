@@ -24,7 +24,7 @@
   (expires (get-universal-time) :type integer)
   (secure nil :type boolean)
   (httponly nil :type boolean)
-  (cookie-key "lack.session" :type string)
+  (cookie-key "session" :type string)
   (samesite :lax :type keyword))
 
 (defmethod extract-sid ((state cookie-state) env)
