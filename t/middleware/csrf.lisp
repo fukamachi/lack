@@ -58,7 +58,7 @@
       (is status 400)
       (is body '("Bad Request: invalid CSRF token"))
       (like (getf headers :set-cookie)
-            "^lack.session=.+; path=/; expires=")
+            "^session=.+; path=/; expires=")
 
       (setf session (parse-lack-session headers)))
 
@@ -66,7 +66,7 @@
     (destructuring-bind (status headers body)
         (funcall app (generate-env "/"
                                    :headers
-                                   `(("cookie" . ,(format nil "lack.session=~A" session)))))
+                                   `(("cookie" . ,(format nil "session=~A" session)))))
       (is status 200 "Status is 200")
       (like (getf headers :content-type) "^text/html" "Content-Type is text/html")
       (setf csrf-token (parse-csrf-token (car body)))
@@ -79,7 +79,7 @@
         (funcall app (generate-env "/"
                                    :method :post
                                    :headers
-                                   `(("cookie" . ,(format nil "lack.session=~A" session)))))
+                                   `(("cookie" . ,(format nil "session=~A" session)))))
       (is status 400 "Status is 400")
       (like (getf headers :content-type) "^text/plain" "Content-Type is text/plain")
       (is body '("Bad Request: invalid CSRF token") "Body is 'forbidden'"))
@@ -89,7 +89,7 @@
         (funcall app (generate-env "/"
                                    :method :post
                                    :headers
-                                   `(("cookie" . ,(format nil "lack.session=~A" session)))))
+                                   `(("cookie" . ,(format nil "session=~A" session)))))
       (is status 400 "Status is 400")
       (like (getf headers :content-type) "^text/plain" "Content-Type is text/plain")
       (is body '("Bad Request: invalid CSRF token") "Body is 'forbidden'"))
@@ -98,7 +98,7 @@
     (destructuring-bind (status headers body)
         (funcall app (generate-env "/"
                                    :method :post
-                                   :cookies `(("lack.session" . ,session))
+                                   :cookies `(("session" . ,session))
                                    :content
                                    `(("name" . "Eitaro Fukamachi")
                                      ("_csrf_token" . ,csrf-token))))
@@ -132,7 +132,7 @@
                                    :method :post
                                    :content `(("name" . "Eitaro Fukamachi")
                                               ("_csrf_token" . ,csrf-token))
-                                   :cookies `(("lack.session" . ,session))))
+                                   :cookies `(("session" . ,session))))
       (declare (ignore headers body))
       (is status 200))
 
@@ -142,7 +142,7 @@
                                    :method :post
                                    :content `(("name" . "Eitaro Fukamachi")
                                               ("_csrf_token" . ,csrf-token))
-                                   :cookies `(("lack.session" . ,session))))
+                                   :cookies `(("session" . ,session))))
       (is status 400)
       (is (getf headers :content-type) "text/plain")
       (is body '("Bad Request: invalid CSRF token")))))
@@ -174,7 +174,7 @@
                                    :method :post
                                    :content `(("name" . "Eitaro Fukamachi")
                                               ("test_input_name" . "invalid token"))
-                                   :cookies `(("lack.session" . ,session))))
+                                   :cookies `(("session" . ,session))))
       (is status 400 "Status is 400")
       (like (getf headers :content-type) "^text/plain" "Content-Type is text/plain")
       (is body '("Bad Request: invalid CSRF token") "Body is 'forbidden'"))
@@ -185,7 +185,7 @@
                                    :method :post
                                    :content `(("name" . "Eitaro Fukamachi")
                                               ("test_input_name" . ,csrf-token))
-                                   :cookies `(("lack.session" . ,session))))
+                                   :cookies `(("session" . ,session))))
       (declare (ignore headers body))
       (is status 200))))
 

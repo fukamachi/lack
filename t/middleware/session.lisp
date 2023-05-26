@@ -33,7 +33,7 @@
 
     (diag "2nd request")
     (destructuring-bind (status headers body)
-        (funcall app (generate-env "/" :cookies `(("lack.session" . ,session))))
+        (funcall app (generate-env "/" :cookies `(("session" . ,session))))
       (declare (ignore headers))
       (is status 200)
       (is body '("Hello, you've been here for 2th times!")))))
@@ -62,7 +62,7 @@
                  (is body '("Hello, you've been here for 1th times!")))))
 
     (diag "2nd request")
-    (funcall (funcall app (generate-env "/" :cookies `(("lack.session" . ,session))))
+    (funcall (funcall app (generate-env "/" :cookies `(("session" . ,session))))
              (lambda (response)
                (destructuring-bind (status headers body) response
                  (declare (ignore headers))
@@ -79,7 +79,7 @@
         session)
     ;; 1st
     (destructuring-bind (status headers body)
-        (funcall app (generate-env "/" :cookies '(("lack.session" . nil))))
+        (funcall app (generate-env "/" :cookies '(("session" . nil))))
       (is status 200 "status")
       (ok (getf headers :set-cookie)
           "Set-Cookie header exists")
@@ -97,7 +97,7 @@
       (is body '("hi") "body"))
     ;; invalid lack.session
     (destructuring-bind (status headers body)
-        (funcall app (generate-env "/" :cookies '(("lack.session" . "<invalid session here>"))))
+        (funcall app (generate-env "/" :cookies '(("session" . "<invalid session here>"))))
       (is status 200 "status")
       (ok (getf headers :set-cookie)
           "Set-Cookie header exists")
@@ -105,7 +105,7 @@
 
     ;; expires
     (destructuring-bind (status headers body)
-        (funcall app (generate-env "/expire" :cookies `(("lack.session" . ,session))))
+        (funcall app (generate-env "/expire" :cookies `(("session" . ,session))))
       (is status 200 "status")
       (ok (getf headers :set-cookie)
           "Set-Cookie header exists")
@@ -115,7 +115,7 @@
 
     ;; with expired session
     (destructuring-bind (status headers body)
-        (funcall app (generate-env "/" :cookies `(("lack.session" . ,session))))
+        (funcall app (generate-env "/" :cookies `(("session" . ,session))))
       (is status 200 "status")
       (ok (getf headers :set-cookie)
           "Set-Cookie header exists")
@@ -146,7 +146,7 @@
                        (ppcre:scan-to-strings "(?<=lack.session=)[^;]+"
                                               (getf headers :set-cookie ""))))))
     ;; Make sure it expires when expiration is set in a delayed response.
-    (funcall (funcall app (generate-env "/delayed-expire" :cookies `(("lack.session" . ,session))))
+    (funcall (funcall app (generate-env "/delayed-expire" :cookies `(("session" . ,session))))
              (lambda (result)
                (destructuring-bind (status headers body) result
                  (declare (ignore status body))

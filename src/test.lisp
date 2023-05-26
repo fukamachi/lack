@@ -106,9 +106,9 @@
 (defun parse-lack-session (headers)
   (let ((set-cookie (getf headers :set-cookie)))
     (when set-cookie
-      (when (string= set-cookie "lack.session=" :end1 #.(length "lack.session="))
+      (when (string= set-cookie "session=" :end1 #.(length "session="))
         (subseq set-cookie
-                #.(length "lack.session=")
+                #.(length "session=")
                 (position #\; set-cookie))))))
 
 (defvar *current-app*)

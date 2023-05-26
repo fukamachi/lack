@@ -27,7 +27,7 @@
 
           (let ((session (getf env :lack.session)))
             (unless session
-              (error ":lack.session is missing in ENV. Wrap this app up with lack.middleware.session"))
+              (error ":session is missing in ENV. Wrap this app up with lack.middleware.session"))
 
             (if (valid-token-p env)
                 (progn
