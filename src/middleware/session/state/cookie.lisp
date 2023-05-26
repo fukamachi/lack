@@ -56,7 +56,7 @@
                          :secure secure
                          :httponly httponly
                          :samesite samesite
-                         :expires (+ (get-universal-time)
+                         :expires (+ (get-universal-time) -2208988800
                                      (getf options :expires expires))))))
     (setf (getf (response-set-cookies res) (cookie-state-cookie-key state))
           `(:value ,sid ,@options))
