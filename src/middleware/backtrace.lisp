@@ -1,10 +1,10 @@
-(in-package :cl-user)
-(defpackage lack.middleware.backtrace
+(defpackage lack/middleware/backtrace
+  (:nicknames :lack.middleware.backtrace)
   (:use :cl)
   (:import-from :uiop/image
                 :print-condition-backtrace)
   (:export :*lack-middleware-backtrace*))
-(in-package :lack.middleware.backtrace)
+(in-package :lack/middleware/backtrace)
 
 (defparameter *lack-middleware-backtrace*
   (lambda (app &key

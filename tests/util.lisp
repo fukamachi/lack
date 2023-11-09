@@ -1,19 +1,16 @@
-(in-package :cl-user)
-(defpackage t.lack.util
+(defpackage lack/tests/util
   (:use :cl
-        :prove
-        :lack.util
-        :lack.test))
-(in-package :t.lack.util)
+        :rove
+        :lack/util
+        :lack/test))
+(in-package :lack/tests/util)
 
-(plan 2)
+(deftest find-package-or-load
+  (ok (eq (find-package-or-load "LACK")
+          (find-package :lack)))
+  (ok (eq (find-package-or-load "hoge") nil)))
 
-(subtest "find-package-or-load"
-  (is (find-package-or-load "LACK")
-      (find-package :lack))
-  (is (find-package-or-load "hoge") nil))
-
-(subtest "funcall-with-cb"
+(deftest funcall-with-cb
   (let ((cb (lambda (res)
               (rplacd (car (last res)) (list "(ok from cb)"))
               res)))
@@ -21,22 +18,20 @@
     (let ((app (lambda (env)
                  (declare (ignore env))
                  '(200 (:content-type "text/plain") ("ok")))))
-      (is (funcall-with-cb app (generate-env "/") cb)
-          '(200 (:content-type "text/plain") ("ok" "(ok from cb)"))))
+      (ok (equalp (funcall-with-cb app (generate-env "/") cb)
+                  '(200 (:content-type "text/plain") ("ok" "(ok from cb)")))))
     ;; function
     (let* ((app (lambda (env)
                   (declare (ignore env))
                   (lambda (responder)
                     (funcall responder '(200 (:content-type "text/plain") ("ok"))))))
            (cb-res (funcall-with-cb app (generate-env "/") cb)))
-      (is-type cb-res 'function)
+      (ok (typep cb-res 'function))
       (let (res)
         (funcall cb-res (lambda (r) (setf res r)))
-        (is res '(200 (:content-type "text/plain") ("ok" "(ok from cb)")))))
+        (ok (equalp res '(200 (:content-type "text/plain") ("ok" "(ok from cb)"))))))
     ;; otherwise
     (let ((app (lambda (env)
                  (declare (ignore env))
                  1)))
-      (is (funcall-with-cb app (generate-env "/") cb) 1))))
-
-(finalize)
+      (ok (eql (funcall-with-cb app (generate-env "/") cb) 1)))))

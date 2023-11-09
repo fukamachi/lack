@@ -8,3 +8,6 @@
 .#*
 data/test.db
 data/test.log
+.qlot/
+qlfile
+qlfile.lock

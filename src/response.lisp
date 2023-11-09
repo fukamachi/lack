@@ -1,5 +1,5 @@
-(in-package :cl-user)
-(defpackage lack.response
+(defpackage lack/response
+  (:nicknames :lack.response)
   (:use :cl)
   (:import-from :quri
                 :url-encode)
@@ -14,7 +14,7 @@
            :response-headers
            :response-body
            :response-set-cookies))
-(in-package :lack.response)
+(in-package :lack/response)
 
 (defstruct (response
             (:constructor make-response (&optional status headers (body nil has-body)

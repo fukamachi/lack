@@ -1,5 +1,5 @@
-(in-package :cl-user)
-(defpackage lack.util.writer-stream
+(defpackage lack/util/writer-stream
+  (:nicknames :lack.util.writer-stream)
   (:use :cl)
   (:import-from :trivial-gray-streams
                 :fundamental-output-stream
@@ -14,7 +14,7 @@
                 :string-to-octets)
   (:export :writer-stream
            :make-writer-stream))
-(in-package :lack.util.writer-stream)
+(in-package :lack/util/writer-stream)
 
 (defclass writer-stream (fundamental-output-stream)
   ((writer :type function

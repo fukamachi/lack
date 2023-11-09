@@ -1,8 +1,9 @@
-(in-package :cl-user)
-(defpackage lack.middleware.session.state
-  (:nicknames :lack.session.state)
+(defpackage lack/middleware/session/state
+  (:nicknames :lack.middleware.session.state
+              :lack.session.state
+              :lack/session/state)
   (:use :cl)
-  (:import-from :lack.util
+  (:import-from :lack/util
                 :generate-random-id)
   (:import-from :cl-ppcre
                 :scan)
@@ -12,7 +13,7 @@
            :extract-sid
            :expire-state
            :finalize-state))
-(in-package :lack.middleware.session.state)
+(in-package :lack/middleware/session/state)
 
 (defstruct state
   (sid-generator (lambda (env)

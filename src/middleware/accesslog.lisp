@@ -1,7 +1,6 @@
-(in-package :cl-user)
-(defpackage lack.middleware.accesslog
+(defpackage lack/middleware/accesslog
   (:use :cl)
-  (:import-from :lack.util
+  (:import-from :lack/util
                 :funcall-with-cb
                 :content-length)
   (:import-from :local-time
@@ -10,7 +9,7 @@
   (:export :*lack-middleware-accesslog*
            :*time-format*
            :default-formatter))
-(in-package :lack.middleware.accesslog)
+(in-package :lack/middleware/accesslog)
 
 (defparameter *lack-middleware-accesslog*
   (let ((no-body '#:no-body))

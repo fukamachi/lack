@@ -1,6 +1,7 @@
-(defpackage #:lack.app.file
+(defpackage #:lack/app/file
+  (:nicknames #:lack.app.file)
   (:use #:cl)
-  (:import-from #:lack.component
+  (:import-from #:lack/component
                 #:lack-component
                 #:call)
   (:import-from #:trivial-mimes
@@ -16,7 +17,7 @@
   (:export #:lack-app-file
            #:should-handle
            #:serve-path))
-(in-package #:lack.app.file)
+(in-package #:lack/app/file)
 
 (define-condition bad-request (simple-condition) ())
 (define-condition not-found (simple-condition) ())

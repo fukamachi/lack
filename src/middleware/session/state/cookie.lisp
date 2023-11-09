@@ -1,12 +1,13 @@
-(in-package :cl-user)
-(defpackage lack.middleware.session.state.cookie
-  (:nicknames :lack.session.state.cookie)
+(defpackage lack/middleware/session/state/cookie
+  (:nicknames :lack.middleware.session.state.cookie
+              :lack.session.state.cookie
+              :lack/session/state/cookie)
   (:use :cl
-        :lack.middleware.session.state)
-  (:import-from :lack.request
+        :lack/middleware/session/state)
+  (:import-from :lack/request
                 :make-request
                 :request-cookies)
-  (:import-from :lack.response
+  (:import-from :lack/response
                 :make-response
                 :finalize-response
                 :response-set-cookies)
@@ -16,7 +17,7 @@
            :extract-sid
            :expire-state
            :finalize-session))
-(in-package :lack.middleware.session.state.cookie)
+(in-package :lack/middleware/session/state/cookie)
 
 (defstruct (cookie-state (:include state))
   (path "/" :type string)

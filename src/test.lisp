@@ -1,5 +1,5 @@
-(in-package :cl-user)
-(defpackage lack.test
+(defpackage lack/test
+  (:nicknames :lack.test)
   (:use :cl)
   (:import-from :quri
                 :uri
@@ -22,7 +22,7 @@
            :parse-lack-session
            :testing-app
            :request))
-(in-package :lack.test)
+(in-package :lack/test)
 
 (defun generate-env (uri &key (method :get) content headers cookie-jar cookies)
   "Creates an ENV plist much like this do all Clack backends.

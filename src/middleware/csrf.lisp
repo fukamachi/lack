@@ -1,5 +1,5 @@
-(in-package :cl-user)
-(defpackage lack.middleware.csrf
+(defpackage lack/middleware/csrf
+  (:nicknames :lack.middleware.csrf)
   (:use :cl)
   (:import-from :lack.request
                 :make-request
@@ -9,7 +9,7 @@
   (:export :*lack-middleware-csrf*
            :csrf-token
            :csrf-html-tag))
-(in-package :lack.middleware.csrf)
+(in-package :lack/middleware/csrf)
 
 (defvar *csrf-session-key*)
 (defvar *csrf-middleware-token*)

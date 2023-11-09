@@ -1,21 +1,21 @@
-(in-package :cl-user)
-(defpackage lack.middleware.session
+(defpackage lack/middleware/session
+  (:nicknames :lack.middleware.session)
   (:use :cl)
-  (:import-from :lack.session.store
+  (:import-from :lack/session/store
                 :fetch-session
                 :store-session
                 :remove-session)
-  (:import-from :lack.session.state
+  (:import-from :lack/session/state
                 :expire-state
                 :extract-sid
                 :finalize-state
                 :generate-sid)
-  (:import-from :lack.session.store.memory
+  (:import-from :lack/middleware/session/store/memory
                 :make-memory-store)
-  (:import-from :lack.session.state.cookie
+  (:import-from :lack/middleware/session/state/cookie
                 :make-cookie-state)
   (:export :*lack-middleware-session*))
-(in-package :lack.middleware.session)
+(in-package :lack/middleware/session)
 
 (defparameter *lack-middleware-session*
   (lambda (app &key

@@ -1,8 +1,9 @@
-(in-package :cl-user)
-(defpackage lack.middleware.session.store.redis
-  (:nicknames :lack.session.store.redis)
+(defpackage lack/middleware/session/store/redis
+  (:nicknames :lack.middleware.session.store.redis
+              :lack.session.store.redis
+              :lack/session/store/redis)
   (:use :cl
-        :lack.middleware.session.store)
+        :lack/middleware/session/store)
   (:import-from :marshal
                 :marshal
                 :unmarshal)
@@ -17,7 +18,7 @@
            :fetch-session
            :store-session
            :remove-session))
-(in-package :lack.middleware.session.store.redis)
+(in-package :lack/middleware/session/store/redis)
 
 (defun open-connection (&key host port auth)
   (make-instance 'redis:redis-connection

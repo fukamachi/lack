@@ -1,15 +1,15 @@
-(in-package :cl-user)
-(defpackage lack.middleware.static
+(defpackage lack/middleware/static
+  (:nicknames :lack.middleware.static)
   (:use :cl)
-  (:import-from :lack.component
+  (:import-from :lack/component
                 :call)
-  (:import-from :lack.app.file
+  (:import-from :lack/app/file
                 :lack-app-file)
   (:import-from :alexandria
                 :starts-with-subseq
                 :if-let)
   (:export :*lack-middleware-static*))
-(in-package :lack.middleware.static)
+(in-package :lack/middleware/static)
 
 (defparameter *lack-middleware-static*
   (lambda (app &key path (root #P"./"))

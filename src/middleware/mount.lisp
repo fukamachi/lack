@@ -1,10 +1,10 @@
-(in-package :cl-user)
-(defpackage lack.middleware.mount
+(defpackage lack/middleware/mount
+  (:nicknames :lack.middleware.mount)
   (:use :cl)
-  (:import-from :lack.component
+  (:import-from :lack/component
                 :to-app)
   (:export :*lack-middleware-mount*))
-(in-package :lack.middleware.mount)
+(in-package :lack/middleware/mount)
 
 (defparameter *lack-middleware-mount*
   (lambda (app path mount-app)
