@@ -56,6 +56,20 @@
     (ok (equalp (nth 2 (funcall mount-app '(:path-info "/administrators")))
                 '("ok from app")))))
 
+(deftest auth-basic
+  (ok (builder
+       (:auth-basic
+        :authenticator (lambda (user pass)
+                         (declare (ignore user pass))
+                         t))
+       *app*))
+  (ok (builder
+       (:auth/basic
+        :authenticator (lambda (user pass)
+                         (declare (ignore user pass))
+                         t))
+       *app*)))
+
 (uiop:define-package lack/middleware/sample
   (:use :cl))
 
