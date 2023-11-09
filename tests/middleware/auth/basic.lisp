@@ -1,18 +1,15 @@
-(in-package :cl-user)
-(defpackage t.lack.middleware.auth.basic
+(defpackage lack/tests/middleware/auth/basic
   (:use :cl
-        :prove
+        :rove
         :lack
-        :lack.test
+        :lack/test
         :cl-base64))
-(in-package :t.lack.middleware.auth.basic)
+(in-package :lack/tests/middleware/auth/basic)
 
-(plan 2)
-
-(subtest "lack-middleware-auth-basic"
+(deftest lack-middleware-auth-basic
   (let ((app
           (builder
-           (:auth-basic :authenticator (lambda (user pass)
+           (:auth/basic :authenticator (lambda (user pass)
                                          (and (string= user "hoge")
                                               (string= pass "fuga"))))
            (lambda (env)
@@ -20,18 +17,18 @@
     (generate-env "/")
     (destructuring-bind (status headers body)
         (funcall app (generate-env "/"))
-      (is status 401)
-      (is body '("Authorization required"))
-      (is (getf headers :www-authenticate) "Basic realm=restricted area"))
+      (ok (eql status 401))
+      (ok (equalp body '("Authorization required")))
+      (ok (equal (getf headers :www-authenticate) "Basic realm=restricted area")))
 
     (destructuring-bind (status headers body)
         (funcall app (generate-env "/"
                                    :headers
                                    `(("authorization" . ,(format nil "Basic ~A"
                                                                  (string-to-base64-string "wrong:auth"))))) )
-      (is status 401)
-      (is body '("Authorization required"))
-      (is (getf headers :www-authenticate) "Basic realm=restricted area"))
+      (ok (eql status 401))
+      (ok (equalp body '("Authorization required")))
+      (ok (equal (getf headers :www-authenticate) "Basic realm=restricted area")))
 
     (destructuring-bind (status headers body)
         (funcall app (generate-env "/"
@@ -39,10 +36,10 @@
                                    `(("authorization" . ,(format nil "Basic ~A"
                                                                  (string-to-base64-string "hoge:fuga"))))))
       (declare (ignore headers))
-      (is status 200)
-      (is body '("Hello, hoge")))))
+      (ok (eql status 200))
+      (ok (equalp body '("Hello, hoge"))))))
 
-(subtest "Use :remote-user"
+(deftest remote-user
   (let ((app
           (builder
            (:auth-basic :authenticator (lambda (user pass)
@@ -53,9 +50,9 @@
              `(200 () (,(format nil "Hello, ~A" (getf env :remote-user))))))))
     (destructuring-bind (status headers body)
         (funcall app (generate-env "/"))
-      (is status 401)
-      (is body '("Authorization required"))
-      (is (getf headers :www-authenticate) "Basic realm=restricted area"))
+      (ok (eql status 401))
+      (ok (equalp body '("Authorization required")))
+      (ok (equal (getf headers :www-authenticate) "Basic realm=restricted area")))
 
     (destructuring-bind (status headers body)
         (funcall app (generate-env "/"
@@ -63,7 +60,5 @@
                                    `(("authorization" . ,(format nil "Basic ~A"
                                                                  (string-to-base64-string "nitro_idiot:password"))))))
       (declare (ignore headers))
-      (is status 200)
-      (is body '("Hello, Eitaro Fukamachi")))))
-
-(finalize)
+      (ok (eql status 200))
+      (ok (equalp body '("Hello, Eitaro Fukamachi"))))))
