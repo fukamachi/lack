@@ -1,4 +1,5 @@
 (defpackage lack/component
+  (:nicknames :lack.component)
   (:use :cl)
   (:export :lack-component
            :call
