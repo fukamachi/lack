@@ -1,7 +1,6 @@
 # Lack, the core of Clack
 
-[![Build Status](https://travis-ci.org/fukamachi/lack.svg?branch=master)](https://travis-ci.org/fukamachi/lack)
-[![Coverage Status](https://coveralls.io/repos/fukamachi/lack/badge.svg?branch=master)](https://coveralls.io/r/fukamachi/lack)
+[![Build Status](https://github.com/fukamachi/lack/workflows/CI/badge.svg)](https://github.com/fukamachi/lack/actions/workflows/ci.yaml)
 
 Lack is a Common Lisp library which allows web applications to be constructed of modular components. It was originally a part of [Clack](https://github.com/fukamachi/clack), however it's going to be rewritten as an individual project since Clack v2 with performance and simplicity in mind.
 
@@ -19,7 +18,7 @@ This software is still BETA quality. The APIs are being finalized.
     '(200 (:content-type "text/plain") ("Hello, World"))))
 
 ;; `wrap` the app with middleware
-(setf *app* (funcall lack-middleware-session:*lack-middleware-session* *app*))
+(setf *app* (funcall lack/middleware/session:*lack-middleware-session* *app*))
 
 ;; to wrap with multiple middlewares at once, use lack's builder macro
 (setf *app*
@@ -117,10 +116,10 @@ An application may omit the third element (the body) when calling the responder.
             while chunk))))
 ```
 
-In case of that you would prefer a stream to a function, `lack.util.writer-stream` wraps the function and allows you to treat it as a stream:
+In case of that you would prefer a stream to a function, `lack/util/writer-stream` wraps the function and allows you to treat it as a stream:
 
 ```common-lisp
-(import 'lack.util.writer-stream:make-writer-stream)
+(import 'lack/util/writer-stream:make-writer-stream)
 
 (lambda (env)
   (lambda (responder)
@@ -163,8 +162,8 @@ Lack provides some bundle middlewares.
 * Lack.Middleware.Static
 
 ```common-lisp
-;; Using Lack.Middleware.Accesslog
-(funcall lack.middleware.accesslog:*lack-middleware-accesslog*
+;; Using lack/middleware/accesslog
+(funcall lack/middleware/accesslog:*lack-middleware-accesslog*
          *app*)
 ```
 
@@ -215,8 +214,8 @@ Typical builder syntax is like this:
 is syntactically equal to:
 
 ```common-lisp
-(funcall lack.middleware.foo:*lack-middleware-foo*
-         (funcall lack.middleware:bar:*lack-middleware-bar*
+(funcall lack/middleware/foo:*lack-middleware-foo*
+         (funcall lack/middleware/bar:*lack-middleware-bar*
                   *app*
                   :opt "val"))
 ```
