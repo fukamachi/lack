@@ -1,14 +1,15 @@
-(in-package :cl-user)
-(defpackage lack.middleware.session.store.memory
-  (:nicknames :lack.session.store.memory)
+(defpackage lack/middleware/session/store/memory
+  (:nicknames :lack.middleware.session.store.memory
+              :lack.session.store.memory
+              :lack/session/store/memory)
   (:use :cl
-        :lack.middleware.session.store)
+        :lack/middleware/session/store)
   (:export :memory-store
            :make-memory-store
            :fetch-session
            :store-session
            :remove-session))
-(in-package :lack.middleware.session.store.memory)
+(in-package :lack/middleware/session/store/memory)
 
 (defstruct (memory-store (:include store))
   (stash (make-hash-table :test 'equal))

@@ -1,11 +1,11 @@
-(in-package :cl-user)
-(defpackage lack.middleware.auth.basic
+(defpackage lack/middleware/auth/basic
+  (:nicknames :lack.middleware.auth.basic)
   (:use :cl)
   (:import-from :cl-base64
                 :base64-string-to-string)
   (:import-from :split-sequence
                 :split-sequence))
-(in-package :lack.middleware.auth.basic)
+(in-package :lack/middleware/auth/basic)
 
 (defparameter *lack-middleware-auth-basic*
   (lambda (app &key authenticator (realm "restricted area"))

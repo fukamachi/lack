@@ -1,10 +1,9 @@
-(in-package :cl-user)
-(defpackage lack.component
+(defpackage lack/component
   (:use :cl)
   (:export :lack-component
            :call
            :to-app))
-(in-package :lack.component)
+(in-package :lack/component)
 
 (defclass lack-component () ())
 

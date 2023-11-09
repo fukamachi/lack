@@ -1,12 +1,12 @@
-(in-package :cl-user)
-(defpackage lack.builder
+(defpackage lack/builder
+  (:nicknames :lack.builder)
   (:use :cl)
-  (:import-from :lack.component
+  (:import-from :lack/component
                 :to-app)
-  (:import-from :lack.util
+  (:import-from :lack/util
                 :find-middleware)
   (:export :builder))
-(in-package :lack.builder)
+(in-package :lack/builder)
 
 (defun clack-middleware-symbol-p (symbol)
   (and (symbolp symbol)

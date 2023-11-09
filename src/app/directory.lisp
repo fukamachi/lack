@@ -1,6 +1,7 @@
-(defpackage #:lack.app.directory
+(defpackage #:lack/app/directory
+  (:nicknames #:lack.app.directory)
   (:use #:cl)
-  (:import-from #:lack.app.file
+  (:import-from #:lack/app/file
                 #:lack-app-file
                 #:should-handle
                 #:serve-path)
@@ -13,7 +14,7 @@
   (:import-from #:quri
                 #:url-encode)
   (:export #:lack-app-directory))
-(in-package #:lack.app.directory)
+(in-package #:lack/app/directory)
 
 (defun html-encode (str)
   (ppcre:regex-replace-all

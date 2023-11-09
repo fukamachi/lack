@@ -1,8 +1,9 @@
-(in-package :cl-user)
-(defpackage lack.middleware.session.store.dbi
-  (:nicknames :lack.session.store.dbi)
+(defpackage lack/middleware/session/store/dbi
+  (:nicknames :lack.middleware.session.store.dbi
+              :lack.session.store.dbi
+              :lack/session/store/dbi)
   (:use :cl
-        :lack.middleware.session.store)
+        :lack/middleware/session/store)
   (:import-from :marshal
                 :marshal
                 :unmarshal)
@@ -17,7 +18,7 @@
            :fetch-session
            :store-session
            :remove-session))
-(in-package :lack.middleware.session.store.dbi)
+(in-package :lack/middleware/session/store/dbi)
 
 (defmacro with-db-connection (connection store &body body)
   `(let ((,connection (funcall (dbi-store-connector ,store))))

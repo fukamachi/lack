@@ -1,5 +1,5 @@
-(in-package :cl-user)
-(defpackage lack.media-type
+(defpackage lack/media-type
+  (:nicknames :lack.media-type)
   (:use :cl)
   (:import-from :quri
                 :url-decode-params)
@@ -11,8 +11,7 @@
            :media-type-sub-type
            :media-type-params
            :match-media-type))
-
-(in-package :lack.media-type)
+(in-package :lack/media-type)
 
 (defstruct (media-type (:constructor %make-media-type))
   main-type
