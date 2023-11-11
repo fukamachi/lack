@@ -1,4 +1,5 @@
 (defpackage lack/middleware/accesslog
+  (:nicknames :lack.middleware.accesslog)
   (:use :cl)
   (:import-from :lack/util
                 :funcall-with-cb
