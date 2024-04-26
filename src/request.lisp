@@ -43,28 +43,28 @@
 (in-package :lack/request)
 
 (defstruct (request (:constructor %make-request))
-  env
+  (env nil :type list)
 
-  method
-  script-name
-  path-info
-  server-name
-  server-port
-  server-protocol
-  uri
-  uri-scheme
-  remote-addr
-  remote-port
-  query-string
-  raw-body
-  content-length
-  content-type
-  headers
+  (method nil :type (or null keyword))
+  (script-name nil :type (or null string))
+  (path-info nil :type (or null string))
+  (server-name nil :type (or null string))
+  (server-port nil :type (or null integer))
+  (server-protocol nil :type (or null keyword))
+  (uri nil :type (or null string))
+  (uri-scheme nil :type (or null string keyword))
+  (remote-addr nil :type (or null string))
+  (remote-port nil :type (or null keyword integer))
+  (query-string nil :type (or null string))
+  (raw-body nil :type (or null stream))
+  (content-length nil :type (or null integer))
+  (content-type nil :type (or null string))
+  (headers nil :type (or null hash-table))
 
-  cookies
-  body-parameters
-  query-parameters
-  accept)
+  (cookies nil :type list)
+  (body-parameters nil :type list)
+  (query-parameters nil :type list)
+  (accept nil :type list))
 
 (declaim (inline request-has-body-p))
 (defun request-has-body-p (req)

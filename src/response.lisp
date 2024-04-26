@@ -19,11 +19,11 @@
 (defstruct (response
             (:constructor make-response (&optional status headers (body nil has-body)
                                          &aux (no-body (not has-body)))))
-  status
-  headers
-  body
-  no-body
-  set-cookies)
+  (status nil :type (integer 100 599))
+  (headers nil :type list)
+  (body nil :type (or vector pathname list))
+  (no-body nil :type boolean)
+  (set-cookies nil :type list))
 
 (defun finalize-response (res)
   (finalize-cookies res)
