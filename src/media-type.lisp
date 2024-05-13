@@ -14,9 +14,9 @@
 (in-package :lack/media-type)
 
 (defstruct (media-type (:constructor %make-media-type))
-  main-type
-  sub-type
-  params)
+  (main-type nil :type (or null string))
+  (sub-type nil :type (or null string))
+  (params nil :type list))
 
 (defun make-media-type (media-type-string)
   (let* ((media-type-pair (ppcre:split "\\s*[;]\\s*" media-type-string))
