@@ -5,6 +5,7 @@
   (:import-from :ironclad
                 :byte-array-to-hex-string
                 :random-data)
+  #-(or windows mswindows win32 cormanlisp)
   (:import-from :bordeaux-threads
 		:make-lock
 		:with-lock-held)
@@ -95,6 +96,7 @@
 ;; Patch to fix bug in cl-isaac.
 ;; When PR is accepted in cl-isaac, the code below can be removed
 
+#-(or windows mswindows win32 cormanlisp)
 (defun cl-isaac:rand32 (ctx)
   ;;(declare (optimize (speed 3) (safety 0)))
   (cond
@@ -106,6 +108,7 @@
      (aref (cl-isaac::isaac-ctx-randrsl ctx)
            (decf (cl-isaac::isaac-ctx-randcnt ctx))))))
 
+#-(or windows mswindows win32 cormanlisp)
 (defun cl-isaac:rand64 (ctx)
   ;;(declare (optimize (speed 3) (safety 0)))
   (cond
@@ -126,6 +129,7 @@
   (isaac:init-self-seed :count 5
                         :is64 #+:X86-64 t #-:X86-64 nil))
 
+#-(or windows mswindows win32 cormanlisp)
 (defvar *isaac-ctx-lock* (bordeaux-threads:make-lock))
 
 (defun generate-random-id ()
