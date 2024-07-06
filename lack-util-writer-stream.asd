@@ -6,4 +6,4 @@
                "babel")
   :components ((:file "src/util/writer-stream")))
 
-(register-system-packages "lack-util-write-stream" '(:lack.util.writer-stream))
+(register-system-packages "lack-util-writer-stream" '(:lack.util.writer-stream))
