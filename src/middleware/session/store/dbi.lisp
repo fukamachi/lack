@@ -20,6 +20,7 @@
            :remove-session))
 (in-package :lack/middleware/session/store/dbi)
 
+
 (defmacro with-db-connection (connection store &body body)
   `(let ((,connection (funcall (dbi-store-connector ,store))))
      (unwind-protect
@@ -37,13 +38,17 @@
                   (unmarshal (read-from-string
                               (utf-8-bytes-to-string (base64-string-to-usb8-array data))))))
   (record-timestamps nil :type boolean)
-  (table-name "sessions"))
+  (table-name       "sessions")
+  (data-column-name "session_data")
+  (id-column-name   "id"))
 
 (defmethod fetch-session ((store dbi-store) sid)
   (with-db-connection conn store
     (let* ((query (dbi:prepare conn
-                               (format nil "SELECT session_data FROM ~A WHERE id = ?"
-                                       (dbi-store-table-name store))))
+                               (format nil "SELECT ~A FROM ~A WHERE ~A = ?"
+                                       (dbi-store-data-column-name store)
+                                       (dbi-store-table-name store)
+                                       (dbi-store-id-column-name store))))
            (result (dbi:fetch (dbi:execute query (list sid)))))
       (if result
           (handler-case (funcall (dbi-store-deserializer store) (getf result :|session_data|))
@@ -67,8 +72,10 @@
     (let ((serialized-session (funcall (dbi-store-serializer store) session)))
       (dbi:with-transaction conn
         (let* ((query (dbi:prepare conn
-                                   (format nil "SELECT session_data FROM ~A WHERE id = ?"
-                                           (dbi-store-table-name store))))
+                                   (format nil "SELECT ~A FROM ~A WHERE ~A = ?"
+                                       (dbi-store-data-column-name store)
+                                       (dbi-store-table-name store)
+                                       (dbi-store-id-column-name store))))
                (current-session (getf (dbi:fetch (dbi:execute query (list sid))) :|session_data|)))
           (cond
             ;; Session exists but not changed
@@ -76,15 +83,19 @@
             ;; Session exists and is going to be changed
             (current-session
              (dbi:do-sql conn
-               (format nil "UPDATE ~A SET session_data = ?~:[~*~;, updated_at = '~A'~] WHERE id = ?"
+               (format nil "UPDATE ~A SET ~A = ?~:[~*~;, updated_at = '~A'~] WHERE ~A = ?"
                        (dbi-store-table-name store)
+                       (dbi-store-data-column-name store)
                        (dbi-store-record-timestamps store)
-                       (current-timestamp))
+                       (current-timestamp)
+                       (dbi-store-id-column-name store))
                (list serialized-session sid)))
             ;; New session
             (t
-             (dbi:do-sql conn (format nil "INSERT INTO ~A (id, session_data~:[~;, created_at, updated_at~]) VALUES (?, ?~:*~:[~*~;, '~A', ~:*'~A'~])"
+             (dbi:do-sql conn (format nil "INSERT INTO ~A (~A, ~A~:[~;, created_at, updated_at~]) VALUES (?, ?~:*~:[~*~;, '~A', ~:*'~A'~])"
                                       (dbi-store-table-name store)
+                                      (dbi-store-id-column-name store)
+                                      (dbi-store-data-column-name store)
                                       (dbi-store-record-timestamps store)
                                       (current-timestamp))
                (list sid serialized-session)))))))))
@@ -92,6 +103,7 @@
 (defmethod remove-session ((store dbi-store) sid)
   (with-db-connection conn store
     (dbi:do-sql conn
-      (format nil "DELETE FROM ~A WHERE id = ?"
-              (dbi-store-table-name store))
+      (format nil "DELETE FROM ~A WHERE ~A = ?"
+              (dbi-store-table-name store)
+              (dbi-store-id-column-name store))
       (list sid))))
