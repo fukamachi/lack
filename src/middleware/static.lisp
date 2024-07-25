@@ -8,7 +8,8 @@
   (:import-from :alexandria
                 :starts-with-subseq
                 :if-let)
-  (:export :*lack-middleware-static*))
+  (:export :*lack-middleware-static*
+           :call-app-file))
 (in-package :lack/middleware/static)
 
 (defparameter *lack-middleware-static*
