@@ -247,6 +247,18 @@ is syntactically equal to:
   *app*)
 ```
 
+## Session middleware table column names configuration
+
+If your session table cannot conform to the session middleware expectations, the session middleware column names need to be changed; two &key parameters exist to change them, namely `:data-column-name` and `:id-column-name`,
+
+```common-lisp
+(lack:builder
+   (:session
+       :data-column-name "my_session_data_column"
+       :id-column-name   "my_id_column")
+   *app*)
+```
+
 ## Using Lack in an existing Clack app
 
 Just replace `clack.builder:builder` by `lack:builder`, a superset of `clack.builder:builder`.
