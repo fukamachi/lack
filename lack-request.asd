@@ -9,7 +9,6 @@
   :components ((:module "src"
                 :components
                 ((:file "request" :depends-on ("media-type"))
-                 (:file "media-type"))))
-  :in-order-to ((test-op (test-op "t-lack-request"))))
+                 (:file "media-type")))))
 
 (register-system-packages "lack-request" '(:lack.request))

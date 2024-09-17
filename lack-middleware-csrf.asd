@@ -6,7 +6,6 @@
                "lack-util")
   :components ((:module "src"
                 :components
-                ((:file "middleware/csrf"))))
-  :in-order-to ((test-op (test-op "t-lack-middleware-csrf"))))
+                ((:file "middleware/csrf")))))
 
 (register-system-packages "lack-middleware-csrf" '(:lack.middleware.csrf))

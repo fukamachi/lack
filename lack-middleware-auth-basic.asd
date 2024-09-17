@@ -6,7 +6,6 @@
                "split-sequence")
   :components ((:module "src"
                 :components
-                ((:file "middleware/auth/basic"))))
-  :in-order-to ((test-op (test-op "t-lack-middleware-auth-basic"))))
+                ((:file "middleware/auth/basic")))))
 
 (register-system-packages "lack-middleware-auth-basic" '(:lack.middleware.auth.basic))

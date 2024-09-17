@@ -6,7 +6,6 @@
                "local-time")
   :components ((:module "src"
                 :components
-                ((:file "middleware/accesslog"))))
-  :in-order-to ((test-op (test-op "t-lack-middleware-accesslog"))))
+                ((:file "middleware/accesslog")))))
 
 (register-system-packages "lack-middleware-accesslog" '(:lack.middleware.accesslog))

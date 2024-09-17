@@ -7,7 +7,6 @@
                "alexandria")
   :components ((:module "src"
                 :components
-                ((:file "middleware/static"))))
-  :in-order-to ((test-op (test-op "t-lack-middleware-static"))))
+                ((:file "middleware/static")))))
 
 (register-system-packages "lack-middleware-static" '(:lack.middleware.static))
