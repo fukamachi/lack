@@ -21,6 +21,7 @@
                (symbol (print-error condition env (symbol-value output)))
                (stream (print-error condition env output))
                ((or pathname string)
+                (ensure-directories-exist output)
                 (with-open-file (out output
                                      :direction :output
                                      :external-format #+clisp charset:utf-8 #-clisp :utf-8
