@@ -13,7 +13,7 @@
 (in-package :lack/middleware/static)
 
 (defparameter *lack-middleware-static*
-  (lambda (app &key path (root #P"./"))
+  (lambda (app &key path (root #P"./") headers)
     (etypecase path
       (null app)
       (string
@@ -23,7 +23,8 @@
                (progn
                  (setf (getf env :path-info)
                        (subseq path-info (1- (length path))))
-                 (call-app-file root env))
+                 (call-app-file root env
+                                :headers headers))
                (funcall app env)))))
       (function
        (lambda (env)
@@ -31,9 +32,10 @@
           (if-let (new-path (funcall path path-info))
             (progn
               (setf (getf env :path-info) new-path)
-              (call-app-file root env))
+              (call-app-file root env
+                             :headers headers))
             (funcall app env)))))))
   "Middleware for serving static files")
 
-(defun call-app-file (root env)
-  (call (make-instance 'lack-app-file :root root) env))
+(defun call-app-file (root env &key headers)
+  (call (make-instance 'lack-app-file :root root :headers headers) env))

@@ -28,10 +28,12 @@
    (root :initarg :root
          :initform #P"./")
    (encoding :initarg :encoding
-             :initform "utf-8")))
+             :initform "utf-8")
+   (headers :initarg :headers
+            :initform '())))
 
 (defmethod call ((app lack-app-file) env)
-  (with-slots (file root encoding) app
+  (with-slots (file root encoding headers) app
     (handler-case
         (serve-path
           app
@@ -41,7 +43,8 @@
                            ;; remove "/"
                            (subseq (getf env :path-info) 1))
                        root)
-          encoding)
+          encoding
+          headers)
       (bad-request ()
         '(400 (:content-type "text/plain"
                :content-length 11)
@@ -73,8 +76,8 @@
          (error 'not-found))
         (t file)))))
 
-(defgeneric serve-path (app env file encoding)
-  (:method ((app lack-app-file) env file encoding)
+(defgeneric serve-path (app env file encoding &optional headers)
+  (:method ((app lack-app-file) env file encoding &optional headers)
     (let ((content-type (or (mimes:mime-lookup file)
                             "application/octet-stream"))
           (file-modified-at (or (file-write-date file)
@@ -95,5 +98,6 @@
           (:content-type ,content-type
            :content-length ,(file-length stream)
            :last-modified
-           ,(as-rfc-1123 file-modified-at))
+           ,(as-rfc-1123 file-modified-at)
+           ,@headers)
           ,file)))))
