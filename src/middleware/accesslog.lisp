@@ -13,18 +13,17 @@
 (in-package :lack/middleware/accesslog)
 
 (defparameter *lack-middleware-accesslog*
-  (let ((no-body '#:no-body))
-    (lambda (app &key
-              (logger
-               (lambda (output) (format t "~&~A~%" output)))
-              (formatter #'default-formatter))
-      (lambda (env)
-        (funcall-with-cb
-         app env
-         (lambda (res)
-           (funcall logger
-                    (funcall formatter env res (now)))
-           res)))))
+  (lambda (app &key
+                 (logger
+                  (lambda (output) (format t "~&~A~%" output)))
+                 (formatter #'default-formatter))
+    (lambda (env)
+      (funcall-with-cb
+       app env
+       (lambda (res)
+         (funcall logger
+                  (funcall formatter env res (now)))
+         res))))
   "Middleware for logging requests")
 
 (defvar *time-format*
