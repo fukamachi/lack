@@ -37,11 +37,14 @@
                 (return-from load-with-quicklisp (values))))))
       (uiop:symbol-call :ql :quickload system :silent t))))
 
-(defun find-package-or-load (package-name)
+(defun find-package-or-load (package-name &optional backward-compatible)
   (check-type package-name string)
   (let ((package (find-package package-name)))
     (or package
-        (let ((system-name (string-downcase (substitute #\- #\. package-name :test #'char=))))
+        (let ((system-name (string-downcase
+                            (substitute #\-
+                                        (if backward-compatible #\. #\/)
+                                        package-name :test #'char=))))
           (if (member :quicklisp *features*)
               (load-with-quicklisp system-name)
               (when (asdf:find-system system-name nil)
@@ -57,7 +60,7 @@
                         #.(string '#:lack.middleware.)
                         (substitute #\. #\- (symbol-name identifier))))
          (package (or (find-package-or-load package-name)
-                      (find-package-or-load backward-compatible-package-name))))
+                      (find-package-or-load backward-compatible-package-name t))))
     (unless package
       (error "Middleware ~S is not found" package-name))
     (let ((mw-symbol (intern (format nil "*~A*"
