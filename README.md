@@ -124,7 +124,7 @@ In case of that you would prefer a stream to a function, `lack/util/writer-strea
 (lambda (env)
   (lambda (responder)
     (let* ((writer (funcall responder '(200 (:content-type "application/json"))))
-           (stream (make-writer-function writer)))
+           (stream (make-writer-stream writer)))
       (loop for chunk = (fetch-something)
             do (write-sequence chunk stream)
             while chunk
