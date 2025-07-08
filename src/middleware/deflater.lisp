@@ -77,7 +77,8 @@
                        (let* ((writer (funcall responder (list status headers)))
                               (stream (make-writer-stream writer)))
                          (with-open-file (in body :element-type '(unsigned-byte 8))
-                           (salza2:gzip-stream in stream)))))
+                           (salza2:gzip-stream in stream))
+                         (finish-output stream))))
                     ((vector (unsigned-byte 8))
                      (list status
                            headers
