@@ -6,7 +6,7 @@
 (in-package #:lack/middleware/deflater)
 
 (defparameter *supported-algorithms*
-  '("gzip" "zstd"))
+  '("zstd" "gzip"))
 
 (defparameter *default-algorithm* "gzip")
 
@@ -15,24 +15,21 @@
        (string= prefix str :end2 (length prefix))))
 
 (defun parse-accept-encoding (accept-encoding)
-  (let ((algorithms (ppcre:split "\\s*,\\s*" (string-trim '(#\Space #\Newline #\Tab)
-                                                          accept-encoding))))
+  (let ((wanted-algorithms (ppcre:split "\\s*,\\s*" (string-trim '(#\Space #\Newline #\Tab)
+                                                                 accept-encoding))))
     (or (find-if (lambda (alg)
-                   (member alg *supported-algorithms* :test 'string=))
-                 algorithms)
+                   (member alg wanted-algorithms :test 'string=))
+                 *supported-algorithms*)
         (let ((sorted-algorithms
                 (sort
                  (remove nil
                          (mapcar (lambda (alg)
                                    (ppcre:register-groups-bind (alg quality)
                                        ("^(.+);q=([01](?:\\.[0-9]{0,3})?)$" alg)
-                                     (cons alg (read-from-string quality))))
-                                 (remove-if-not (lambda (alg)
-                                                  (or (starts-with "*" alg)
-                                                      (find-if (lambda (supported)
-                                                                 (starts-with supported alg))
-                                                               *supported-algorithms*)))
-                                                algorithms)))
+                                     (when (or (string= "*" alg)
+                                               (member alg *supported-algorithms* :test 'string=))
+                                       (cons alg (read-from-string quality)))))
+                                 wanted-algorithms))
                  #'>
                  :key #'cdr)))
           (loop for (alg . nil) in sorted-algorithms
