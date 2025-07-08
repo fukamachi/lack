@@ -3,6 +3,7 @@
   :author "Eitaro Fukamachi"
   :license "MIT"
   :depends-on ("salza2"
+               "zstd"
                "trivial-mimes"
                "babel"
                "cl-ppcre"
