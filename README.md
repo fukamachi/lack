@@ -325,12 +325,12 @@ Transfer/sec:      1.10MB
 
 ## Frameworks built on Clack/Lack
 
-* [Caveman2](https://github.com/fukamachi/caveman)
-* [ningle](https://github.com/fukamachi/ningle)
-* [Utopian](https://github.com/fukamachi/utopian) - Experimental
-* [Reblocks](https://github.com/40ants/reblocks)
+* [Caveman2](https://github.com/fukamachi/caveman) - Inactive, but commonly used
 * [Vinland](https://github.com/lisplizards/vinland)
+* [Reblocks](https://github.com/40ants/reblocks)
+* [ningle](https://github.com/fukamachi/ningle) - Super micro web framework
 * [Ninglex](https://github.com/defunkydrummer/ninglex)
+* [Utopian](https://github.com/fukamachi/utopian) - Experimental
 * [Lucerne](https://github.com/eudoxia0/lucerne) - Not maintained anymore
 
 ## Author
