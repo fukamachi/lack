@@ -329,6 +329,7 @@ Transfer/sec:      1.10MB
 * [Vinland](https://github.com/lisplizards/vinland)
 * [Reblocks](https://github.com/40ants/reblocks)
 * [ningle](https://github.com/fukamachi/ningle) - Super micro web framework
+* [jingle](https://github.com/dnaeon/cl-jingle)
 * [Ninglex](https://github.com/defunkydrummer/ninglex)
 * [Utopian](https://github.com/fukamachi/utopian) - Experimental
 * [Lucerne](https://github.com/eudoxia0/lucerne) - Not maintained anymore
