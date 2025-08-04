@@ -1,14 +1,9 @@
 (defpackage lack/util
   (:nicknames :lack.util)
   (:use :cl)
-  #+(or windows mswindows win32 cormanlisp)
   (:import-from :ironclad
                 :byte-array-to-hex-string
                 :random-data)
-  #-(or windows mswindows win32 cormanlisp)
-  (:import-from :bordeaux-threads
-		:make-lock
-		:with-lock-held)
   (:export :find-package-or-load
            :find-middleware
            :funcall-with-cb
@@ -96,56 +91,7 @@
           ((vector (unsigned-byte 8))
            (length body))))))
 
-;; Patch to fix bug in cl-isaac.
-;; When PR is accepted in cl-isaac, the code below can be removed
-
-#-(or windows mswindows win32 cormanlisp)
-(defun cl-isaac:rand32 (ctx)
-  ;;(declare (optimize (speed 3) (safety 0)))
-  (cond
-    ((zerop (cl-isaac::isaac-ctx-randcnt ctx))
-     (cl-isaac::generate-next-isaac-block ctx)
-     (setf (cl-isaac::isaac-ctx-randcnt ctx) 255)
-     (aref (cl-isaac::isaac-ctx-randrsl ctx) 255))
-    (t
-     (aref (cl-isaac::isaac-ctx-randrsl ctx)
-           (decf (cl-isaac::isaac-ctx-randcnt ctx))))))
-
-#-(or windows mswindows win32 cormanlisp)
-(defun cl-isaac:rand64 (ctx)
-  ;;(declare (optimize (speed 3) (safety 0)))
-  (cond
-    ((zerop (cl-isaac::isaac64-ctx-randcnt ctx))
-     (cl-isaac::generate-next-isaac64-block ctx)
-     (setf (cl-isaac::isaac64-ctx-randcnt ctx) 255)
-     (aref (cl-isaac::isaac64-ctx-randrsl ctx) 255))
-    (t
-     (aref (cl-isaac::isaac64-ctx-randrsl ctx)
-           (decf (cl-isaac::isaac64-ctx-randcnt ctx))))))
-
-;; End of cl-isaac patch
-
-;; cl-isaac supports ISAAC-64 solely for implementations with x86-64
-;; capabilities. Use whichever-best supported capability
-#-(or windows mswindows win32 cormanlisp)
-(defparameter *isaac-ctx*
-  (isaac:init-self-seed :count 5
-                        :is64 #+:X86-64 t #-:X86-64 nil))
-
-#-(or windows mswindows win32 cormanlisp)
-(defvar *isaac-ctx-lock* (bordeaux-threads:make-lock))
-
 (defun generate-random-id ()
   "Generates a random token."
-  #+(or windows mswindows win32 cormanlisp)
   (ironclad:byte-array-to-hex-string
-    (ironclad:random-data 20))
-  #-(or windows mswindows win32 cormanlisp)
-  (format nil "~(~40,'0x~)"
-	  (let ((output-string NIL))
-	    (bordeaux-threads:with-lock-held (*isaac-ctx-lock*)
-	      (setf output-string
-		    (#+:X86-64 isaac:rand-bits-64
-		     #-:X86-64 isaac:rand-bits
-		     *isaac-ctx* 160)))
-	    output-string)))
+    (ironclad:random-data 20)))
