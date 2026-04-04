@@ -98,6 +98,18 @@
       (ok (getf headers :set-cookie)
           "Set-Cookie header exists")
       (ok (equalp body '("hi")) "body"))
+    ;; session fixation: valid-format but unknown session ID must not be reused
+    (let ((attacker-sid "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa0"))
+      (destructuring-bind (status headers body)
+          (funcall app (generate-env "/" :cookies `(("lack.session" . ,attacker-sid))))
+        (ok (eql status 200) "status")
+        (let ((new-sid (ppcre:scan-to-strings "(?<=lack.session=)[^;]+"
+                                              (getf headers :set-cookie ""))))
+          (ok (getf headers :set-cookie) "Set-Cookie header exists for unknown SID")
+          (ok (and (typep new-sid 'string)
+                   (string/= new-sid attacker-sid))
+              "new session ID must differ from attacker-supplied ID"))
+        (ok (equalp body '("hi")) "body")))
 
     ;; expires
     (destructuring-bind (status headers body)
