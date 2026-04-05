@@ -26,7 +26,8 @@
       (let* ((sid (extract-sid state env))
              (session (and sid
                            (fetch-session store sid)))
-             (sid (or sid
+             (sid (if session
+                      sid
                       (generate-sid state env)))
              (new-session-p (not session))
              (session (or session (make-hash-table :test 'equal))))
