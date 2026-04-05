@@ -37,7 +37,7 @@
                 (usb8-array-to-base64-string
                  (string-to-utf-8-bytes (prin1-to-string (marshal data))))))
   (deserializer (lambda (data)
-                  (unmarshal (read-from-string
+                  (unmarshal (safe-read-from-string
                               (utf-8-bytes-to-string (base64-string-to-usb8-array data))))))
 
   connection)
@@ -74,7 +74,10 @@
           (error (e)
             (warn "Error (~A) occured while deserializing a session. Ignoring.~2%    Data:~%        ~A~2%    Error:~%        ~A"
                   (class-name (class-of e))
-                  data
+                  (let ((s (or data "")))
+                    (if (> (length s) 200)
+                        (concatenate 'string (subseq s 0 200) "... [truncated]")
+                        s))
                   e)
             nil))
         nil)))
