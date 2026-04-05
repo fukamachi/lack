@@ -74,7 +74,10 @@
           (error (e)
             (warn "Error (~A) occured while deserializing a session. Ignoring.~2%    Data:~%        ~A~2%    Error:~%        ~A"
                   (class-name (class-of e))
-                  data
+                  (let ((s (or data "")))
+                    (if (> (length s) 200)
+                        (concatenate 'string (subseq s 0 200) "... [truncated]")
+                        s))
                   e)
             nil))
         nil)))
