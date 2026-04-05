@@ -51,11 +51,11 @@
                                        (dbi-store-id-column-name store))))
            (result (dbi:fetch (dbi:execute query (list sid)))))
       (if result
-          (handler-case (funcall (dbi-store-deserializer store) (getf result :|session_data|))
+          (handler-case (funcall (dbi-store-deserializer store) (getf result (intern (string-downcase (dbi-store-data-column-name store)) :keyword)))
             (error (e)
               (warn "Error (~A) occured while deserializing a session. Ignoring.~2%    Data:~%        ~A~2%    Error:~%        ~A"
                     (class-name (class-of e))
-                    (getf result :|session_data|)
+                    (getf result (intern (string-downcase (dbi-store-data-column-name store)) :keyword))
                     e)
               nil))
          nil))))
@@ -76,7 +76,7 @@
                                        (dbi-store-data-column-name store)
                                        (dbi-store-table-name store)
                                        (dbi-store-id-column-name store))))
-               (current-session (getf (dbi:fetch (dbi:execute query (list sid))) :|session_data|)))
+               (current-session (getf (dbi:fetch (dbi:execute query (list sid))) (intern (string-downcase (dbi-store-data-column-name store)) :keyword))))
           (cond
             ;; Session exists but not changed
             ((equal current-session serialized-session))
