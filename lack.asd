@@ -74,9 +74,11 @@
                  (:file "accesslog")))
                (:module "session"
                 :components
-                ((:module "store"
+                ((:file "store")
+                 (:module "store-backends"
+                  :pathname "store"
                   :components
                   ((:file "dbi")
                    #+todo
-                   (:file "redis"))))))
+                   (:file "redis")))))))
   :perform (test-op (op c) (symbol-call :rove :run c)))
