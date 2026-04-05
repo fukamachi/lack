@@ -37,7 +37,7 @@
                 (usb8-array-to-base64-string
                  (string-to-utf-8-bytes (prin1-to-string (marshal data))))))
   (deserializer (lambda (data)
-                  (unmarshal (read-from-string
+                  (unmarshal (safe-read-from-string
                               (utf-8-bytes-to-string (base64-string-to-usb8-array data))))))
 
   connection)
