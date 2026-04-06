@@ -80,5 +80,5 @@
                   :components
                   ((:file "dbi")
                    #+todo
-                   (:file "redis")))))))
+                   (:file "redis"))))))
   :perform (test-op (op c) (symbol-call :rove :run c)))
