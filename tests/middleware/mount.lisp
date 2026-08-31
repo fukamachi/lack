@@ -64,3 +64,32 @@
              response))))
     (dolist (path (list "/mount1" "/mount2/test" "/test"))
       (funcall app (generate-env path))))))
+
+(deftest script-name
+  (macrolet ((is-script-name (env expected &optional comment)
+               `(ok (equal (getf ,env :script-name)
+                           ,expected)
+                    ,@(when comment (list comment)))))
+    (let* ((response '(200 () ("ok")))
+           (app
+             (builder
+              (:mount "/mount1"
+                      (lambda (env)
+                        (is-script-name env "/mount1" "exact match.")
+                        response))
+              (:mount "/mount2"
+                      (builder
+                       (:mount "/sub"
+                               (lambda (env)
+                                 (is-script-name env "/mount2/sub" "nested mount.")
+                                 response))
+                       (lambda (env)
+                         (is-script-name env "/mount2" "subseq match.")
+                         response)))
+              (lambda (env)
+                (is-script-name env "" "root app (not mounted).")
+                response))))
+      (dolist (path (list "/mount1" "/mount2/test" "/mount2/sub/deep" "/test"))
+        (funcall app (generate-env path))))))
+
+
