@@ -30,6 +30,7 @@
            :request-query-string
            :request-raw-body
            :request-content-length
+           :request-content-encoding
            :request-content-type
            :request-headers
            :request-cookies
@@ -71,6 +72,10 @@
   (or (request-content-length req)
       (string= (gethash "transfer-encoding" (request-headers req)) "chunked")))
 
+(defun request-content-encoding (req)
+  (let ((headers (request-headers req)))
+    (and (hash-table-p headers) (gethash "content-encoding" headers))))
+
 (defun make-request (env)
   (let ((req (apply #'%make-request :env env :allow-other-keys t env)))
     (with-slots (method uri uri-scheme) req
@@ -109,8 +114,11 @@
         ;; POST parameters
         (when (and (null body-parameters)
                    (request-has-body-p req)
-                   (stringp content-type))
-          (let ((parsed (http-body:parse content-type content-length raw-body)))
+                   (stringp content-type)
+                   (let ((encoding (request-content-encoding req)))
+                     (or (null encoding)
+                         (string-equal encoding "identity"))))
+          (let ((parsed (handler-case (http-body:parse content-type content-length raw-body) (error () nil))))
             (when (and (consp parsed)
                        (every #'consp parsed))
               (setf body-parameters parsed)))
