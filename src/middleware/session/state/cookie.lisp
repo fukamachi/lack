@@ -22,7 +22,7 @@
 (defstruct (cookie-state (:include state))
   (path "/" :type string)
   (domain nil :type (or string null))
-  (expires (get-universal-time) :type integer)
+  (expires nil :type (or integer null))
   (secure nil :type boolean)
   (httponly nil :type boolean)
   (cookie-key "lack.session" :type string)
@@ -52,13 +52,14 @@
 
   (let ((res (apply #'make-response res))
         (options (with-slots (path domain expires secure httponly samesite) state
-                   (list :path path
-                         :domain domain
-                         :secure secure
-                         :httponly httponly
-                         :samesite samesite
-                         :expires (+ (get-universal-time)
-                                     (getf options :expires expires))))))
+                   (let ((expire-delta (getf options :expires expires)))
+                     (list :path path
+                           :domain domain
+                           :secure secure
+                           :httponly httponly
+                           :samesite samesite
+                           :expires (when expire-delta
+                                      (+ (get-universal-time) expire-delta)))))))
     (setf (getf (response-set-cookies res) (cookie-state-cookie-key state))
           `(:value ,sid ,@options))
     (finalize-response res)))

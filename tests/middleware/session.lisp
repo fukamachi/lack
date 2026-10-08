@@ -128,8 +128,9 @@
       (ok (getf headers :set-cookie)
           "Set-Cookie header exists")
       (let ((cookie (cookie:parse-set-cookie-header (getf headers :set-cookie) "" "")))
-        (ok (> (cookie:cookie-expires cookie)
-               (get-universal-time))
+        (ok (or (null (cookie:cookie-expires cookie))
+                (> (cookie:cookie-expires cookie)
+                   (get-universal-time)))
             "new session is not expired"))
       (ok (equalp body '("hi")) "body")))
 
@@ -189,4 +190,60 @@
       (destructuring-bind (status headers body)
           (funcall app (generate-env "/"))
         (declare (ignore status body))
-        (ok (ppcre:scan "^_myapp_cookie=" (getf headers :set-cookie)))))))
+        (ok (ppcre:scan "^_myapp_cookie=" (getf headers :set-cookie))))))
+
+  (testing "session cookie with :expires nil (browser session cookie)"
+    (let ((app (builder
+                (:session :state (lack.session.state.cookie:make-cookie-state
+                                  :expires nil))
+                (lambda (env)
+                  (declare (ignore env))
+                  '(200 () ("hi"))))))
+      (destructuring-bind (status headers body)
+          (funcall app (generate-env "/"))
+        (declare (ignore status body))
+        (let ((set-cookie (getf headers :set-cookie)))
+          (ok set-cookie "Set-Cookie header exists")
+          (ng (ppcre:scan "(?i)expires=" set-cookie)
+              "session cookie with :expires nil should omit expires attribute")
+          (let ((cookie (cookie:parse-set-cookie-header set-cookie "" "")))
+            (ok (null (cookie:cookie-expires cookie))
+                "parsed cookie should have no expires attribute"))))))
+
+  (testing "default session cookie should not expire in the distant future"
+    (let ((app (builder
+                :session
+                (lambda (env)
+                  (declare (ignore env))
+                  '(200 () ("hi"))))))
+      (destructuring-bind (status headers body)
+          (funcall app (generate-env "/"))
+        (declare (ignore status body))
+        (let* ((set-cookie (getf headers :set-cookie))
+               (cookie (cookie:parse-set-cookie-header set-cookie "" "")))
+          (ok set-cookie "Set-Cookie header exists")
+          (if (cookie:cookie-expires cookie)
+              (ok (< (- (cookie:cookie-expires cookie) (get-universal-time))
+                     (* 60 60 24 365))
+                  "cookie expiration must not be more than 1 year in the future")
+              (pass "default session cookie has no expires attribute"))))))
+
+  (testing "session cookie with explicit integer :expires"
+    (let ((app (builder
+                (:session :state (lack.session.state.cookie:make-cookie-state
+                                  :expires 86400))
+                (lambda (env)
+                  (declare (ignore env))
+                  '(200 () ("hi"))))))
+      (destructuring-bind (status headers body)
+          (funcall app (generate-env "/"))
+        (declare (ignore status body))
+        (let* ((set-cookie (getf headers :set-cookie))
+               (cookie (cookie:parse-set-cookie-header set-cookie "" "")))
+          (ok set-cookie "Set-Cookie header exists")
+          (ok (cookie:cookie-expires cookie)
+              "cookie with explicit :expires has an expires attribute")
+          (ok (> (cookie:cookie-expires cookie) (get-universal-time))
+              "cookie expires in the future")
+          (ok (<= (- (cookie:cookie-expires cookie) (get-universal-time)) 86400)
+              "cookie expires within 86400 seconds"))))))
