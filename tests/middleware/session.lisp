@@ -5,6 +5,10 @@
         :lack/test))
 (in-package :lack/tests/middleware/session)
 
+(defun response-cookie (headers)
+  ;; Newer cl-cookie signals on an empty origin host.
+  (cookie:parse-set-cookie-header (getf headers :set-cookie) "localhost" "/"))
+
 (deftest session-middleware
   (ok (lack/session/state:make-state)
       "Base class of session state")
@@ -117,7 +121,7 @@
       (ok (eql status 200) "status")
       (ok (getf headers :set-cookie)
           "Set-Cookie header exists")
-      (let ((cookie (cookie:parse-set-cookie-header (getf headers :set-cookie) "" "")))
+      (let ((cookie (response-cookie headers)))
         (ok (<= (cookie:cookie-expires cookie) (get-universal-time)) "session expired"))
       (ok (equalp body '("hi")) "body"))
 
@@ -127,7 +131,7 @@
       (ok (eql status 200) "status")
       (ok (getf headers :set-cookie)
           "Set-Cookie header exists")
-      (let ((cookie (cookie:parse-set-cookie-header (getf headers :set-cookie) "" "")))
+      (let ((cookie (response-cookie headers)))
         (ok (> (cookie:cookie-expires cookie)
                (get-universal-time))
             "new session is not expired"))
@@ -157,7 +161,7 @@
                (lambda (result)
                  (destructuring-bind (status headers body) result
                    (declare (ignore status body))
-                   (let ((cookie (cookie:parse-set-cookie-header (getf headers :set-cookie) "" "")))
+                   (let ((cookie (response-cookie headers)))
                      (ok (equal (cookie:cookie-value cookie) session)
                          "Set-Cookie header is for existing session")
                      (ok (<= (cookie:cookie-expires cookie) (get-universal-time))
