@@ -46,7 +46,7 @@
 
 (defun danger-method-p (request-method)
   (member request-method
-          '(:POST :PUT :DELETE :PATCH)
+          '(:post :put :delete :patch)
           :test #'eq))
 
 (defun valid-token-p (env)
