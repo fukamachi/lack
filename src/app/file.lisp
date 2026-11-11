@@ -40,6 +40,12 @@
        (null (pathname-device pathname))
        (member (first (pathname-directory pathname)) '(nil :relative))))
 
+(defun strip-leading-slash (path-info)
+  ;; Drops one slash only, so "//etc/passwd" stays absolute and is rejected.
+  (if (starts-with-subseq "/" path-info)
+      (subseq path-info 1)
+      path-info))
+
 (defun request-pathname (path)
   "Parse PATH from a request as a relative pathname, or signal an error."
   (when (escapes-root-p path)
@@ -72,7 +78,7 @@
           (locate-file app
                        (or file
                            (request-pathname
-                             (subseq (getf env :path-info) 1)))
+                             (strip-leading-slash (getf env :path-info))))
                        root)
           encoding
           headers)
