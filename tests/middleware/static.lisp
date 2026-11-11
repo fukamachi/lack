@@ -140,6 +140,14 @@
             (ok (rejected-p "/public/NO-SUCH-HOST:x.txt")))
           (ok (rejected-p "/public/SYS:SRC;CODE;TARGET-PATHNAME.LISP"))
           (ok (rejected-p "/public/SYS:")))
+        (testing "trailing slash on a file"
+          (ok (eql (status "/public/jellyfish.jpg/") 404))
+          (ok (eql (status "/public/jellyfish.jpg//") 404))
+          (let ((directory-app (make-instance 'lack/app/directory:lack-app-directory
+                                              :root root)))
+            (ok (eql (first (lack/component:call directory-app
+                                                 (generate-env "/jellyfish.jpg/")))
+                     404))))
         (testing "files under root are still served"
           (ok (eql (status "/public/jellyfish.jpg") 200))
           (ok (eql (status "/public/./jellyfish.jpg") 200)))))))

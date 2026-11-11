@@ -100,6 +100,10 @@
       (cond
         ((position #\Null (namestring file))
          (error 'bad-request))
+        ;; "a.txt/" names a directory, so it must not serve the file a.txt.
+        ((and (uiop:directory-pathname-p file)
+              (not (uiop:directory-exists-p file)))
+         (error 'not-found))
         ((not (should-handle app file))
          (error 'not-found))
         (t file)))))
