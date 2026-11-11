@@ -80,7 +80,21 @@
         (ok (equal (namestring body)
                    (namestring (asdf:system-relative-pathname :lack #P"data/jellyfish.jpg")))))
 
-      (ok (eql (car (funcall app (generate-env "/static/not-found.png"))) 404))))
+      (ok (eql (car (funcall app (generate-env "/static/not-found.png"))) 404)))
+
+    (testing "the function returns a path without the leading slash"
+      (let ((app
+              (builder
+               (:static :path (lambda (path-info)
+                                (when (starts-with-subseq "/static" path-info)
+                                  (string-left-trim "/" (subseq path-info #.(length "/static")))))
+                :root (asdf:system-relative-pathname :lack #P"data/"))
+               (lambda (env)
+                 (declare (ignore env))
+                 `(200 (:content-type "text/plain") ("ok"))))))
+        (ok (eql (car (funcall app (generate-env "/static"))) 404))
+        (ok (eql (car (funcall app (generate-env "/static/"))) 404))
+        (ok (eql (car (funcall app (generate-env "/static/jellyfish.jpg"))) 200)))))
 
   (testing "special character in path-info"
     (let ((app
