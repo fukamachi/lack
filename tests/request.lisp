@@ -56,16 +56,19 @@
       (lambda (env)
         (make-request env)
         `(200 nil (,(third (assoc "file" (request-body-parameters (make-request env)) :test #'string=)))))
-    (multiple-value-bind (body status)
-        (dex:post (localhost)
-                  :content
-                  `(("file" . ,(asdf:system-relative-pathname :lack #P"data/jellyfish.jpg"))))
-      (ok (eql status 200))
-      (ok (equal body "jellyfish.jpg")))
+    ;; dexador reads HTTP_PROXY but not NO_PROXY, so a proxy set in the
+    ;; environment would receive these requests to localhost.
+    (let ((dex:*default-proxy* nil))
+      (multiple-value-bind (body status)
+          (dex:post (localhost)
+                    :content
+                    `(("file" . ,(asdf:system-relative-pathname :lack #P"data/jellyfish.jpg"))))
+        (ok (eql status 200))
+        (ok (equal body "jellyfish.jpg")))
 
-    (multiple-value-bind (body status)
-        (dex:post (localhost)
-                  :content
-                  `(("file" . ,(asdf:system-relative-pathname :lack #P"data/jellyfish.jpg"))))
-      (ok (eql status 200))
-      (ok (equal body "jellyfish.jpg")))))
+      (multiple-value-bind (body status)
+          (dex:post (localhost)
+                    :content
+                    `(("file" . ,(asdf:system-relative-pathname :lack #P"data/jellyfish.jpg"))))
+        (ok (eql status 200))
+        (ok (equal body "jellyfish.jpg"))))))
