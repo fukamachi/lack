@@ -14,13 +14,18 @@
           (cond
             ((string= path-info path)
              (setf (getf env :path-info) "/")
+             (setf (getf env :script-name)
+                   (format nil "~A~A" (or (getf env :script-name) "") path))
              (funcall (to-app mount-app) env))
             ((and (< len (length path-info))
                   (string= path-info path :end1 len)
                   (char= (aref path-info len) #\/))
              (setf (getf env :path-info)
                    (subseq path-info (length path)))
+             (setf (getf env :script-name)
+                   (format nil "~A~A" (or (getf env :script-name) "") path))
              (funcall (to-app mount-app) env))
             (t
              (funcall app env)))))))
   "Middleware for attaching another Lack application on a specific URL")
+
