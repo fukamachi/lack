@@ -185,3 +185,22 @@
       (call-with-lack-test-host
        (lambda ()
          (ng (funcall plain-relative-p (logical-pathname "LACK-TEST:LACK.ASD"))))))))
+
+(deftest directory-app
+  (let ((app (make-instance 'lack/app/directory:lack-app-directory
+                            :root (asdf:system-relative-pathname :lack ""))))
+    (flet ((request (path-info)
+             (lack/component:call app (generate-env path-info))))
+      (testing "a directory without the trailing slash redirects"
+        (destructuring-bind (status headers body) (request "/data")
+          (declare (ignore body))
+          (ok (eql status 301))
+          (ok (equal (getf headers :location) "data/")))
+        (destructuring-bind (status headers body) (request "/data/.")
+          (declare (ignore body))
+          (ok (eql status 301))
+          (ok (equal (getf headers :location) "./"))))
+      (testing "a directory with the trailing slash is listed"
+        (ok (eql (first (request "/data/")) 200)))
+      (testing "a file is served"
+        (ok (eql (first (request "/data/file.txt")) 200))))))
