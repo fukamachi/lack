@@ -7,6 +7,13 @@
                 :starts-with-subseq))
 (in-package :lack/tests/middleware/static)
 
+(defun call-with-lack-test-host (fn)
+  "Call FN with the logical host LACK-TEST mapped to the lack source tree."
+  (setf (logical-pathname-translations "LACK-TEST")
+        `(("**;*.*.*" ,(asdf:system-relative-pathname :lack #P"**/*.*"))))
+  (unwind-protect (funcall fn)
+    (setf (logical-pathname-translations "LACK-TEST") nil)))
+
 (deftest static-middleware
   (testing ":path is string"
     (let ((app
@@ -79,4 +86,73 @@
                (declare (ignore env))
                `(200 (:content-type "text/plain") ("ok"))))))
       (ok (eql (first (funcall app (generate-env "/static/?broken=yup"))) 404))
-      (ok (eql (first (funcall app (generate-env "/static/%3Fbroken=yup"))) 404)))))
+      (ok (eql (first (funcall app (generate-env "/static/%3Fbroken=yup"))) 404))))
+
+  (testing "path traversal"
+    (let* ((root (asdf:system-relative-pathname :lack #P"data/"))
+           (outside (asdf:system-relative-pathname :lack #P"LICENSE"))
+           (app
+             (builder
+              (:static :path "/public/" :root root)
+              (lambda (env)
+                (declare (ignore env))
+                `(200 (:content-type "text/plain") ("app"))))))
+      (labels ((status (path-info)
+                 (first (funcall app (generate-env path-info))))
+               (rejected-p (path-info)
+                 ;; 404 where a logical host is part of a plain file name,
+                 ;; 400 where it parses as a host (CCL on Windows).
+                 (member (status path-info) '(400 404))))
+        (ok (probe-file outside))
+        (testing "parent directory"
+          (ok (eql (status "/public/../LICENSE") 400)))
+        (testing "backslash-escaped parent directory"
+          (ok (eql (status "/public/\\.\\./LICENSE") 400))
+          (ok (eql (status "/public/\\.\\./\\.\\./lack/LICENSE") 400)))
+        (testing "absolute path after the prefix"
+          (ok (eql (status (format nil "/public/~A" (namestring outside))) 400)))
+        (testing "home directory"
+          (ok (eql (status "/public/~/.bashrc") 400))
+          (ok (eql (status "/public/~root/.bashrc") 400)))
+        (testing "NUL byte"
+          (ok (eql (status (format nil "/public/jellyfish.jpg~C" #\Null)) 400)))
+        (testing "wildcard characters"
+          (ok (eql (status "/public/*.jpg") 404))
+          (ok (eql (status "/public/jellyfish.jp[g") 404)))
+        (testing "logical pathname host"
+          (call-with-lack-test-host
+           (lambda ()
+             (ok (rejected-p "/public/LACK-TEST:LACK.ASD"))
+             (ok (rejected-p "/public/lack-test:lack.asd"))
+             (ok (rejected-p "/public/LACK-TEST:"))
+             (testing "\";\" as the logical directory separator"
+               (ok (rejected-p (format nil "/public/~{~A;~}~A"
+                                       (rest (pathname-directory outside))
+                                       (file-namestring outside)))))))
+          (testing "undefined logical host"
+            (ok (rejected-p "/public/NO-SUCH-HOST:x.txt")))
+          (ok (rejected-p "/public/SYS:SRC;CODE;TARGET-PATHNAME.LISP"))
+          (ok (rejected-p "/public/SYS:")))
+        (testing "files under root are still served"
+          (ok (eql (status "/public/jellyfish.jpg") 200))
+          (ok (eql (status "/public/./jellyfish.jpg") 200)))))))
+
+(deftest plain-relative-pathname
+  (let ((plain-relative-p #'lack/app/file::plain-relative-pathname-p))
+    (testing "relative pathnames pass"
+      (ok (funcall plain-relative-p #P"jellyfish.jpg"))
+      (ok (funcall plain-relative-p
+                   (make-pathname :directory '(:relative "dir") :name "a" :type "txt"))))
+    (testing "absolute pathname"
+      (ng (funcall plain-relative-p #P"/etc/passwd")))
+    (testing "Windows drive"
+      (ng (funcall plain-relative-p
+                   (make-pathname :device "C" :directory '(:absolute "Windows")
+                                  :name "win" :type "ini")))
+      (ng (funcall plain-relative-p
+                   (make-pathname :device "C" :directory '(:relative "Windows")
+                                  :name "win" :type "ini"))))
+    (testing "logical pathname"
+      (call-with-lack-test-host
+       (lambda ()
+         (ng (funcall plain-relative-p (logical-pathname "LACK-TEST:LACK.ASD"))))))))

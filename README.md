@@ -167,6 +167,8 @@ Lack provides some bundle middlewares.
          *app*)
 ```
 
+Lack.Middleware.Static follows symbolic links under `:root`. Don't extract untrusted archives into the directory.
+
 ### Using Lack.Builder
 
 Lack.Builder gives you a quick DSL to wrap your application with Lack middlewares.

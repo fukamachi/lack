@@ -22,6 +22,37 @@
 (define-condition bad-request (simple-condition) ())
 (define-condition not-found (simple-condition) ())
 
+(defun escapes-root-p (path)
+  (or (find-if (lambda (c) (find c '(#\Null #\\))) path)
+      (starts-with-subseq "/" path)
+      ;; CCL's native parser expands it to the home directory.
+      (starts-with-subseq "~" path)
+      (member ".." (uiop:split-string path :separator "/") :test #'string=)))
+
+(defun wild-path-p (path)
+  ;; Rejects real files such as "photo[1].jpg" too: where UIOP has no native
+  ;; parser and the OS is not Unix, these characters parse as wildcards.
+  (find-if (lambda (c) (find c '(#\* #\? #\[ #\]))) path))
+
+(defun plain-relative-pathname-p (pathname)
+  "True if PATHNAME is relative and has no drive and no logical host."
+  (and (not (typep pathname 'logical-pathname))
+       (null (pathname-device pathname))
+       (member (first (pathname-directory pathname)) '(nil :relative))))
+
+(defun request-pathname (path)
+  "Parse PATH from a request as a relative pathname, or signal an error."
+  (when (escapes-root-p path)
+    (error 'bad-request))
+  (when (wild-path-p path)
+    (error 'not-found))
+  (let ((pathname (handler-case (uiop:parse-native-namestring path)
+                    ;; CCL on Windows reads "x:" as an undefined logical host.
+                    (error () (error 'bad-request)))))
+    (unless (plain-relative-pathname-p pathname)
+      (error 'bad-request))
+    pathname))
+
 (defclass lack-app-file (lack-component)
   ((file :initarg :file
          :initform nil)
@@ -40,8 +71,8 @@
           env
           (locate-file app
                        (or file
-                           ;; remove "/"
-                           (subseq (getf env :path-info) 1))
+                           (request-pathname
+                             (subseq (getf env :path-info) 1)))
                        root)
           encoding
           headers)
