@@ -87,12 +87,9 @@
 
 (defgeneric should-handle (app file)
   (:method ((app lack-app-file) file)
-    (and (ignore-errors
-           ;; Ignore simple-file-error in a case that
-           ;; the file path contains some special characters like "?".
-           ;; See https://github.com/fukamachi/clack/issues/111
-           (uiop:file-exists-p file))
-         (not (uiop:directory-exists-p file)))))
+    ;; The truename of a directory is in directory form, so one probe
+    ;; tells a file from a directory.
+    (uiop:file-pathname-p (uiop:probe-file* file :truename t))))
 
 (defgeneric locate-file (app path root)
   (:method ((app lack-app-file) path root)

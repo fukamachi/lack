@@ -36,6 +36,13 @@
         (ok (eql status 404))
         (ok (equalp body '("Not Found"))))
 
+      (testing "a directory is not served"
+        (ok (eql (first (funcall app (generate-env "/public/"))) 404))
+        (let ((file-app (make-instance 'lack/app/file:lack-app-file
+                                       :root (asdf:system-relative-pathname :lack ""))))
+          (ok (eql (first (lack/component:call file-app (generate-env "/data"))) 404))
+          (ok (eql (first (lack/component:call file-app (generate-env "/data/file.txt"))) 200))))
+
       (destructuring-bind (status headers body)
           (funcall app (generate-env "/"))
         (ok (eql status 200))
