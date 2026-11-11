@@ -36,6 +36,7 @@
                "lack/test"
                "lack/util"
                "lack/middleware/static"
+               "lack/app/directory"
                "lack/middleware/accesslog"
                "lack/middleware/session"
                "lack/middleware/mount"

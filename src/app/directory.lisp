@@ -97,17 +97,26 @@ tr, td { white-space: nowrap; }
   (or (uiop:file-exists-p (merge-pathnames #P"index.html" path))
       (uiop:file-exists-p (merge-pathnames #P"index.htm" path))))
 
+(defun redirect-to-directory (path-info)
+  ;; A relative Location works under any mount point, and the listing's
+  ;; relative links need the trailing slash.
+  (let ((last-segment (subseq path-info (1+ (or (position #\/ path-info :from-end t) -1)))))
+    `(301 (:location ,(format nil "~A/" (quri:url-encode last-segment))) ())))
+
 (defmethod serve-path ((app lack-app-directory) env file encoding &optional headers)
   (declare (ignore headers))
-  (if (uiop:directory-pathname-p file)
-      (let ((index-file (index-file-exists-p file)))
-        (if index-file
-            (call-next-method app env index-file encoding)
-            `(200 nil (,(dir-page
-                          (getf env :path-info)
-                          (format nil "~A~{~A~}"
-                                  (dir-file (merge-pathnames "../" file)
-                                            :uri ".."
-                                            :name "Parent Directory")
-                                  (mapcar #'dir-file (list-directory file))))))))
-      (call-next-method)))
+  (cond
+    ((uiop:directory-pathname-p file)
+     (let ((index-file (index-file-exists-p file)))
+       (if index-file
+           (call-next-method app env index-file encoding)
+           `(200 nil (,(dir-page
+                         (getf env :path-info)
+                         (format nil "~A~{~A~}"
+                                 (dir-file (merge-pathnames "../" file)
+                                           :uri ".."
+                                           :name "Parent Directory")
+                                 (mapcar #'dir-file (list-directory file)))))))))
+    ((uiop:directory-exists-p file)
+     (redirect-to-directory (getf env :path-info)))
+    (t (call-next-method))))
